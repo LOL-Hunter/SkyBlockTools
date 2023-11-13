@@ -1,0 +1,196 @@
+{
+    "aatrox": {
+        "special": false,
+        "key": "slayer",
+        "perks": [
+            {
+                "description": "Starting slayer quests is ehalf price.",
+                "name": "SLASHED Pricing"
+            },
+            {
+                "description": "Gain rare drops 20% more often.",
+                "name": "Pathfinder"
+            },
+            {
+                "description": "Earn d25% more Slayer XP.",
+                "name": "Slayer XP Buff"
+            }
+        ]
+    },
+    "cole": {
+        "special": false,
+        "key": "mining",
+        "perks": [
+            {
+                "description": "Schedules two Mining Fiesta events during the year!",
+                "name": "Mining Fiesta"
+            },
+            {
+                "description": "Earn 1.5x mining experience on public islands.",
+                "name": "Mining XP Buff"
+            },
+            {
+                "description": "Mining minions work 25% faster.",
+                "name": "Prospection"
+            }
+        ]
+    },
+    "diana": {
+        "special": false,
+        "key": "pets",
+        "perks": [
+            {
+                "description": "Gain d+25 Pet Luck.",
+                "name": "Lucky!"
+            },
+            {
+                "description": "Mayor Diana will sell the Griffin pet, which lets you find Mythological Creatures and tons of eunique items.",
+                "name": "Mythological Ritual"
+            },
+            {
+                "description": "Gain d35% more pet XP.",
+                "name": "Pet XP Buff"
+            }
+        ]
+    },
+    "diaz": {
+        "special": false,
+        "key": "economist",
+        "perks": [
+            {
+                "description": "Gain 25% more bank interest.",
+                "name": "Barrier Street"
+            },
+            {
+                "description": "Increase daily NPC buy limits by e10x.",
+                "name": "Shopping Spree"
+            }
+        ]
+    },
+    "finnegan": {
+        "special": false,
+        "key": "farming",
+        "perks": [
+            {
+                "description": "Jacob's Farming Contest brackets include 10% more players each.",
+                "name": "GOATed"
+            },
+            {
+                "description": "Obtain 1.5x more 5pelts from Trevor in the Mushroom Desert, hunt a new trapper mob, and purchase items from a new trapper shop.",
+                "name": "Pelt-pocalypse"
+            },
+            {
+                "description": "There is a 25% chance for Mathematical Hoes and the Cultivating Enchantment to count twice.",
+                "name": "Farming Simulator"
+            }
+        ]
+    },
+    "foxy": {
+        "special": false,
+        "key": "events",
+        "perks": [
+            {
+                "description": "Schedules an extra Fishing Festival event during the year.",
+                "name": "Extra Event"
+            },
+            {
+                "description": "Gain c2.5x gifts from the attack event on Jerry's Workshop.",
+                "name": "Benevolence"
+            },
+            {
+                "description": "Grants +20% chance to get Candy from mobs during the Spooky Festival.",
+                "name": "Sweet Tooth"
+            }
+        ]
+    },
+    "marina": {
+        "special": false,
+        "key": "fishing",
+        "perks": [
+            {
+                "description": "Start a special fishing event the first 3 days of each month!",
+                "name": "Fishing Festival"
+            },
+            {
+                "description": "Gain 15 Sea Creature Chance.",
+                "name": "Luck of the Sea 2.0"
+            },
+            {
+                "description": "Gain +50 Fishing Wisdom on public islands.",
+                "name": "Fishing XP Buff"
+            }
+        ]
+    },
+    "paul": {
+        "special": false,
+        "key": "dungeons",
+        "perks": [
+            {
+                "description": "Blessings are d25% stronger.",
+                "name": "Benediction"
+            },
+            {
+                "description": "Gain e10 bonus score on dungeon runs.",
+                "name": "EZPZ"
+            },
+            {
+                "description": "Dungeon reward chests are e20% cheaper.",
+                "name": "Marauder"
+            }
+        ]
+    },
+    "jerry": {
+        "special": true,
+        "key": "jerry",
+        "perks": [
+            {
+                "description": "Activates all perks of another mayor every 18 SkyBlock days [6 hours].",
+                "name": "Perkpocalypse"
+            },
+            {
+                "description": "Increases most stats by 10%.",
+                "name": "Statspocalypse"
+            },
+            {
+                "description": "Reveal hidden Jerries from logging, farming, mining and killing mobs.",
+                "name": "Jerrypocalypse"
+            }
+        ]
+    },
+    "scorpius": {
+        "special": true,
+        "key": "shady",
+        "perks": [
+            {
+                "description": "If Scorpius wins and you voted for him, Mayor Scorpius will offer you coins as a token of gratitude.",
+                "name": "Bribe"
+            },
+            {
+                "description": "Scorpius will intrude in Dark Auctions, increasing the amount of rounds to 7 and offering special items.",
+                "name": "Darker Auctions"
+            }
+        ]
+    },
+    "derpy": {
+        "special": true,
+        "key": "derp",
+        "perks": [
+            {
+                "description": "Minions have double the output!",
+                "name": "TURBO MINIONS!!!"
+            },
+            {
+                "description": "The Auction House will be closed while Derpy is elected!",
+                "name": "AH CLOSED!!!"
+            },
+            {
+                "description": "ALL monsters have double health!",
+                "name": "DOUBLE MOBS HP!!!"
+            },
+            {
+                "description": "Gain d+50% more skill experience!",
+                "name": "MOAR SKILLZ!!!"
+            }
+        ]
+    }
+}
