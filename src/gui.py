@@ -1,25 +1,24 @@
 # -*- coding: iso-8859-15 -*-
-from hyPI.constants import BazaarItemID, AuctionItemID
-from hyPI.hypixelAPI import fileLoader, APILoader, HypixelBazaarParser
-from hyPI.skyCoflnetAPI import SkyConflnetAPI
-from hyPI._parsers import MayorData, BazaarHistory
-from pysettings.jsonConfig import JsonConfig
-from pysettings import tk, iterDict
-
 import os
-from pytz import timezone
 from datetime import datetime, timedelta
-from time import sleep, time
+from hyPI._parsers import MayorData, BazaarHistory
+from hyPI.constants import BazaarItemID, AuctionItemID
+from hyPI.skyCoflnetAPI import SkyConflnetAPI
+from pysettings import tk, iterDict
+from pysettings.jsonConfig import JsonConfig
 from threading import Thread
+from time import sleep, time
 from typing import List
-from matplotlib.figure import Figure
-from matplotlib.axes import Axes
 
-from constants import STYLE_GROUP as SG, LOAD_STYLE
-from widgets import CompleterEntry
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
+from pytz import timezone
+
 from analyzer import getPlotData
+from constants import STYLE_GROUP as SG, LOAD_STYLE
 from skyMath import getPlotTicksFromInterval, parseTimeDelta
 from skyMisc import modeToBazaarAPIFunc, prizeToStr
+from widgets import CompleterEntry
 
 IMAGES = os.path.join(os.path.split(__file__)[0], "images")
 CONFIG = os.path.join(os.path.split(__file__)[0], "config")
@@ -72,7 +71,7 @@ class APIRequest:
     def __init__(self, page:CustomMenuPage, tkMaster:tk.Tk | tk.Toplevel):
         self._tkMaster = tkMaster
         self._page = page
-        self.dots = 0
+        self._dots = 0
         self._dataAvailable = False
         self._hook = None
         self._waitingLabel = tk.Label(self._page, SG).setText("Waiting for API response").setFont(16).placeRelative(fixY=100, centerX=True, changeHeight=-40, changeWidth=-40, fixX=40)
@@ -86,16 +85,16 @@ class APIRequest:
         Thread(target=self._requestAPI).start()
     def _updateWaitingForAPI(self):
         timer = time()
-        self.dots = 0
+        self._dots = 0
         while True:
             if self._dataAvailable: break
             sleep(.2)
             if time()-timer >= 1:
-                if self.dots >=3:
-                    self.dots = 0
+                if self._dots >= 3:
+                    self._dots = 0
                 else:
-                    self.dots += 1
-                self._waitingLabel.setText("Waiting for API response"+"."*self.dots)
+                    self._dots += 1
+                self._waitingLabel.setText("Waiting for API response"+"."*self._dots)
             self._tkMaster.update()
     def setRequestAPIHook(self, hook):
         self._hook = hook
@@ -235,7 +234,7 @@ class MayorInfoPage(CustomMenuPage):
         }
         self.dataText_ref.setText(f"\n".join([f"{k} {v}" for k, v in iterDict(dataContent)]))
 
-        out=""
+        out = ""
         for perk in self.mayorData[name]["perks"]:
             name_ = perk["name"]
             desc = perk["description"]
