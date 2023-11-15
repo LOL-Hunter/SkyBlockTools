@@ -52,11 +52,23 @@ def getMedianExponent(prizes:list)->Tuple[int, str] | Tuple[None, None]:
         if exponent > 5:
             return None, None
     return exponent, prefixList[exponent]
+
+
+class TimeDelta:
+    def __init__(self, day, hours, minutes, seconds):
+        self.day = day
+        self.hour = hours
+        self.minute = minutes
+        self.second = seconds
+
+
+
+
 def parseTimeDelta(td):
     minutes = (td.seconds//60) % 60
-    now = datetime.now()
     day = td.days
     hour = td.seconds//3600
     minute = minutes
     seconds = td.seconds % 60
-    return datetime(now.year, now.month, day, hour, minute, seconds)
+    print(day)
+    return TimeDelta(day, hour, minute, seconds)
