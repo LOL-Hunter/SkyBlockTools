@@ -4,6 +4,87 @@ import os
 
 
 
+class CustomPage(tk.MenuPage):
+    """
+    Custom Content Page. Uses the tk MenuPage to act as a Menu-page with history.
+    Offers a build in Title set with: 'pageTitle' in __init__
+    Toggleable Back-Button to get to the previous menu page.
+    Toggleable Home-Button to get to the home menu page.
+
+    Set the 'buttonText' parameter to select witch text should be displayed on the Menu-Button to this Page.
+
+    place all widgets to build in content widget! -> 'contentFrame'
+
+    """
+    def __init__(self, master, pageTitle:str="", buttonText:str="", showBackButton=True, showTitle=True, showHomeButton=True, **kwargs):
+        super().__init__(master, SG)
+        self._buttonText = buttonText
+        self._pageTitle = pageTitle
+        self.master = master
+        self.contentFrame = tk.Frame(self, SG)
+        if showTitle and pageTitle is not None:
+            self._titleL = tk.Label(self, SG).setFont(16).setText(pageTitle).placeRelative(centerX=True, fixHeight=30, fixY=10)
+        if showBackButton:
+            tk.Button(self, SG).setText("<Back").setCommand(self.openLastMenuPage).placeRelative(stickDown=True, fixWidth=100, fixHeight=40)
+        if showHomeButton:
+            tk.Button(self, SG).setText("Home").setCommand(self._home).placeRelative(stickDown=True, stickRight=True, fixWidth=100, fixHeight=40)
+    def _home(self):
+        self.master.mainMenuPage._menuData["history"] = [self.master.mainMenuPage]
+        self.placeForget()
+        self.master.mainMenuPage.openMenuPage()
+    def setPageTitle(self, t:str):
+        self._titleL.setText(t)
+    def placeContentFrame(self):
+        self.contentFrame.placeRelative(fixY=40, changeHeight=-40)
+    def hideContentFrame(self):
+        self.contentFrame.placeForget()
+    def getButtonText(self):
+        return self._pageTitle if self._buttonText is None else self._buttonText
+    def customShow(self, page):
+        """
+        Overwrite if you want custom show:
+        per example:
+        self.openNextMenuPage(self.master.searchPage,
+                                                  input=[BazaarItemID],
+                                                  msg="Search in Bazaar: (At least tree characters)",
+                                                  next_page=self.master.itemInfoPage)
+
+        except it will be :
+
+        @return: if 1 continue to next page
+        """
+        return 1
+class CustomMenuPage(CustomPage):
+    """
+    Menu Page with build in Menu button control.
+
+    """
+    def __init__(self, master, pageTitle:str="", buttonText:str="", showBackButton=True, showTitle=True, **kwargs):
+        super().__init__(master, pageTitle, buttonText, showBackButton=showBackButton, showTitle=showTitle, **kwargs)
+        self.master = master
+    def _run(self, e:tk.Event):
+        """
+        Opens the right page!
+
+        @param e:
+        @return:
+        """
+        menuButton = e.getArgs(0)
+
+        if menuButton.customShow(self) is None: return
+        if isinstance(menuButton, tk.MenuPage):
+            self.openNextMenuPage(menuButton)
+        else: raise()
+    def onShow(self):
+        """
+        triggerd from backend on show page!
+        @return:
+        """
+        self.placeRelative()
+
+
+
+
 class CompleterEntry(tk.Entry):
     def __init__(self, _master):
         if isinstance(_master, dict):

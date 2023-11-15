@@ -9,7 +9,7 @@ class Color:
 
 
 STYLE_GROUP = tk.WidgetGroup()
-STYLE_GROUP.addCommand("setBg", Color.COLOR_DARK)
+STYLE_GROUP.addCommand("setBg", Color.COLOR_DARK, ignoreErrors=True)
 STYLE_GROUP.addCommand("setFg", Color.COLOR_WHITE, ignoreErrors=True)
 STYLE_GROUP.addCommand("setActiveBg", Color.COLOR_GRAY, ignoreErrors=True)
 STYLE_GROUP.addCommand("setSlotBgDefault", Color.COLOR_DARK, ignoreErrors=True)

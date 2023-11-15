@@ -18,57 +18,21 @@ from analyzer import getPlotData
 from constants import STYLE_GROUP as SG, LOAD_STYLE
 from skyMath import getPlotTicksFromInterval, parseTimeDelta
 from skyMisc import modeToBazaarAPIFunc, prizeToStr
-from widgets import CompleterEntry
+from widgets import CompleterEntry, CustomPage, CustomMenuPage
 
 IMAGES = os.path.join(os.path.split(__file__)[0], "images")
 CONFIG = os.path.join(os.path.split(__file__)[0], "config")
 
-class Tool(tk.Frame):
-    def __init__(self, master, name):
-        super().__init__(master, SG)
-        self._name = name
-    def getName(self):
-        return self._name
-    def show(self):
-        pass
-class ItemBazaarInfoTool(Tool):
-    def __init__(self, master):
-        super().__init__(master, "Bazaar item info")
-        self.master: Window = master
-    def show(self):
-        """
-        opens the SearchPage and configures the next page.
-
-        @return:
-        """
-        self.master.mainMenuPage.openNextMenuPage(self.master.searchPage,
-                                                  input=[BazaarItemID],
-                                                  msg="Search in Bazaar: (At least tree characters)",
-                                                  next_page=self.master.itemInfoPage)
-class MayorInfoTool(Tool):
-    def __init__(self, master):
-        super().__init__(master, "Mayor Info")
-        self.master: Window = master
-    def show(self):
-        self.master.mainMenuPage.openNextMenuPage(self.master.mayorInfoPage)
-
-class CustomMenuPage(tk.MenuPage):
-    def __init__(self, master, title:str, showBackButton=True, showTitle=True, **kwargs):
-        super().__init__(master, SG)
-        self.contentFrame = tk.Frame(self, SG)
-        if showTitle:
-            self._title = tk.Label(self, SG).setFont(16).setText(title).placeRelative(centerX=True, fixHeight=30, fixY=10)
-        if showBackButton:
-            tk.Button(self, SG).setText("<Back").setCommand(self.openLastMenuPage).placeRelative(stickDown=True, fixWidth=100, fixHeight=40)
-    def setTitle(self, t:str):
-        self._title.setText(t)
-    def placeContentFrame(self):
-        self.contentFrame.placeRelative(fixY=40, changeHeight=-40)
-    def hideContentFrame(self):
-        self.contentFrame.placeForget()
-
 class APIRequest:
-    def __init__(self, page:CustomMenuPage, tkMaster:tk.Tk | tk.Toplevel):
+    """
+    This class handles the threaded API requests.
+    Showing "Waiting for API response..." while waiting for response.
+
+    Perform API Request in API-hook-method -> set 'setRequestAPIHook'
+    start the API request by using 'startAPIRequest'
+
+    """
+    def __init__(self, page, tkMaster:tk.Tk | tk.Toplevel):
         self._tkMaster = tkMaster
         self._page = page
         self._dots = 0
@@ -76,6 +40,11 @@ class APIRequest:
         self._hook = None
         self._waitingLabel = tk.Label(self._page, SG).setText("Waiting for API response").setFont(16).placeRelative(fixY=100, centerX=True, changeHeight=-40, changeWidth=-40, fixX=40)
     def startAPIRequest(self):
+        """
+        starts the API request and run threaded API-hook-method.
+
+        @return:
+        """
         assert self._hook is not None, "REQUEST HOOK IS NONE!"
         self._dataAvailable = False
         self._page.hideContentFrame()
@@ -83,6 +52,15 @@ class APIRequest:
         self._waitingLabel.update()
         Thread(target=self._updateWaitingForAPI).start()
         Thread(target=self._requestAPI).start()
+    def setRequestAPIHook(self, hook):
+        """
+        set Function.
+        Perform API-request in bound method.
+
+        @param hook:
+        @return:
+        """
+        self._hook = hook
     def _updateWaitingForAPI(self):
         timer = time()
         self._dots = 0
@@ -96,8 +74,6 @@ class APIRequest:
                     self._dots += 1
                 self._waitingLabel.setText("Waiting for API response"+"."*self._dots)
             self._tkMaster.update()
-    def setRequestAPIHook(self, hook):
-        self._hook = hook
     def _requestAPI(self):
         self._hook() # request API
         self._dataAvailable = True
@@ -108,9 +84,10 @@ class APIRequest:
         self._tkMaster.updateDynamicWidgets()
         self._tkMaster.update()
 
-class MayorInfoPage(CustomMenuPage):
+# Info/Content Pages
+class MayorInfoPage(CustomPage):
     def __init__(self, master):
-        super().__init__(master, "Mayor Info Page")
+        super().__init__(master, pageTitle="Mayor Info Page", buttonText="Mayor Info")
         self.master: Window = master
         self.currentMayorEnd = None
         Thread(target=self.updateTimer).start()
@@ -313,19 +290,9 @@ class MayorInfoPage(CustomMenuPage):
             self.timeLabel.setText(self.parseTime(parseTimeDelta(delta)))
     def loadMayorImages(self):
         images = {}
-        pathRegularMayor = os.path.join(IMAGES, "mayors", "regular")
-        pathSpecialMayor = os.path.join(IMAGES, "mayors", "special")
-        for fName in os.listdir(pathRegularMayor):
-            path = os.path.join(pathRegularMayor, fName)
-            name = fName.split(".")[0]
-
-            image = tk.PILImage.loadImage(path)
-            image.resizeTo(500, 1080)
-            image.resize(.2, useOriginal=False)
-            image.preRender()
-            images[name] = image
-        for fName in os.listdir(pathSpecialMayor):
-            path = os.path.join(pathSpecialMayor, fName)
+        pathMayor = os.path.join(IMAGES, "mayors")
+        for fName in os.listdir(pathMayor):
+            path = os.path.join(pathMayor, fName)
             name = fName.split(".")[0]
             image = tk.PILImage.loadImage(path)
             image.resizeTo(500, 1080)
@@ -340,9 +307,9 @@ class MayorInfoPage(CustomMenuPage):
     def onShow(self, **kwargs):
         self.placeRelative()
         self.api.startAPIRequest()
-class ItemInfoPage(CustomMenuPage):
+class ItemInfoPage(CustomPage):
     def __init__(self, master):
-        super().__init__(master, "Info of Item: []")
+        super().__init__(master, pageTitle="Info of Item: []", buttonText="Bazaar Item Info")
         self.master: Window = master
         self.selectedMode = "hour"
         self.selectedItem = None
@@ -451,11 +418,17 @@ class ItemInfoPage(CustomMenuPage):
         self.api.startAPIRequest()
     def onShow(self, **kwargs):
         self.selectedMode = "hour"
-        self.setTitle(f"Info of Item: [{kwargs['itemName']}]")
+        self.setPageTitle(f"Info of Item: [{kwargs['itemName']}]")
         self.selectedItem = kwargs['itemName']
         self.placeRelative()
         self.api.startAPIRequest()
-class SearchPage(CustomMenuPage):
+    # custom! with search
+    def customShow(self, page):
+        page.openNextMenuPage(self.master.searchPage,
+                         input=[BazaarItemID],
+                         msg="Search in Bazaar: (At least tree characters)",
+                         next_page=self)
+class SearchPage(CustomPage):
     def __init__(self, master):
         super().__init__(master, SG)
         self.master:Window = master
@@ -464,8 +437,9 @@ class SearchPage(CustomMenuPage):
         self.searchInput = [BazaarItemID, AuctionItemID]
         self.msg = "Search: (At least tree characters)"
         self.nextPage = None
+        self.forceType = ""
         ####################
-        self.setTitle(self.msg)
+        self.setPageTitle(self.msg)
 
         self.entry = CompleterEntry(self)
         self.entry.bind(self.clear, tk.EventType.RIGHT_CLICK)
@@ -476,70 +450,145 @@ class SearchPage(CustomMenuPage):
         self.entry.closeListbox()
         self.entry.clear()
     def onUserInputEvent(self, e):
+        def getType(_type)->str:
+            if "BazaarItemID" in str(_type):
+                return "Bazaar Item"
+            elif "AuctionItemID" in str(_type):
+                return "Auction Item"
+            else: return _type
         value = self.entry.getValue()
         suggestions = []
+        _searchInput = self.searchInput
+        if isinstance(self.searchInput, dict):
+            _searchInput = self.searchInput.values()
+
         if len(value) >= 3:
-            if BazaarItemID in self.searchInput:
-                for bzItem in BazaarItemID:
-                    if value in bzItem.value.lower():
-                        suggestions.append(f"{bzItem.value.lower()} - Bazaar Item")
-            if AuctionItemID in self.searchInput:
-                for ahItem in AuctionItemID:
-                    if value in ahItem.value.lower():
-                        suggestions.append(f"{ahItem.value.lower()} - Auction Item")
+            for i, searchList in enumerate(_searchInput):
+                if isinstance(self.searchInput, dict):
+                    type_ = getType(list(self.searchInput.keys())[i])
+                elif isinstance(self.searchInput, list) and len(self.searchInput) == 1:
+                    type_ = getType(_searchInput[0])
+                else:
+                    raise Exception(f"Invalid search input! {self.searchInput}")
+                for item in searchList:
+                    itemName = item.value if hasattr(item, "value") else item
+                    itemName = itemName.replace("_", " ")
+                    show=True
+                    for valPice in value.split(" "):
+                        if valPice not in itemName.lower():
+                            show = False
+                    if show:
+                        if type_ is None: suggestions.append(f"{itemName.lower()}")
+                        else: suggestions.append(f"{itemName.lower()} - {type_}")
+
         return suggestions
     def onSelectEvent(self, e):
         value = e.getValue()
         if value is not None and value != "None":
             value = value.split(" - ")[0]
+            value = value.replace(" ", "_")
             self.openNextMenuPage(self.nextPage, itemName=value.upper())
     def onShow(self, **kwargs):
+        if kwargs["next_page"] != self.nextPage:
+            self.entry.clear()
         self.nextPage = kwargs["next_page"] if "next_page" in kwargs.keys() else self.nextPage
         self.searchInput = kwargs["input"] if "input" in kwargs.keys() else self.searchInput
         self.msg = kwargs["msg"] if "msg" in kwargs.keys() else self.msg
-        self.setTitle(self.msg)
+        self.forceType = kwargs["forceType"] if "forceType" in kwargs.keys() else self.forceType
+        self.setPageTitle(self.msg)
         self.placeRelative()
         self.entry.setFocus()
+class EnchantingBookBazaarProfitPage(CustomPage):
+    def __init__(self, master):
+        super().__init__(master, pageTitle="Book Combine Profit Page", buttonText="Book Combine Profit")
+
+        self.api = APIRequest(self, self.getTkMaster())
+        self.api.setRequestAPIHook(self.requestAPIHook)
+    def requestAPIHook(self):
+
+        return
+    def onShow(self, **kwargs):
+        self.placeRelative()
+        self.api.startAPIRequest()
+class EnchantingBookBazaarCheapestPage(CustomPage):
+    def __init__(self, master):
+        super().__init__(master, pageTitle="Cheapest Book Craft Page", buttonText="Cheapest Book Craft")
+
+        self.enchantments = [i for i in BazaarItemID if i.value.startswith("enchantment".upper())]
+
+        self.api = APIRequest(self, self.getTkMaster())
+        self.api.setRequestAPIHook(self.requestAPIHook)
+    def requestAPIHook(self):
+        return
+    def onShow(self, **kwargs):
+        self.placeRelative()
+        self.api.startAPIRequest()
+    def customShow(self, page):
+        page.openNextMenuPage(self.master.searchPage,
+                         input={"Enchantment":self.enchantments},
+                         msg="Search EnchantedBook in Bazaar: (At least tree characters)",
+                         next_page=self)
+
+# Menu Pages
 class MainMenuPage(CustomMenuPage):
-    def __init__(self, master, tools:List[Tool]):
-        super().__init__(master, SG, showBackButton=False, showTitle=False, homeScreen=True)
-        self.master: Window = master
-        self._tools = tools
+    def __init__(self, master, tools:List[CustomMenuPage | CustomPage]):
+        super().__init__(master, showBackButton=False, showTitle=False, homeScreen=True, showHomeButton=False)
         self.image = tk.PILImage.loadImage(os.path.join(IMAGES, "logo.png"))
         self.image.preRender()
         self.title = tk.Label(self, SG).setImage(self.image).placeRelative(centerX=True, fixHeight=self.image.getHeight(), fixWidth=self.image.getWidth(), fixY=25)
-        self.buttons = []
-        for i, tool in enumerate(tools):
-            self.buttons.append(tk.Button(self, SG).setFont(16).setText(tool.getName()).setCommand(self._run, args=[tool.show]).placeRelative(centerX=True, fixY=50*i+300, fixWidth=300, fixHeight=50))
-    def _run(self, e:tk.Event):
-        """
-        Opens the right page!
 
-        @param e:
-        @return:
-        """
-        func = e.getArgs(0)
-        func()
-    def onShow(self):
-        self.placeRelative()
+        self.playerHead1 = tk.PILImage.loadImage(os.path.join(IMAGES, "lol_hunter.png"))
+        self.playerHead2 = tk.PILImage.loadImage(os.path.join(IMAGES, "glaciodraco.png"))
+
+        self.playerHead1.resizeTo(32, 32)
+        self.playerHead2.resizeTo(32, 32)
+
+        self.playerHead1.preRender()
+        self.playerHead2.preRender()
+
+        tk.Label(self, SG).setText("Made by").placeRelative(stickRight=True, stickDown=True, fixHeight=25, fixWidth=100, changeY=-40, changeX=-25)
+        
+        self.pl1L = tk.Label(self, SG).setImage(self.playerHead1)
+        self.pl2L = tk.Label(self, SG).setImage(self.playerHead2)
+        self.pl1L.attachToolTip("LOL_Hunter", waitBeforeShow=0, group=SG)
+        self.pl2L.attachToolTip("glaciodraco", waitBeforeShow=0, group=SG)
+        self.pl1L.placeRelative(stickRight=True, stickDown=True, fixHeight=self.playerHead1.getHeight(), fixWidth=self.playerHead1.getHeight(), changeY=-10, changeX=-10)
+        self.pl2L.placeRelative(stickRight=True, stickDown=True, changeY=-self.playerHead1.getWidth()-10*2, fixHeight=self.playerHead1.getHeight(), fixWidth=self.playerHead1.getHeight(), changeX=-10)
+        
+
+        for i, tool in enumerate(tools):
+            tk.Button(self, SG).setFont(16).setText(tool.getButtonText()).setCommand(self._run, args=[tool]).placeRelative(centerX=True, fixY=50 * i + 300, fixWidth=300, fixHeight=50)
+class EnchantingMenuPage(CustomMenuPage):
+    def __init__(self, master, tools: List[CustomMenuPage | CustomPage]):
+        super().__init__(master, pageTitle="Enchanting Menu", buttonText="Enchanting Menu", showTitle=True)
+
+        for i, tool in enumerate(tools):
+            tk.Button(self, SG).setFont(16).setText(tool.getButtonText()).setCommand(self._run, args=[tool]).placeRelative(centerX=True, fixY=50 * i + 50, fixWidth=300, fixHeight=50)
+class InfoMenuPage(CustomMenuPage):
+    def __init__(self, master, tools: List[CustomMenuPage | CustomPage]):
+        super().__init__(master, pageTitle="Information Menu", buttonText="Information Menu", showTitle=True)
+
+        for i, tool in enumerate(tools):
+            tk.Button(self, SG).setFont(16).setText(tool.getButtonText()).setCommand(self._run, args=[tool]).placeRelative(centerX=True, fixY=50 * i + 50, fixWidth=300, fixHeight=50)
 
 class Window(tk.Toplevel):
     def __init__(self):
         super().__init__("Tk", SG, False)
         LOAD_STYLE() # load DarkMode!
 
-        ## setup tool list ##
-        self.tools = [
-            ItemBazaarInfoTool(self),
-            MayorInfoTool(self)
-        ]
-
         ## instantiate Pages ##
-        self.mainMenuPage = MainMenuPage(self, self.tools)
         self.searchPage = SearchPage(self)
-        self.itemInfoPage = ItemInfoPage(self)
-        self.mayorInfoPage = MayorInfoPage(self)
 
+        self.mainMenuPage = MainMenuPage(self, [
+            InfoMenuPage(self, [
+                ItemInfoPage(self),
+                MayorInfoPage(self),
+            ]),
+            EnchantingMenuPage(self, [
+                EnchantingBookBazaarCheapestPage(self),
+                EnchantingBookBazaarProfitPage(self),
+            ])
+        ])
 
         self.configureWindow()
         self.createGUI()
@@ -554,5 +603,6 @@ class Window(tk.Toplevel):
 
         self.taskBar_tools = self.taskBar.createSubMenu("Tools")
         tk.Button(self.taskBar_tools, SG).setText("Bazaar Item Info")
+
 
         self.taskBar.create()

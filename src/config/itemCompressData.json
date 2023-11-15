@@ -1,0 +1,1918 @@
+{
+    "first_layer": [
+        {
+            "recipe": {
+                "name": "LOG_2",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_ACACIA_LOG",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "LOG-2",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_BIRCH_LOG",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "LOG_2-1",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_DARK_OAK_LOG",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "LOG-3",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_JUNGLE_LOG",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "LOG",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_OAK_LOG",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "LOG-1",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_SPRUCE_LOG",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ANCIENT_CLAW",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_ANCIENT_CLAW",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "BLAZE_ROD",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_BLAZE_POWDER",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "BONE",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_BONE",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "WHEAT",
+                "amount": 60
+            },
+            "result": {
+                "name": "ENCHANTED_BREAD",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "BROWN_MUSHROOM",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_BROWN_MUSHROOM",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "INK_SACK-2",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_CACTUS_GREEN",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "CARROT_ITEM",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_CARROT",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "CLAY_BALL",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_CLAY_BALL",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "RAW_FISH-2",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_CLOWNFISH",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "COAL",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_COAL",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "COBBLESTONE",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_COBBLESTONE",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "INK_SACK-3",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_COCOA",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "YELLOW_FLOWER",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_DANDELION",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "DIAMOND",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_DIAMOND",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "EGG",
+                "amount": 144
+            },
+            "result": {
+                "name": "ENCHANTED_EGG",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "EMERALD",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_EMERALD",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENDER_PEARL",
+                "amount": 20
+            },
+            "result": {
+                "name": "ENCHANTED_ENDER_PEARL",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENDER_STONE",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_ENDSTONE",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "FEATHER",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_FEATHER",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "FLINT",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_FLINT",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "GHAST_TEAR",
+                "amount": 5
+            },
+            "result": {
+                "name": "ENCHANTED_GHAST_TEAR",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "SPECKLED_MELON",
+                "amount": 256
+            },
+            "result": {
+                "name": "ENCHANTED_GLISTERING_MELON",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "GLOWSTONE_DUST",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_GLOWSTONE_DUST",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "GOLD_INGOT",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_GOLD",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "SULPHUR",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_GUNPOWDER",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "HARD_STONE",
+                "amount": 576
+            },
+            "result": {
+                "name": "ENCHANTED_HARD_STONE",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "HAY_BLOCK",
+                "amount": 144
+            },
+            "result": {
+                "name": "ENCHANTED_HAY_BLOCK",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ICE",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_ICE",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "INK_SACK",
+                "amount": 80
+            },
+            "result": {
+                "name": "ENCHANTED_INK_SACK",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "IRON_INGOT",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_IRON",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "INK_SACK-4",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_LAPIS_LAZULI",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "LEATHER",
+                "amount": 576
+            },
+            "result": {
+                "name": "ENCHANTED_LEATHER",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "LUSH_BERBERIS",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_LUSH_BERBERIS",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "MAGMA_CREAM",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_MAGMA_CREAM",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "MELON",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_MELON",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "MITHRIL_ORE",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_MITHRIL",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "MUTTON",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_MUTTON",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "MYCEL",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_MYCELIUM",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "NETHERRACK",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_NETHERRACK",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "NETHER_STALK",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_NETHER_STALK",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "OBSIDIAN",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_OBSIDIAN",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "SUGAR_CANE",
+                "amount": 192
+            },
+            "result": {
+                "name": "ENCHANTED_PAPER",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "POISONOUS_POTATO",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_POISONOUS_POTATO",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "RED_ROSE",
+                "amount": 576
+            },
+            "result": {
+                "name": "ENCHANTED_POPPY",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "PORK",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_PORK",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "POTATO_ITEM",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_POTATO",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "PRISMARINE_CRYSTALS",
+                "amount": 80
+            },
+            "result": {
+                "name": "ENCHANTED_PRISMARINE_CRYSTALS",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "PRISMARINE_SHARD",
+                "amount": 80
+            },
+            "result": {
+                "name": "ENCHANTED_PRISMARINE_SHARD",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "RAW_FISH-3",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_PUFFERFISH",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "PUMPKIN",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_PUMPKIN",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "QUARTZ",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_QUARTZ",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "RABBIT",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_RABBIT",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "RABBIT_FOOT",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_RABBIT_FOOT",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "RABBIT_HIDE",
+                "amount": 576
+            },
+            "result": {
+                "name": "ENCHANTED_RABBIT_HIDE",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "RAW_BEEF",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_RAW_BEEF",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "RAW_CHICKEN",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_RAW_CHICKEN",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "RAW_FISH",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_RAW_FISH",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "RAW_FISH-1",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_RAW_SALMON",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "REDSTONE",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_REDSTONE",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "RED_MUSHROOM",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_RED_MUSHROOM",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "SAND-1",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_RED_SAND",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ROTTEN_FLESH",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_ROTTEN_FLESH",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "SAND",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_SAND",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "SEEDS",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_SEEDS",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "SHARK_FIN",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_SHARK_FIN",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "SLIME_BALL",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_SLIME_BALL",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "SNOW_BLOCK",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_SNOW_BLOCK",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "SPIDER_EYE",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_SPIDER_EYE",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "SPONGE",
+                "amount": 40
+            },
+            "result": {
+                "name": "ENCHANTED_SPONGE",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "STRING",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_STRING",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "SUGAR_CANE",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_SUGAR",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "SULPHUR_ORE",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_SULPHUR",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "TITANIUM_ORE",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_TITANIUM",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "VAMPIRIC_MELON",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_VAMPIRIC_MELON",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "WATER_LILY",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_WATER_LILY",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "WOOL",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_WOOL",
+                "amount": 1
+            }
+        }
+    ],
+    "second_layer": [
+        {
+            "recipe": {
+                "name": "LOG_2",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_ACACIA_LOG",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "LOG-2",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_BIRCH_LOG",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "LOG_2-1",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_DARK_OAK_LOG",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "LOG-3",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_JUNGLE_LOG",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "LOG",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_OAK_LOG",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "LOG-1",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_SPRUCE_LOG",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ANCIENT_CLAW",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_ANCIENT_CLAW",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "BLAZE_ROD",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_BLAZE_POWDER",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "BONE",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_BONE",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "WHEAT",
+                "amount": 60
+            },
+            "result": {
+                "name": "ENCHANTED_BREAD",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "BROWN_MUSHROOM",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_BROWN_MUSHROOM",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "INK_SACK-2",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_CACTUS_GREEN",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "CARROT_ITEM",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_CARROT",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "CLAY_BALL",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_CLAY_BALL",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "RAW_FISH-2",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_CLOWNFISH",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "COAL",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_COAL",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "COBBLESTONE",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_COBBLESTONE",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "INK_SACK-3",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_COCOA",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "YELLOW_FLOWER",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_DANDELION",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "DIAMOND",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_DIAMOND",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "EGG",
+                "amount": 144
+            },
+            "result": {
+                "name": "ENCHANTED_EGG",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "EMERALD",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_EMERALD",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENDER_PEARL",
+                "amount": 20
+            },
+            "result": {
+                "name": "ENCHANTED_ENDER_PEARL",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENDER_STONE",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_ENDSTONE",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "FEATHER",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_FEATHER",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "FLINT",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_FLINT",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "GHAST_TEAR",
+                "amount": 5
+            },
+            "result": {
+                "name": "ENCHANTED_GHAST_TEAR",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "SPECKLED_MELON",
+                "amount": 256
+            },
+            "result": {
+                "name": "ENCHANTED_GLISTERING_MELON",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "GLOWSTONE_DUST",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_GLOWSTONE_DUST",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "GOLD_INGOT",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_GOLD",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "SULPHUR",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_GUNPOWDER",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "HARD_STONE",
+                "amount": 576
+            },
+            "result": {
+                "name": "ENCHANTED_HARD_STONE",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "HAY_BLOCK",
+                "amount": 144
+            },
+            "result": {
+                "name": "ENCHANTED_HAY_BLOCK",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ICE",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_ICE",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "INK_SACK",
+                "amount": 80
+            },
+            "result": {
+                "name": "ENCHANTED_INK_SACK",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "IRON_INGOT",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_IRON",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "INK_SACK-4",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_LAPIS_LAZULI",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "LEATHER",
+                "amount": 576
+            },
+            "result": {
+                "name": "ENCHANTED_LEATHER",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "LUSH_BERBERIS",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_LUSH_BERBERIS",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "MAGMA_CREAM",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_MAGMA_CREAM",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "MELON",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_MELON",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "MITHRIL_ORE",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_MITHRIL",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "MUTTON",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_MUTTON",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "MYCEL",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_MYCELIUM",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "NETHERRACK",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_NETHERRACK",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "NETHER_STALK",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_NETHER_STALK",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "OBSIDIAN",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_OBSIDIAN",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "SUGAR_CANE",
+                "amount": 192
+            },
+            "result": {
+                "name": "ENCHANTED_PAPER",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "POISONOUS_POTATO",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_POISONOUS_POTATO",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "RED_ROSE",
+                "amount": 576
+            },
+            "result": {
+                "name": "ENCHANTED_POPPY",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "PORK",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_PORK",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "POTATO_ITEM",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_POTATO",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "PRISMARINE_CRYSTALS",
+                "amount": 80
+            },
+            "result": {
+                "name": "ENCHANTED_PRISMARINE_CRYSTALS",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "PRISMARINE_SHARD",
+                "amount": 80
+            },
+            "result": {
+                "name": "ENCHANTED_PRISMARINE_SHARD",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "RAW_FISH-3",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_PUFFERFISH",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "PUMPKIN",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_PUMPKIN",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "QUARTZ",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_QUARTZ",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "RABBIT",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_RABBIT",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "RABBIT_FOOT",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_RABBIT_FOOT",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "RABBIT_HIDE",
+                "amount": 576
+            },
+            "result": {
+                "name": "ENCHANTED_RABBIT_HIDE",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "RAW_BEEF",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_RAW_BEEF",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "RAW_CHICKEN",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_RAW_CHICKEN",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "RAW_FISH",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_RAW_FISH",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "RAW_FISH-1",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_RAW_SALMON",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "REDSTONE",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_REDSTONE",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "RED_MUSHROOM",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_RED_MUSHROOM",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "SAND-1",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_RED_SAND",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ROTTEN_FLESH",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_ROTTEN_FLESH",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "SAND",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_SAND",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "SEEDS",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_SEEDS",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "SHARK_FIN",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_SHARK_FIN",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "SLIME_BALL",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_SLIME_BALL",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "SNOW_BLOCK",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_SNOW_BLOCK",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "SPIDER_EYE",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_SPIDER_EYE",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "SPONGE",
+                "amount": 40
+            },
+            "result": {
+                "name": "ENCHANTED_SPONGE",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "STRING",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_STRING",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "SUGAR_CANE",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_SUGAR",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "SULPHUR_ORE",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_SULPHUR",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "TITANIUM_ORE",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_TITANIUM",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "VAMPIRIC_MELON",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_VAMPIRIC_MELON",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "WATER_LILY",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_WATER_LILY",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "WOOL",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_WOOL",
+                "amount": 1
+            }
+        }
+    ],
+    "third_layer": [
+        {
+            "recipe": {
+                "name": "ENCHANTED_POTATO",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_BAKED_POTATO",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENCHANTED_BLAZE_POWDER",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_BLAZE_ROD",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENCHANTED_BONE",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_BONE_BLOCK",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENCHANTED_CACTUS_GREEN",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_CACTUS",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENCHANTED_COAL",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_COAL_BLOCK",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENCHANTED_RAW_FISH",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_COOKED_FISH",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENCHANTED_MUTTON",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_COOKED_MUTTON",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENCHANTED_RAW_SALMON",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_COOKED_SALMON",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENCHANTED_DIAMOND",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_DIAMOND_BLOCK",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENCHANTED_EMERALD",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_EMERALD_BLOCK",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENCHANTED_GLOWSTONE_DUST",
+                "amount": 192
+            },
+            "result": {
+                "name": "ENCHANTED_GLOWSTONE",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENCHANTED_GOLD",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_GOLD_BLOCK",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENCHANTED_PORK",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_GRILLED_PORK",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENCHANTED_BROWN_MUSHROOM",
+                "amount": 32
+            },
+            "result": {
+                "name": "ENCHANTED_HUGE_MUSHROOM_1",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENCHANTED_RED_MUSHROOM",
+                "amount": 32
+            },
+            "result": {
+                "name": "ENCHANTED_HUGE_MUSHROOM_2",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENCHANTED_IRON",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_IRON_BLOCK",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENCHANTED_LAPIS_LAZULI",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_LAPIS_LAZULI_BLOCK",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENCHANTED_MELON",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_MELON_BLOCK",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENCHANTED_MYCELIUM",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_MYCELIUM_CUBE",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENCHANTED_ICE",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_PACKED_ICE",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENCHANTED_QUARTZ",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_QUARTZ_BLOCK",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENCHANTED_REDSTONE",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_REDSTONE_BLOCK",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENCHANTED_RED_SAND",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_RED_SAND_CUBE",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENCHANTED_SLIME_BALL",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_SLIME_BLOCK",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENCHANTED_SUGAR",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_SUGAR_CANE",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENCHANTED_SULPHUR",
+                "amount": 160
+            },
+            "result": {
+                "name": "ENCHANTED_SULPHUR_CUBE",
+                "amount": 1
+            }
+        },
+        {
+            "recipe": {
+                "name": "ENCHANTED_SPONGE",
+                "amount": 40
+            },
+            "result": {
+                "name": "ENCHANTED_WET_SPONGE",
+                "amount": 1
+            }
+        }
+    ]
+}

@@ -1,0 +1,206 @@
+[
+    {
+        "recipe": [
+            {
+                "name": "ENCHANTED_OAK_LOG",
+                "amount": 6
+            },
+            {
+                "name": "ENCHANTED_PAPER",
+                "amount": 6
+            }
+        ],
+        "result": {
+            "name": "ENCHANTED_BOOKSHELF",
+            "amount": 1
+        }
+    },
+    {
+        "recipe": [
+            {
+                "name": "MILK_BUCKET",
+                "amount": 3
+            },
+            {
+                "name": "ENCHANTED_SUGAR",
+                "amount": 2
+            },
+            {
+                "name": "ENCHANTED_EGG",
+                "amount": 1
+            },
+            {
+                "name": "WHEAT",
+                "amount": 3
+            }
+        ],
+        "result": {
+            "name": "ENCHANTED_CAKE",
+            "amount": 1
+        }
+    },
+    {
+        "recipe": [
+            {
+                "name": "STICK",
+                "amount": 3
+            },
+            {
+                "name": "ENCHANTED_CARROT",
+                "amount": 64
+            }
+        ],
+        "result": {
+            "name": "ENCHANTED_CARROT_STICK",
+            "amount": 1
+        }
+    },
+    {
+        "recipe": [
+            {
+                "name": "COAL",
+                "amount": 128
+            },
+            {
+                "name": "LOG",
+                "amount": 32
+            }
+        ],
+        "result": {
+            "name": "ENCHANTED_CHARCOAL",
+            "amount": 1
+        }
+    },
+    {
+        "recipe": [
+            {
+                "name": "ENCHANTED_COCOA",
+                "amount": 128
+            },
+            {
+                "name": "WHEAT",
+                "amount": 32
+            }
+        ],
+        "result": {
+            "name": "ENCHANTED_COOKIE",
+            "amount": 1
+        }
+    },
+    {
+        "recipe": [
+            {
+                "name": "BLAZE_POWDER",
+                "amount": 64
+            },
+            {
+                "name": "ENCHANTED_ENDER_PEARL",
+                "amount": 16
+            }
+        ],
+        "result": {
+            "name": "ENCHANTED_EYE_OF_ENDER",
+            "amount": 1
+        }
+    },
+    {
+        "recipe": [
+            {
+                "name": "BROWN_MUSHROOM",
+                "amount": 64
+            },
+            {
+                "name": "SUGAR",
+                "amount": 64
+            },
+            {
+                "name": "ENCHANTED_SPIDER_EYE",
+                "amount": 64
+            }
+        ],
+        "result": {
+            "name": "ENCHANTED_FERMENTED_SPIDER_EYE",
+            "amount": 1
+        }
+    },
+    {
+        "recipe": [
+            {
+                "name": "ENCHANTED_GUNPOWDER",
+                "amount": 64
+            },
+            {
+                "name": "PAPER",
+                "amount": 16
+            }
+        ],
+        "result": {
+            "name": "ENCHANTED_FIREWORK_ROCKET",
+            "amount": 1
+        }
+    },
+    {
+        "recipe": [
+            {
+                "name": "ENCHANTED_CARROT",
+                "amount": 128
+            },
+            {
+                "name": "GOLDEN_CARROT",
+                "amount": 32
+            }
+        ],
+        "result": {
+            "name": "ENCHANTED_GOLDEN_CARROT",
+            "amount": 1
+        }
+    },
+    {
+        "recipe": [
+            {
+                "name": "ENCHANTED_IRON_BLOCK",
+                "amount": 5
+            },
+            {
+                "name": "CHEST",
+                "amount": 1
+            }
+        ],
+        "result": {
+            "name": "ENCHANTED_HOPPER",
+            "amount": 1
+        }
+    },
+    {
+        "recipe": [
+            {
+                "name": "ENCHANTED_IRON",
+                "amount": 3
+            },
+            {
+                "name": "ENCHANTED_COAL_BLOCK",
+                "amount": 2
+            }
+        ],
+        "result": {
+            "name": "ENCHANTED_LAVA_BUCKET",
+            "amount": 1
+        }
+    },
+    {
+        "recipe": [
+            {
+                "name": "ENCHANTED_REDSTONE",
+                "amount": 128
+            },
+            {
+                "name": "ENCHANTED_GLOWSTONE_DUST",
+                "amount": 32
+            }
+        ],
+        "result": {
+            "name": "ENCHANTED_REDSTONE_LAMP",
+            "amount": 1
+        }
+    }
+]
