@@ -108,6 +108,62 @@ def getDictEnchantmentIDToLevels()->Dict[str, List[str]]:
             typeEnchantment[enchantmentName] = [singleEnchantment]
     return typeEnchantment
 
+def search(searchInput, value:str, minLength=0, printable=True):
+    """
+    inputList -> [BazaarItemID, AuctionItemID] # search bazaar and auction-house
+    inputList -> {"ItemType":[IDS:str, ...]}
+
+    @param printable:
+    @param value:
+    @param searchInput:
+    @param minLength:
+    @return:
+    """
+    def getType(_type) -> str:
+        if "BazaarItemID" in str(_type):
+            return "Bazaar Item"
+        elif "AuctionItemID" in str(_type):
+            return "Auction Item"
+        else:
+            return _type
+
+    _searchInput = searchInput
+    if isinstance(searchInput, dict):
+        _searchInput = searchInput.values()
+
+    suggestions = []
+    if len(value) >= minLength:
+        for i, searchList in enumerate(_searchInput):
+            if isinstance(searchInput, dict):
+                type_ = getType(list(searchInput.keys())[i])
+            elif isinstance(searchInput, list) and len(searchInput) == 1:
+                type_ = getType(_searchInput[0])
+            else:
+                raise Exception(f"Invalid search input! {searchInput}")
+            for item in searchList:
+                itemName = item.value if hasattr(item, "value") else item
+                itemName = itemName.replace("_", " ")
+                show = True
+                for valPice in value.split(" "):
+                    if valPice not in itemName.lower():
+                        show = False
+                if show:
+                    if printable:
+                        if type_ is None:
+                            suggestions.append(f"{itemName.lower()}")
+                        else:
+                            suggestions.append(f"{itemName.lower()} - {type_}")
+                    else:
+                        suggestions.append(itemName.replace(" ", "_"))
+    return suggestions
+
+
+
+
+
+
+
+
 
 class BookCraft:
     def __init__(self, data, targetPrice):
@@ -150,6 +206,25 @@ class BookCraft:
         return f"{self.getSavedCoins()}"
 
 
+class RecipeResult:
+    def __init__(self, id_, profit, craftPrice, req):
+        self._id = id_
+        self._profit = profit
+        self._craftPrice = craftPrice
+        self.rq = req
+    def getCraftPrice(self):
+        return self._craftPrice
+    def getRequired(self):
+        return self.rq
+    def getID(self):
+        return self._id
 
+    def getProfit(self):
+        return self._profit
+
+
+
+    def __lt__(self, other):
+        return self.getProfit() > other.getProfit()
 
 

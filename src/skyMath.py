@@ -1,6 +1,7 @@
 from typing import List, Tuple
 from numpy import median, percentile
 from datetime import datetime
+from settings import Config
 
 def addPositiveTax(price, taxVal):
     return
@@ -94,7 +95,10 @@ def getSuspiciousData(inputList: List[float], flattenFactor: float = 1.0) -> Lis
         if single < borderDown or single > borderUp:
             isSusList.append(single)
     return isSusList
-
+def applyBazaarTax(in_:float):
+    tax = float(Config.SETTINGS_CONFIG["constants"]["bazaar_tax"])
+    in_ *= (100 - tax) / 100  # apply tax to instaSell Result
+    return in_
 class TimeDelta:
     def __init__(self, day, hours, minutes, seconds):
         self.day = day

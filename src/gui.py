@@ -4,6 +4,7 @@ from hyPI.constants import BazaarItemID, AuctionItemID, ALL_ENCHANTMENT_IDS
 from hyPI.APIError import APIConnectionError, NoAPIKeySetException
 from hyPI.hypixelAPI.loader import HypixelBazaarParser
 from hyPI.skyCoflnetAPI import SkyConflnetAPI
+from hyPI.recipeAPI import RecipeAPI
 from pysettings import tk, iterDict
 from pysettings.jsonConfig import JsonConfig
 from pysettings.text import MsgText, TextColor
@@ -20,8 +21,8 @@ from pytz import timezone
 
 from analyzer import getPlotData, getCheapestEnchantmentData
 from constants import STYLE_GROUP as SG, LOAD_STYLE, INFO_LABEL_GROUP as ILG
-from skyMath import getPlotTicksFromInterval, parseTimeDelta, getFlattenList, getMedianExponent, parsePrizeList, getMedianFromList
-from skyMisc import modeToBazaarAPIFunc, parseTimeToStr, prizeToStr, requestHypixelAPI, updateInfoLabel, BookCraft, getDictEnchantmentIDToLevels
+from skyMath import applyBazaarTax, getPlotTicksFromInterval, parseTimeDelta, getFlattenList, getMedianExponent, parsePrizeList, getMedianFromList
+from skyMisc import modeToBazaarAPIFunc, parseTimeToStr, prizeToStr, requestHypixelAPI, search, updateInfoLabel, BookCraft, getDictEnchantmentIDToLevels, RecipeResult
 from widgets import CompleterEntry, CustomPage, CustomMenuPage
 from images import IconLoader
 from settings import SettingsGUI, Config
@@ -536,38 +537,9 @@ class SearchPage(CustomPage):
         self.entry.closeListbox()
         self.entry.clear()
     def onUserInputEvent(self, e):
-        def getType(_type)->str:
-            if "BazaarItemID" in str(_type):
-                return "Bazaar Item"
-            elif "AuctionItemID" in str(_type):
-                return "Auction Item"
-            else: return _type
         value = self.entry.getValue()
-        suggestions = []
         _searchInput = self.searchInput
-        if isinstance(self.searchInput, dict):
-            _searchInput = self.searchInput.values()
-
-        if len(value) >= 3:
-            for i, searchList in enumerate(_searchInput):
-                if isinstance(self.searchInput, dict):
-                    type_ = getType(list(self.searchInput.keys())[i])
-                elif isinstance(self.searchInput, list) and len(self.searchInput) == 1:
-                    type_ = getType(_searchInput[0])
-                else:
-                    raise Exception(f"Invalid search input! {self.searchInput}")
-                for item in searchList:
-                    itemName = item.value if hasattr(item, "value") else item
-                    itemName = itemName.replace("_", " ")
-                    show=True
-                    for valPice in value.split(" "):
-                        if valPice not in itemName.lower():
-                            show = False
-                    if show:
-                        if type_ is None: suggestions.append(f"{itemName.lower()}")
-                        else: suggestions.append(f"{itemName.lower()} - {type_}")
-
-        return suggestions
+        return search(self.searchInput, value, minLength=3)
     def onSelectEvent(self, e):
         value = e.getValue()
         if value is not None and value != "None":
@@ -593,6 +565,20 @@ class EnchantingBookBazaarProfitPage(CustomPage):
         self.treeView.setTableHeaders("Name", "Buy-Price", "Sell-Price", "Profit", "Times-Combine", "Insta-Sell/Hour", "Insta-Buy/Hour")
         self.treeView.placeRelative(changeHeight=-25)
 
+        self.eBookImage = tk.PILImage.loadImage(os.path.join(IMAGES, "enchanted_book.gif")).resizeToIcon().preRender()
+
+        # only these enchantments are shown
+        self.whiteList = None
+        path = os.path.join(CONFIG, "enchantmentProfitWhitelist.json")
+        if not os.path.exists(path):
+            tk.SimpleDialog.askError(master, "enchantmentProfitWhitelist.json Path does not exist!")
+        else:
+            js = JsonConfig.loadConfig(path, ignoreErrors=True)
+            if type(js) == str:
+                tk.SimpleDialog.askError(master, js)
+            else:
+                self.whiteList = js.getData()
+
 
         self.useBuyOffers = tk.Checkbutton(self.contentFrame, SG)
         self.useBuyOffers.setText("Use-Buy-Offers")
@@ -604,6 +590,15 @@ class EnchantingBookBazaarProfitPage(CustomPage):
         self.useSellOffers.onSelectEvent(self.updateTreeView)
         self.useSellOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=150)
 
+        self.includeUltimate = tk.Checkbutton(self.contentFrame, SG)
+        self.includeUltimate.setText("Include-Ultimate")
+        self.includeUltimate.onSelectEvent(self.updateTreeView)
+        self.includeUltimate.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=300)
+
+        self.useWhiteList = tk.Checkbutton(self.contentFrame, SG).setSelected()
+        self.useWhiteList.setText("Use-Whitelist")
+        self.useWhiteList.onSelectEvent(self.updateTreeView)
+        self.useWhiteList.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=450)
     def updateTreeView(self):
         self.treeView.clear()
         if SKY_BLOCK_API_PARSER is None:
@@ -614,10 +609,18 @@ class EnchantingBookBazaarProfitPage(CustomPage):
             self.treeView.setTableHeaders("Using-Book", "Buy-Price-Per-Item", "Total-Buy-Price", "Profit")
         else:
             self.treeView.setTableHeaders("Using-Book", "Buy-Price-Per-Item", "Total-Buy-Price", "Profit", "Others-try-to-buy")
+        if self.whiteList is None:
+            tk.SimpleDialog.askError(self.master, "Could not load WhitelistFile! Showing All.")
         eDataComplete = []
         enchIDToLvl = getDictEnchantmentIDToLevels()
         for currentItem in enchIDToLvl.keys():
-            currentItem = enchIDToLvl[currentItem][-1]
+            if self.whiteList is not None and self.useWhiteList.getValue(): # whiteList Active
+                if currentItem not in self.whiteList and not (self.includeUltimate.getValue() and currentItem.startswith("ENCHANTMENT_ULTIMATE")):
+                    continue
+
+            currentItem = enchIDToLvl[currentItem][-1] # get Highest Enchantment
+
+
             eData = getCheapestEnchantmentData(SKY_BLOCK_API_PARSER, currentItem, instaBuy=not self.useBuyOffers.getValue())
             if eData is not None:
                 if self.useSellOffers.getValue(): # insta sell
@@ -625,10 +628,9 @@ class EnchantingBookBazaarProfitPage(CustomPage):
                 else:
                     targetBookInstaBuy = SKY_BLOCK_API_PARSER.getProductByID(currentItem).getInstaSellPrice()
 
+                targetBookInstaBuy = applyBazaarTax(targetBookInstaBuy) # apply Tax
 
 
-
-                """
                 prods = [
                     SKY_BLOCK_API_PARSER.getProductByID(BazaarItemID.ENCHANTMENT_ULTIMATE_BANK_5),
                     SKY_BLOCK_API_PARSER.getProductByID(BazaarItemID.ENCHANTMENT_ULTIMATE_BANK_4),
@@ -659,14 +661,11 @@ class EnchantingBookBazaarProfitPage(CustomPage):
 
                     # print("InstaBuyTest",  productFrom.getInstaBuyPriceList(1)[0])
                     # print("InstaSellTest", productFrom.getInstaSellPriceList(1)[0])
-                 """
+
 
                 eData = [BookCraft(d, targetBookInstaBuy) for d in eData]  # convert so sortable BookCraft instances
                 eData.sort()
                 eDataComplete.append(eData[0]) #get best BookCraft instance
-
-                if "bank" in eData[0].getIDFrom().lower():
-                    print("targetPrice", targetBookInstaBuy)
 
 
         eDataComplete.sort()
@@ -678,7 +677,8 @@ class EnchantingBookBazaarProfitPage(CustomPage):
                     f"{bookCraft.getShowAbleIDFrom()} [x{bookCraft.getFromAmount()}] -> {bookCraft.getShowAbleIDTo()}",
                     prizeToStr(bookCraft.getFromPriceSingle(round_=2)),
                     prizeToStr(bookCraft.getFromPrice()),
-                    prizeToStr(bookCraft.getSavedCoins())
+                    prizeToStr(bookCraft.getSavedCoins()),
+                    image=self.eBookImage
                 )
             else:
                 if bookCraft.getFromAmount() is None:
@@ -690,22 +690,19 @@ class EnchantingBookBazaarProfitPage(CustomPage):
                     prizeToStr(bookCraft.getFromPrice()),
                     prizeToStr(bookCraft.getSavedCoins()),
                     prizeToStr(bookCraft.getFromSellVolume(), hideCoins=True),
+                    image=self.eBookImage
                 )
-
-    def requestAPIHook(self):
-
-        return
     def onShow(self, **kwargs):
         self.placeRelative()
         self.updateTreeView()
         self.placeContentFrame()
-
 class EnchantingBookBazaarCheapestPage(CustomPage):
     def __init__(self, master):
         super().__init__(master, pageTitle="Cheapest Book Craft Page", buttonText="Cheapest Book Craft")
         self.currentItem = None
         self.currentParser = None
         # mark best !!!
+        self.eBookImage = tk.PILImage.loadImage(os.path.join(IMAGES, "enchanted_book.gif")).resizeToIcon().preRender()
 
         self.useBuyOffers = tk.Checkbutton(self.contentFrame, SG)
         self.useBuyOffers.setText("Use-Buy-Order-Price")
@@ -775,7 +772,8 @@ class EnchantingBookBazaarCheapestPage(CustomPage):
                         bookCraft.getShowAbleIDFrom()+f" [x{bookCraft.getFromAmount()}]",
                         prizeToStr(bookCraft.getFromPriceSingle(round_=2)),
                         prizeToStr(bookCraft.getFromPrice()),
-                        prizeToStr(bookCraft.getSavedCoins())
+                        prizeToStr(bookCraft.getSavedCoins()),
+                        image=self.eBookImage
                     )
                 else:
                     if bookCraft.getFromAmount() is None:
@@ -787,6 +785,7 @@ class EnchantingBookBazaarCheapestPage(CustomPage):
                         prizeToStr(bookCraft.getFromPrice()),
                         prizeToStr(bookCraft.getSavedCoins()),
                         prizeToStr(bookCraft.getFromSellVolume(), hideCoins=True),
+                        image=self.eBookImage
                     )
 
 
@@ -803,6 +802,159 @@ class EnchantingBookBazaarCheapestPage(CustomPage):
                          input={"Enchantment":ALL_ENCHANTMENT_IDS},
                          msg="Search EnchantedBook in Bazaar: (At least tree characters)",
                          next_page=self)
+class CraftProfitPage(CustomPage):
+    def __init__(self, master):
+        super().__init__(master, pageTitle="Bazaar-Craft-Profit", buttonText="Bazaar Craft Profit")
+        self.currentParser = None
+
+        self.useBuyOffers = tk.Checkbutton(self.contentFrame, SG)
+        self.useBuyOffers.setText("Use-Buy-Offers")
+        self.useBuyOffers.onSelectEvent(self.updateTreeView)
+        self.useBuyOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150)
+
+        self.useSellOffers = tk.Checkbutton(self.contentFrame, SG)
+        self.useSellOffers.setText("Use-Sell-Offers")
+        self.useSellOffers.onSelectEvent(self.updateTreeView)
+        self.useSellOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=150)
+
+        self.showStackProfit = tk.Checkbutton(self.contentFrame, SG)
+        self.showStackProfit.setText("Show-Profit-as-Stack[x64]")
+        self.showStackProfit.onSelectEvent(self.updateTreeView)
+        self.showStackProfit.placeRelative(fixHeight=25, stickDown=True, fixWidth=200, fixX=300)
+
+        tk.Label(self.contentFrame, SG).setText("Search:").placeRelative(fixHeight=25, stickDown=True, fixWidth=100, fixX=500)
+
+        self.searchE = tk.Entry(self.contentFrame, SG)
+        self.searchE.bind(self._clearAndUpdate, tk.EventType.RIGHT_CLICK)
+        self.searchE.onUserInputEvent(self.updateTreeView)
+        self.searchE.placeRelative(fixHeight=25, stickDown=True, fixWidth=100, fixX=600)
+
+        self.treeView = tk.TreeView(self.contentFrame, SG)
+        #self.treeView.setNoSelectMode()
+        self.treeView.setTableHeaders("Recipe", "Profit-Per-Item[x64]", "Ingredients-Buy-Price-Per-Item", "Needed-Item-To-Craft")
+        self.treeView.placeRelative(changeHeight=-25)
+
+
+        self._ownBzItems = [i.value for i in BazaarItemID]
+        self.forceAdd = [
+            BazaarItemID.GRAND_EXP_BOTTLE.value,
+            BazaarItemID.TITANIC_EXP_BOTTLE.value,
+            BazaarItemID.ENCHANTED_GOLDEN_CARROT.value,
+            BazaarItemID.BUDGET_HOPPER.value,
+            BazaarItemID.ENCHANTED_HOPPER.value,
+            BazaarItemID.CORRUPT_SOIL.value,
+            BazaarItemID.HOT_POTATO_BOOK.value,
+            BazaarItemID.ENCHANTED_EYE_OF_ENDER.value,
+            BazaarItemID.ENCHANTED_COOKIE.value
+
+        ]
+        self.validRecipes = self._getValidRecipes()
+        self.validBzItems = [i.getID() for i in self.validRecipes]
+    def _clearAndUpdate(self):
+        self.searchE.clear()
+        self.updateTreeView()
+    def _getValidRecipes(self):
+        validRecipes = []
+        for recipe in RecipeAPI.getRecipes():
+            if not self.isBazaarItem(recipe.getID()): continue # filter Items to only take Bazaar Items
+            validIngredient = True
+            ingredients = recipe.getItemInputList()
+            if ingredients is None: # no recipe available
+                continue
+            for ingredient in ingredients:
+                indName = ingredient["name"]
+                if not self.isBazaarItem(indName): # filter ingredients
+                    if recipe.getID() not in self.forceAdd:
+                        print(recipe.getID(),"->",  indName, "not in Bazaar")
+                        validIngredient = False
+                        break
+            if validIngredient:
+                validRecipes.append(recipe)
+        return validRecipes
+    def isBazaarItem(self, item:str)->bool:
+        return item in self._ownBzItems
+    def updateTreeView(self):
+        self.treeView.clear()
+        if SKY_BLOCK_API_PARSER is None:
+            tk.SimpleDialog.askError(self.master, "Cannot calculate! No API data available!")
+            return
+        if not self.showStackProfit.getValue():
+            factor = 1
+            self.treeView.setTableHeaders("Recipe", "Profit-Per-Item", "Ingredients-Buy-Price-Per-Item", "Needed-Item-To-Craft")
+        else:
+            factor = 64
+            self.treeView.setTableHeaders("Recipe", "Profit-Per-Stack[x64]", "Ingredients-Buy-Price-Per-Stack[x64]", "Needed-Item-To-Craft[x64]")
+
+        validItems = search([self.validBzItems], self.searchE.getValue(), printable=False)
+
+        recipeList = []
+        #print("=======================================================================================")
+        for recipe in self.validRecipes:
+            #if recipe.getID().lower() != "compactor": continue
+            result = recipe.getID()
+
+            if self.searchE.getValue() != "":
+                if recipe.getID() not in validItems: continue
+
+            #if "ENCHANTED_SLIME_BLOCK" != result: continue
+            #print("result", result)
+            resultItem = SKY_BLOCK_API_PARSER.getProductByID(result)
+            ingredients = recipe.getItemInputList()
+            craftPrice = 0
+            requiredItemString = "("
+
+            ## Result price ##
+            if self.useSellOffers.getValue(): # use sell Offer
+                resultPrice = resultItem.getInstaBuyPrice()
+            else: # insta sell result
+                resultPrice = resultItem.getInstaSellPrice()
+
+            tax = float(Config.SETTINGS_CONFIG["constants"]["bazaar_tax"])
+            resultPrice *= (100-tax)/100 #  apply tax to instaSell Result
+
+            ## ingredients calc ##
+            for ingredient in ingredients:
+                name = ingredient["name"]
+                amount = ingredient["amount"]
+                requiredItemString+=f"{name}[{amount*factor}], "
+
+                if name not in self._ownBzItems: continue
+
+                ingredientItem = SKY_BLOCK_API_PARSER.getProductByID(name)
+
+                ## ingredients price ##
+                if self.useBuyOffers.getValue():  # use buy Offer ingredients
+                    #print(f"Offer one {name}:", ingredientItem.getInstaSellPrice()+.1)
+                    ingredientPrice = [ingredientItem.getInstaSellPrice()+.1] * amount
+                else:  # insta buy ingredients
+                    ingredientPrice = ingredientItem.getInstaBuyPriceList(amount)
+                if len(ingredientPrice) != amount:
+                    result+="*"
+                    extentAm = amount - len(ingredientPrice)
+                    average = sum(ingredientPrice)/amount
+                    ingredientPrice.extend([average]*extentAm)
+                #print(len(ingredientPrice), "==", amount)
+                #print("Inde", name, amount, "fullPrice", sum(ingredientPrice))
+
+                craftPrice += sum(ingredientPrice)
+            #print("craftPrice", craftPrice)
+            #print("sellPrice", resultPrice)
+            profitPerCraft = resultPrice - craftPrice # profit calculation
+            requiredItemString = requiredItemString[:-2]+")"
+
+            recipeList.append(RecipeResult(result, profitPerCraft*factor, craftPrice*factor, requiredItemString))
+        recipeList.sort()
+        for rec in recipeList:
+            self.treeView.addEntry(
+                rec.getID(),
+                prizeToStr(rec.getProfit()),
+                prizeToStr(rec.getCraftPrice()),
+                rec.getRequired()
+            )
+    def onShow(self, **kwargs):
+        self.placeRelative()
+        self.updateTreeView()
+        self.placeContentFrame()
 
 # Menu Pages
 class MainMenuPage(CustomMenuPage):
@@ -919,6 +1071,7 @@ class Window(tk.Tk):
             InfoMenuPage(self, [
                 ItemInfoPage(self),
                 MayorInfoPage(self),
+                CraftProfitPage(self)
             ]),
             EnchantingMenuPage(self, [
                 EnchantingBookBazaarCheapestPage(self),
@@ -1011,5 +1164,3 @@ class Window(tk.Tk):
 
         APIRequest.WAITING_FOR_API_REQUEST = False
         self.lockInfoLabel = False
-
-
