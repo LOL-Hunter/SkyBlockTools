@@ -107,7 +107,6 @@ def getDictEnchantmentIDToLevels()->Dict[str, List[str]]:
         else:
             typeEnchantment[enchantmentName] = [singleEnchantment]
     return typeEnchantment
-
 def search(searchInput, value:str, minLength=0, printable=True):
     """
     inputList -> [BazaarItemID, AuctionItemID] # search bazaar and auction-house
@@ -156,7 +155,31 @@ def search(searchInput, value:str, minLength=0, printable=True):
                     else:
                         suggestions.append(itemName.replace(" ", "_"))
     return suggestions
+def parseTimeFromSec(sec):
+    minutes = 0
+    hour = 0
+    day = 0
+    year = 0
 
+    out = ""
+    if sec / 60 >= 1:
+        minutes += int(sec / 60)
+        sec %= 60
+        if minutes / 60 >= 1:
+            hour += int(minutes / 60)
+            minutes %= 60
+            if hour / 24 >= 1:
+                day += int(hour/24)
+                hour %= 24
+                if day / 365 >= 1:
+                    year += int(day / 365)
+                    hour %= 365
+    out += f"{year}y " if year > 0 else ""
+    out += f"{day}d " if day > 0 else ""
+    out += f"{hour}h " if hour > 0 else ""
+    out += f"{minutes}m " if minutes > 0 else ""
+    out += f"{sec}s"
+    return out
 
 
 

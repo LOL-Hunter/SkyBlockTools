@@ -21,8 +21,8 @@ from pytz import timezone
 
 from analyzer import getPlotData, getCheapestEnchantmentData
 from constants import STYLE_GROUP as SG, LOAD_STYLE, INFO_LABEL_GROUP as ILG
-from skyMath import applyBazaarTax, getPlotTicksFromInterval, parseTimeDelta, getFlattenList, getMedianExponent, parsePrizeList, getMedianFromList
-from skyMisc import modeToBazaarAPIFunc, parseTimeToStr, prizeToStr, requestHypixelAPI, search, updateInfoLabel, BookCraft, getDictEnchantmentIDToLevels, RecipeResult
+from skyMath import *
+from skyMisc import *
 from widgets import CompleterEntry, CustomPage, CustomMenuPage
 from images import IconLoader
 from settings import SettingsGUI, Config
@@ -865,7 +865,6 @@ class CraftProfitPage(CustomPage):
                 indName = ingredient["name"]
                 if not self.isBazaarItem(indName): # filter ingredients
                     if recipe.getID() not in self.forceAdd:
-                        print(recipe.getID(),"->",  indName, "not in Bazaar")
                         validIngredient = False
                         break
             if validIngredient:
@@ -909,8 +908,9 @@ class CraftProfitPage(CustomPage):
             else: # insta sell result
                 resultPrice = resultItem.getInstaSellPrice()
 
-            tax = float(Config.SETTINGS_CONFIG["constants"]["bazaar_tax"])
-            resultPrice *= (100-tax)/100 #  apply tax to instaSell Result
+            resultPrice = applyBazaarTax(resultPrice)
+            #tax = float(Config.SETTINGS_CONFIG["constants"]["bazaar_tax"])
+            #resultPrice *= (100-tax)/100 #  apply tax to instaSell Result
 
             ## ingredients calc ##
             for ingredient in ingredients:
@@ -934,7 +934,7 @@ class CraftProfitPage(CustomPage):
                     average = sum(ingredientPrice)/amount
                     ingredientPrice.extend([average]*extentAm)
                 #print(len(ingredientPrice), "==", amount)
-                #print("Inde", name, amount, "fullPrice", sum(ingredientPrice))
+                print("Inde", name, amount, "fullPrice", sum(ingredientPrice))
 
                 craftPrice += sum(ingredientPrice)
             #print("craftPrice", craftPrice)
@@ -955,6 +955,385 @@ class CraftProfitPage(CustomPage):
         self.placeRelative()
         self.updateTreeView()
         self.placeContentFrame()
+class ComposterProfitPage(CustomPage):
+    def __init__(self, master):
+        super().__init__(master, pageTitle="Composter-Profit", buttonText="Composter Profit")
+        self.currentParser = None
+
+        self.useBuyOffers = tk.Checkbutton(self.contentFrame, SG)
+        self.useBuyOffers.setText("Use-Buy-Offers")
+        self.useBuyOffers.setSelected()
+        self.useBuyOffers.onSelectEvent(self.updateTreeView)
+        self.useBuyOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150)
+
+        self.useSellOffers = tk.Checkbutton(self.contentFrame, SG)
+        self.useSellOffers.setText("Use-Sell-Offers")
+        self.useSellOffers.setSelected()
+        self.useSellOffers.onSelectEvent(self.updateTreeView)
+        self.useSellOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=150)
+
+        self.matterLf = tk.LabelFrame(self.contentFrame, SG)
+        self.matterLf.setText("Plant Matter [coins per matter]")
+        self.matterLb = tk.Listbox(self.matterLf, SG)
+        self.matterLb.onSelectEvent(self.onListboxSelect, args=["matter"])
+        self.matterLb.placeRelative(changeWidth=-5, changeHeight=-25)
+        self.matterLf.placeRelative(fixWidth=300, fixHeight=300, centerX=True, changeX=-150)
+
+        self.fuelLf = tk.LabelFrame(self.contentFrame, SG)
+        self.fuelLf.setText("Fuel [coins per fuel]")
+        self.fuelLb = tk.Listbox(self.fuelLf, SG)
+        self.fuelLb.onSelectEvent(self.onListboxSelect, args=["fuel"])
+        self.fuelLb.placeRelative(changeWidth=-5, changeHeight=-25)
+        self.fuelLf.placeRelative(fixWidth=300, fixHeight=300, centerX=True,changeX=+150)
+
+        self.textLf = tk.LabelFrame(self.contentFrame, SG)
+        self.textLf.setText("Info")
+        self.textT = tk.Text(self.textLf, SG, readOnly=True)
+        self.textT.placeRelative(changeWidth=-5, changeHeight=-25)
+        self.textLf.placeRelative(fixY=300, fixWidth=600, changeHeight=-25, centerX=True)
+
+        self.organic_matter_data = JsonConfig.loadConfig(os.path.join(CONFIG, "composter_organic_matter.json"), ignoreErrors=True)
+        if type(self.organic_matter_data) == str:
+            self.organic_matter_data = None
+            tk.SimpleDialog.askError(self.master, self.organic_matter_data)
+
+        self.fuel_data = JsonConfig.loadConfig(os.path.join(CONFIG, "composter_fuel.json"), ignoreErrors=True)
+        if type(self.fuel_data) == str:
+            self.fuel_data = None
+            tk.SimpleDialog.askError(self.master, self.fuel_data)
+
+        self.sortedFuel = []
+        self.sortedMatter = []
+        self.selectedMatter = None
+        self.selectedFuel = None
+
+
+        #self.showStackProfit = tk.Checkbutton(self.contentFrame, SG)
+        #self.showStackProfit.setText("Show-Profit-as-Stack[x64]")
+        #self.showStackProfit.onSelectEvent(self.updateTreeView)
+        #self.showStackProfit.placeRelative(fixHeight=25, stickDown=True, fixWidth=200, fixX=300)
+    def onListboxSelect(self, e):
+        type_ = e.getArgs(0)
+        if type_ == "matter":
+            self.selectedMatter = self.matterLb.getSelectedIndex()
+        else:
+            self.selectedFuel = self.fuelLb.getSelectedIndex()
+        self.updateTreeView()
+    def parseData(self):
+        class Sorter:
+            def __init__(self, sort, **kwargs):
+                self._sort = sort
+                self._data = kwargs
+            def __lt__(self, other):
+                return self._sort > other._sort
+            def __getitem__(self, item):
+                return self._data[item]
+            def get(self):
+                return self._sort
+        if SKY_BLOCK_API_PARSER is None: return
+        if self.fuel_data is None or self.organic_matter_data is None:
+            self.sortedFuel = False
+            self.sortedMatter = False
+            return
+        sortedFuel = []
+        sortedMatter = []
+        for name, value in iterDict(self.fuel_data.getData()):
+
+            ingredientItem = SKY_BLOCK_API_PARSER.getProductByID(name)
+
+            ## ingredients price ##
+            if self.useBuyOffers.getValue():  # use buy Offer ingredients
+                # print(f"Offer one {name}:", ingredientItem.getInstaSellPrice()+.1)
+                ingredientPrice = [ingredientItem.getInstaSellPrice() + .1]
+            else:  # insta buy ingredients
+                ingredientPrice = ingredientItem.getInstaBuyPriceList(1)
+
+            pricePerFuel = ingredientPrice[0] / value
+
+            sortedFuel.append(Sorter(pricePerFuel, name=name))
+        sortedFuel.sort()
+        self.sortedFuel = sortedFuel[::-1]
+        if self.selectedFuel is None:
+            self.selectedFuel = 0
+
+        for name, value in iterDict(self.organic_matter_data.getData()):
+
+            ingredientItem = SKY_BLOCK_API_PARSER.getProductByID(name)
+
+            ## ingredients price ##
+            if self.useBuyOffers.getValue():  # use buy Offer ingredients
+                # print(f"Offer one {name}:", ingredientItem.getInstaSellPrice()+.1)
+                ingredientPrice = [ingredientItem.getInstaSellPrice() + .1]
+            else:  # insta buy ingredients
+                ingredientPrice = ingredientItem.getInstaBuyPriceList(1)
+
+            pricePerMatter = ingredientPrice[0]/value
+
+
+            sortedMatter.append(Sorter(pricePerMatter, name=name))
+        sortedMatter.sort()
+        self.sortedMatter = sortedMatter[::-1]
+        if self.selectedMatter is None:
+            self.selectedMatter = 0
+    def calculateComposterUpgrades(self):
+        data = Config.SETTINGS_CONFIG["composter"]
+
+        # constants
+        matterRequired = 4000
+        fuelRequired = 2000
+        durationSeconds = 600
+
+        # upgrades
+        speed = data["speed"] * 20
+        mulDrop = data["multi_drop"] * 3
+        fuelCap = data["fuel_cap"] * 30_000 + 100_000
+        matterCap = data["matter_cap"] * 20_000 + 40_000
+        costReduct = data["cost_reduction"]
+
+        # apply cost reduction
+        matterRequired *= (100 - costReduct) / 100
+        fuelRequired *= (100 - costReduct) / 100
+
+        timeToProduceOne = 0
+        canProduceFromFullMatterTank = int(matterCap / matterRequired)
+        canProduceFromFullFuelTank = int(fuelCap / fuelRequired)
+
+        return {
+            "multiple_drop_percentage": mulDrop,
+            "matter_required": matterRequired,
+            "fuel_required": fuelRequired,
+            "matter_cap":matterCap,
+            "fuel_cap":fuelCap,
+            "duration_seconds":600
+            #TODO add SPEED
+        }
+    def addMultipleChance(self, single_from_, chance, amount):
+        #TODO test
+        single_from_ += single_from_*(chance/100)
+        return single_from_ * amount
+    def updateTreeView(self):
+        if self.sortedFuel is None or self.sortedMatter is None: return
+        if SKY_BLOCK_API_PARSER is None: return
+
+        ## calculation ##
+        self.parseData() # calculate current prices
+        data = self.calculateComposterUpgrades() # calculate upgrades
+
+        ## Listbox ##
+        self.matterLb.clear()
+        self.fuelLb.clear()
+        for i, matter in enumerate(self.sortedMatter):
+            self.matterLb.add(f"{matter['name']} [{round(matter.get(), 2)} coins]")
+        for i, matter in enumerate(self.sortedFuel):
+            self.fuelLb.add(f"{matter['name']} [{round(matter.get(), 2)} coins]")
+
+        ## Result price ##
+        compost = SKY_BLOCK_API_PARSER.getProductByID(BazaarItemID.COMPOST)
+        if self.useSellOffers.getValue():  # use sell Offer
+            compostSellPrice = compost.getInstaBuyPrice()
+        else:  # insta sell result
+            compostSellPrice = compost.getInstaSellPrice()
+        compostSellPrice = applyBazaarTax(compostSellPrice) # add tax
+
+        compostE = SKY_BLOCK_API_PARSER.getProductByID(BazaarItemID.ENCHANTED_COMPOST)
+        if self.useSellOffers.getValue():  # use sell Offer
+            compostESellPrice = compostE.getInstaBuyPrice()
+        else:  # insta sell result
+            compostESellPrice = compostE.getInstaSellPrice()
+        compostESellPrice = applyBazaarTax(compostESellPrice)  # add tax
+
+        matterType = self.sortedMatter[self.selectedMatter]
+        fuelType = self.sortedFuel[self.selectedFuel]
+
+        coinsPerMatter = self.sortedMatter[self.selectedMatter].get()
+        coinsPerFuel = self.sortedFuel[self.selectedFuel].get()
+
+        print("coins Matter", coinsPerMatter * data["matter_required"])
+        print("coins Fuel", coinsPerFuel * data["fuel_required"])
+
+
+        singleCost = (coinsPerMatter * data["matter_required"] + coinsPerFuel * data["fuel_required"])
+        singleProfit = compostSellPrice - singleCost
+        enchantedSingleCost = (compostESellPrice - (singleCost*160)) / 160
+        #TODO test
+        enchantedSingleCostA = (compostESellPrice - (self.addMultipleChance(singleCost, data['multiple_drop_percentage'], 160))) / 160 # with multiple_drop_percentage
+
+        compostFullFuel = round(data['fuel_cap']/data['fuel_required'], 2)
+        compostFullMatter = round(data['matter_cap']/data['matter_required'], 2)
+        if compostFullFuel > compostFullMatter:
+            upgrade = "matter"
+            compostFull = compostFullMatter
+        else:
+            upgrade = "fuel"
+            compostFull = compostFullFuel
+
+        self.textT.clear()
+        text = f"Matter-Type: {matterType['name']}\n"
+        text += f"Fuel-Type: {fuelType['name']}\n"
+        text += f"Matter-Tank: {prizeToStr(data['matter_cap'], True)}\n"
+        text += f"Fuel-Tank: {prizeToStr(data['fuel_cap'], True)}\n"
+        text += f"Time-Per-Compost: {parseTimeFromSec(data['duration_seconds'])}\n\n"
+        text += f"===== PROFIT =====\n"
+        text += f"Single-Profit(no mul drop): {prizeToStr(singleProfit)}\n"
+        text += f"Stack-Profit(x64): {prizeToStr(singleProfit*64)} (~{prizeToStr(self.addMultipleChance(singleProfit, data['multiple_drop_percentage'], 64))} per)\n"
+        text += f"Profit-Enchanted-Compost(x1 compost): {prizeToStr(enchantedSingleCost)}\n"
+        text += f"Profit-Enchanted-Compost(x160 compost): {prizeToStr(enchantedSingleCostA)}\n\n"
+        text += f"== OFFLINE ==\n"
+        text += f"Compost-With-Full-Tanks: {compostFull} (upgrade: {upgrade})\n"
+        text += f"Duration-With-Full-Tanks: {parseTimeFromSec(data['duration_seconds'] * compostFull)}\n"
+        #TODO test
+        text += f"Full-Composter-Profit: ~{prizeToStr(self.addMultipleChance(singleProfit, data['multiple_drop_percentage'], compostFull)*compostFull)}\n"
+        self.textT.setStrf(text)
+    def onShow(self, **kwargs):
+        self.placeRelative()
+        #self.parseData()
+        self.updateTreeView()
+        self.placeContentFrame()
+class BazaarToAuctionHouseFlipProfitPage(CustomPage):
+    def __init__(self, master):
+        super().__init__(master, pageTitle="Bazaar-To-Auction-Flip-Profit", buttonText="Bazaar to Auction Flip Profit")
+        self.currentParser = None
+
+        self.useBuyOffers = tk.Checkbutton(self.contentFrame, SG)
+        self.useBuyOffers.setText("Use-Buy-Offers").setSelected()
+        self.useBuyOffers.onSelectEvent(self.updateTreeView)
+        self.useBuyOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150)
+
+        #self.showStackProfit = tk.Checkbutton(self.contentFrame, SG)
+        #self.showStackProfit.setText("Show-Profit-as-Stack[x64]")
+        #self.showStackProfit.onSelectEvent(self.updateTreeView)
+        #self.showStackProfit.placeRelative(fixHeight=25, stickDown=True, fixWidth=200, fixX=300)
+
+        tk.Label(self.contentFrame, SG).setText("Search:").placeRelative(fixHeight=25, stickDown=True, fixWidth=100, fixX=500)
+
+        self.searchE = tk.Entry(self.contentFrame, SG)
+        self.searchE.bind(self._clearAndUpdate, tk.EventType.RIGHT_CLICK)
+        self.searchE.onUserInputEvent(self.updateTreeView)
+        self.searchE.placeRelative(fixHeight=25, stickDown=True, fixWidth=100, fixX=600)
+
+        self.treeView = tk.TreeView(self.contentFrame, SG)
+        #self.treeView.setNoSelectMode()
+        self.treeView.setTableHeaders("Recipe", "Profit-Per-Item", "Ingredients-Buy-Price-Per-Item", "Needed-Item-To-Craft")
+        self.treeView.placeRelative(changeHeight=-25)
+
+
+        self._ownAucItems = [i.value for i in AuctionItemID]
+        self._ownBzItems = [i.value for i in BazaarItemID]
+        self.forceAdd = [
+            AuctionItemID.DAY_SAVER.value
+        ]
+        self.validRecipes = self._getValidRecipes()
+        print("valid", [i.getID() for i in self.validRecipes])
+        self.validBzItems = [i.getID() for i in self.validRecipes]
+    def _clearAndUpdate(self):
+        self.searchE.clear()
+        self.updateTreeView()
+    def _getValidRecipes(self):
+        validRecipes = []
+        for recipe in RecipeAPI.getRecipes():
+            if not self.isAuctionItem(recipe.getID()): continue # filter Items to only take Auction Items
+            validIngredient = True
+            ingredients = recipe.getItemInputList()
+            if ingredients is None: # no recipe available
+                continue
+            for ingredient in ingredients:
+                indName = ingredient["name"]
+                if not self.isBazaarItem(indName): # filter ingredients
+                    if recipe.getID() not in self.forceAdd:
+                        validIngredient = False
+                        break
+            if validIngredient:
+                validRecipes.append(recipe)
+        return validRecipes
+    def isAuctionItem(self, item:str)->bool:
+        return item in self._ownAucItems
+    def isBazaarItem(self, item:str)->bool:
+        return item in self._ownBzItems
+    def updateTreeView(self):
+        self.treeView.clear()
+        if SKY_BLOCK_API_PARSER is None:
+            tk.SimpleDialog.askError(self.master, "Cannot calculate! No API data available!")
+            return
+        if not self.showStackProfit.getValue():
+            factor = 1
+            self.treeView.setTableHeaders("Recipe", "Profit-Per-Item", "Ingredients-Buy-Price-Per-Item", "Needed-Item-To-Craft")
+        else:
+            factor = 64
+            self.treeView.setTableHeaders("Recipe", "Profit-Per-Stack[x64]", "Ingredients-Buy-Price-Per-Stack[x64]", "Needed-Item-To-Craft[x64]")
+
+        validItems = search([self.validBzItems], self.searchE.getValue(), printable=False)
+
+        recipeList = []
+        #print("=======================================================================================")
+        for recipe in self.validRecipes:
+            #if recipe.getID().lower() != "compactor": continue
+            result = recipe.getID()
+
+            if self.searchE.getValue() != "":
+                if recipe.getID() not in validItems: continue
+
+            #if "ENCHANTED_SLIME_BLOCK" != result: continue
+            #print("result", result)
+            resultItem = SKY_BLOCK_API_PARSER.getProductByID(result)
+            ingredients = recipe.getItemInputList()
+            craftPrice = 0
+            requiredItemString = "("
+
+            ## Result price ##
+            #TODO get cheapest Auction house item price -> "resultItem"
+            resultPrice = 0
+
+
+            ## ingredients calc ##
+            for ingredient in ingredients:
+                name = ingredient["name"]
+                amount = ingredient["amount"]
+                requiredItemString+=f"{name}[{amount*factor}], "
+
+                if name not in self._ownBzItems: continue
+
+                ingredientItem = SKY_BLOCK_API_PARSER.getProductByID(name)
+
+                ## ingredients price ##
+                if self.useBuyOffers.getValue():  # use buy Offer ingredients
+                    #print(f"Offer one {name}:", ingredientItem.getInstaSellPrice()+.1)
+                    ingredientPrice = [ingredientItem.getInstaSellPrice()+.1] * amount
+                else:  # insta buy ingredients
+                    ingredientPrice = ingredientItem.getInstaBuyPriceList(amount)
+                if len(ingredientPrice) != amount:
+                    result+="*"
+                    extentAm = amount - len(ingredientPrice)
+                    average = sum(ingredientPrice)/amount
+                    ingredientPrice.extend([average]*extentAm)
+                #print(len(ingredientPrice), "==", amount)
+                print("Inde", name, amount, "fullPrice", sum(ingredientPrice))
+
+                craftPrice += sum(ingredientPrice)
+            #print("craftPrice", craftPrice)
+            #print("sellPrice", resultPrice)
+            profitPerCraft = resultPrice - craftPrice # profit calculation
+            requiredItemString = requiredItemString[:-2]+")"
+
+            recipeList.append(RecipeResult(result, profitPerCraft*factor, craftPrice*factor, requiredItemString))
+        recipeList.sort()
+        for rec in recipeList:
+            self.treeView.addEntry(
+                rec.getID(),
+                prizeToStr(rec.getProfit()),
+                prizeToStr(rec.getCraftPrice()),
+                rec.getRequired()
+            )
+    def onShow(self, **kwargs):
+        self.placeRelative()
+        self.updateTreeView()
+        self.placeContentFrame()
+
+
+
+
+
+
+
 
 # Menu Pages
 class MainMenuPage(CustomMenuPage):
@@ -1071,7 +1450,9 @@ class Window(tk.Tk):
             InfoMenuPage(self, [
                 ItemInfoPage(self),
                 MayorInfoPage(self),
-                CraftProfitPage(self)
+                CraftProfitPage(self),
+                BazaarToAuctionHouseFlipProfitPage(self),
+                ComposterProfitPage(self)
             ]),
             EnchantingMenuPage(self, [
                 EnchantingBookBazaarCheapestPage(self),

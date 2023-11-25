@@ -22,6 +22,13 @@ class Config:
         "constants":{
             "bazaar_tax":1.25,
             "hypixel_config_path":""
+        },
+        "composter":{
+            "speed":1,
+            "multi_drop":1,
+            "fuel_cap":1,
+            "matter_cap":1,
+            "cost_reduction":1
         }
     })
     SETTINGS_CONFIG.load("settings.json")

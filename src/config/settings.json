@@ -1,8 +1,15 @@
 {
     "player_name": "LOL_Hunter",
-    "api_key": "29e6c1b8-d84d-45b2-9bd5-d84d5fa37bdb",
+    "api_key": "ef951dd8-d659-45e7-baaa-46ad977383d7",
     "constants": {
         "bazaar_tax": 1.125,
         "hypixel_config_path": "C:\\Users\\langh\\Desktop\\bankdata.json"
-    }
+    },
+    "composter":{
+            "speed":0,
+            "multi_drop":0,
+            "fuel_cap":0,
+            "matter_cap":0,
+            "cost_reduction":0
+        }
 }
