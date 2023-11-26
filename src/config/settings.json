@@ -5,11 +5,11 @@
         "bazaar_tax": 1.125,
         "hypixel_config_path": "C:\\Users\\langh\\Desktop\\bankdata.json"
     },
-    "composter":{
-            "speed":0,
-            "multi_drop":0,
-            "fuel_cap":0,
-            "matter_cap":0,
-            "cost_reduction":0
-        }
+    "composter": {
+        "speed": 5,
+        "multi_drop": 5,
+        "fuel_cap": 0,
+        "matter_cap": 5,
+        "cost_reduction": 0
+    }
 }

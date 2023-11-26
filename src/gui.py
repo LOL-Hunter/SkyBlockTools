@@ -561,7 +561,6 @@ class EnchantingBookBazaarProfitPage(CustomPage):
         super().__init__(master, pageTitle="Book Combine Profit Page", buttonText="Book Combine Profit")
 
         self.treeView = tk.TreeView(self.contentFrame, SG)
-        self.treeView.setNoSelectMode()
         self.treeView.setTableHeaders("Name", "Buy-Price", "Sell-Price", "Profit", "Times-Combine", "Insta-Sell/Hour", "Insta-Buy/Hour")
         self.treeView.placeRelative(changeHeight=-25)
 
@@ -617,7 +616,6 @@ class EnchantingBookBazaarProfitPage(CustomPage):
             if self.whiteList is not None and self.useWhiteList.getValue(): # whiteList Active
                 if currentItem not in self.whiteList and not (self.includeUltimate.getValue() and currentItem.startswith("ENCHANTMENT_ULTIMATE")):
                     continue
-
             currentItem = enchIDToLvl[currentItem][-1] # get Highest Enchantment
 
 
@@ -670,7 +668,6 @@ class EnchantingBookBazaarProfitPage(CustomPage):
 
         eDataComplete.sort()
         for bookCraft in eDataComplete:
-            if "bank" not in bookCraft.getIDFrom().lower(): continue
             if not self.useBuyOffers.getValue():
                 if bookCraft.getFromAmount() is None: continue
                 self.treeView.addEntry(
@@ -710,7 +707,6 @@ class EnchantingBookBazaarCheapestPage(CustomPage):
         self.useBuyOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150)
 
         self.treeView = tk.TreeView(self.contentFrame, SG)
-        self.treeView.setNoSelectMode()
         self.treeView.setTableHeaders("Using-Book", "Buy-Price-Per-Item", "Buy-Amount", "Total-Buy-Price", "Saved-Coins")
         self.treeView.placeRelative(changeHeight=-25)
 
@@ -972,6 +968,11 @@ class ComposterProfitPage(CustomPage):
         self.useSellOffers.onSelectEvent(self.updateTreeView)
         self.useSellOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=150)
 
+        self.openSettings = tk.Button(self.contentFrame, SG)
+        self.openSettings.setText("Composter-Settings")
+        self.openSettings.setCommand(self.openComposterSettings)
+        self.openSettings.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=150)
+
         self.matterLf = tk.LabelFrame(self.contentFrame, SG)
         self.matterLf.setText("Plant Matter [coins per matter]")
         self.matterLb = tk.Listbox(self.matterLf, SG)
@@ -1012,6 +1013,8 @@ class ComposterProfitPage(CustomPage):
         #self.showStackProfit.setText("Show-Profit-as-Stack[x64]")
         #self.showStackProfit.onSelectEvent(self.updateTreeView)
         #self.showStackProfit.placeRelative(fixHeight=25, stickDown=True, fixWidth=200, fixX=300)
+    def openComposterSettings(self):
+        SettingsGUI.openComposterSettings(self.master, onScrollHook=self.updateTreeView)
     def onListboxSelect(self, e):
         type_ = e.getArgs(0)
         if type_ == "matter":
@@ -1069,7 +1072,6 @@ class ComposterProfitPage(CustomPage):
 
             pricePerMatter = ingredientPrice[0]/value
 
-
             sortedMatter.append(Sorter(pricePerMatter, name=name))
         sortedMatter.sort()
         self.sortedMatter = sortedMatter[::-1]
@@ -1084,7 +1086,7 @@ class ComposterProfitPage(CustomPage):
         durationSeconds = 600
 
         # upgrades
-        speed = data["speed"] * 20
+        speed = data["speed"]
         mulDrop = data["multi_drop"] * 3
         fuelCap = data["fuel_cap"] * 30_000 + 100_000
         matterCap = data["matter_cap"] * 20_000 + 40_000
@@ -1094,9 +1096,7 @@ class ComposterProfitPage(CustomPage):
         matterRequired *= (100 - costReduct) / 100
         fuelRequired *= (100 - costReduct) / 100
 
-        timeToProduceOne = 0
-        canProduceFromFullMatterTank = int(matterCap / matterRequired)
-        canProduceFromFullFuelTank = int(fuelCap / fuelRequired)
+        newDuration = 1/((6 + 6 * 0.2 * speed) / 3600) # new duration to produce one compost
 
         return {
             "multiple_drop_percentage": mulDrop,
@@ -1104,13 +1104,11 @@ class ComposterProfitPage(CustomPage):
             "fuel_required": fuelRequired,
             "matter_cap":matterCap,
             "fuel_cap":fuelCap,
-            "duration_seconds":600
-            #TODO add SPEED
+            "duration_seconds":newDuration
         }
-    def addMultipleChance(self, single_from_, chance, amount):
-        #TODO test
-        single_from_ += single_from_*(chance/100)
-        return single_from_ * amount
+    def addMultipleChance(self, chance, amount):
+        amount += amount*(chance/100)
+        return amount
     def updateTreeView(self):
         if self.sortedFuel is None or self.sortedMatter is None: return
         if SKY_BLOCK_API_PARSER is None: return
@@ -1148,15 +1146,11 @@ class ComposterProfitPage(CustomPage):
         coinsPerMatter = self.sortedMatter[self.selectedMatter].get()
         coinsPerFuel = self.sortedFuel[self.selectedFuel].get()
 
-        print("coins Matter", coinsPerMatter * data["matter_required"])
-        print("coins Fuel", coinsPerFuel * data["fuel_required"])
-
-
         singleCost = (coinsPerMatter * data["matter_required"] + coinsPerFuel * data["fuel_required"])
         singleProfit = compostSellPrice - singleCost
         enchantedSingleCost = (compostESellPrice - (singleCost*160)) / 160
         #TODO test
-        enchantedSingleCostA = (compostESellPrice - (self.addMultipleChance(singleCost, data['multiple_drop_percentage'], 160))) / 160 # with multiple_drop_percentage
+        enchantedSingleCostA = (compostESellPrice - (singleCost*self.addMultipleChance(data['multiple_drop_percentage'], 160))) / 160 # with multiple_drop_percentage
 
         compostFullFuel = round(data['fuel_cap']/data['fuel_required'], 2)
         compostFullMatter = round(data['matter_cap']/data['matter_required'], 2)
@@ -1166,23 +1160,23 @@ class ComposterProfitPage(CustomPage):
         else:
             upgrade = "fuel"
             compostFull = compostFullFuel
-
         self.textT.clear()
         text = f"Matter-Type: {matterType['name']}\n"
-        text += f"Fuel-Type: {fuelType['name']}\n"
+        text += f"Matter-Required-Full-Tank: {int(data['matter_cap']/self.organic_matter_data[matterType['name']])}\n"
         text += f"Matter-Tank: {prizeToStr(data['matter_cap'], True)}\n"
+        text += f"Fuel-Type: {fuelType['name']}\n"
+        text += f"Fuel-Required-Full-Tank: {int(data['fuel_cap']/self.fuel_data[fuelType['name']])}\n"
         text += f"Fuel-Tank: {prizeToStr(data['fuel_cap'], True)}\n"
         text += f"Time-Per-Compost: {parseTimeFromSec(data['duration_seconds'])}\n\n"
         text += f"===== PROFIT =====\n"
         text += f"Single-Profit(no mul drop): {prizeToStr(singleProfit)}\n"
-        text += f"Stack-Profit(x64): {prizeToStr(singleProfit*64)} (~{prizeToStr(self.addMultipleChance(singleProfit, data['multiple_drop_percentage'], 64))} per)\n"
+        text += f"Stack-Profit(x64): {prizeToStr(singleProfit*64)} (~{prizeToStr(singleProfit * self.addMultipleChance(data['multiple_drop_percentage'], 64))} per)\n"
         text += f"Profit-Enchanted-Compost(x1 compost): {prizeToStr(enchantedSingleCost)}\n"
         text += f"Profit-Enchanted-Compost(x160 compost): {prizeToStr(enchantedSingleCostA)}\n\n"
         text += f"== OFFLINE ==\n"
         text += f"Compost-With-Full-Tanks: {compostFull} (upgrade: {upgrade})\n"
         text += f"Duration-With-Full-Tanks: {parseTimeFromSec(data['duration_seconds'] * compostFull)}\n"
-        #TODO test
-        text += f"Full-Composter-Profit: ~{prizeToStr(self.addMultipleChance(singleProfit, data['multiple_drop_percentage'], compostFull)*compostFull)}\n"
+        text += f"Full-Composter-Profit: ~{prizeToStr(singleProfit*self.addMultipleChance(data['multiple_drop_percentage'], compostFull))}\n"
         self.textT.setStrf(text)
     def onShow(self, **kwargs):
         self.placeRelative()

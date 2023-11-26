@@ -1,5 +1,6 @@
 from pysettings import tk
 from pysettings.jsonConfig import AdvancedJsonConfig
+from pysettings import iterDict
 from constants import STYLE_GROUP as SG
 import os
 from webbrowser import open as openURL
@@ -34,6 +35,30 @@ class Config:
     SETTINGS_CONFIG.load("settings.json")
     SettingValue.CONFIG = SETTINGS_CONFIG
 
+class ComposterSettings(tk.Frame):
+    def __init__(self, master, onScrollHook=None):
+        super().__init__(master)
+        self.master = master
+        self.onScrollHook = onScrollHook
+        i=0
+        for upgr, lvl in iterDict(Config.SETTINGS_CONFIG["composter"]):
+            tk.Label(master, SG).setText(upgr).placeRelative(fixHeight=50, fixWidth=100, fixY=i*50)
+            scale = tk.Scale(master, to=25)
+            scale.onScroll(self.onChange, args=[upgr])
+            scale.setValue(lvl)
+            scale.placeRelative(fixHeight=50, fixX=100, fixY=i*50)
+            i+=1
+
+    def onChange(self, e):
+        value = e.getWidget().getValue()
+        Config.SETTINGS_CONFIG["composter"][e.getArgs(0)] = int(value)
+        Config.SETTINGS_CONFIG.save()
+        if self.onScrollHook is not None: self.onScrollHook()
+
+
+
+
+
 
 class SettingsGUI(tk.Dialog):
     def __init__(self, master):
@@ -49,7 +74,6 @@ class SettingsGUI(tk.Dialog):
 
         self.createGeneralTab(self.generalTab)
         self.createConstantsTab(self.constTab)
-
 
         self.show()
         self.lift()
@@ -90,8 +114,6 @@ class SettingsGUI(tk.Dialog):
         self.valueLf.place(0, 50, 305, 300)
 
 
-
-
     def _enter(self):
         self.urlL.setText(API_URL)
     def _leave(self):
@@ -102,6 +124,14 @@ class SettingsGUI(tk.Dialog):
 
     def _openChangeWindow(self):
         SettingsGUI.openAPIKeyChange(self)
+
+    @staticmethod
+    def openComposterSettings(master, finishHook=None, onScrollHook=None):
+        dialog = tk.Dialog(master, SG)
+        dialog.setWindowSize(400, 400)
+        ComposterSettings(dialog, onScrollHook)
+        if finishHook is not None: dialog.onCloseEvent(finishHook)
+        dialog.show()
 
     @staticmethod
     def openAPIKeyChange(master, continueAt=None):
