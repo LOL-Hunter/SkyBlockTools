@@ -1,0 +1,54 @@
+[
+    {
+        "item_id": "WHITE_GIFT",
+        "finished": false,
+        "items_bought": true,
+        "sold_for": 0,
+        "data": [
+            {
+                "amount": 6912,
+                "price": 7000.0
+            }
+        ],
+        "finish": true
+    },
+    {
+        "item_id": "PURPLE_CANDY",
+        "finished": false,
+        "items_bought": true,
+        "sold_for": 0,
+        "data": [
+            {
+                "amount": 3456,
+                "price": 13394.0
+            }
+        ],
+        "finish": true
+    },
+    {
+        "item_id": "ENCHANTMENT_VAMPIRISM_6",
+        "finished": false,
+        "items_bought": true,
+        "sold_for": 0,
+        "data": [
+            {
+                "amount": 37,
+                "price": 550000.0
+            }
+        ],
+        "finish": true
+    },
+    {
+        "item_id": "GREAT_WHITE_SHARK_TOOTH",
+        "finished": false,
+        "items_bought": false,
+        "sold_for": 0,
+        "data": [
+            {
+                "amount": 10,
+                "price": 1800002.3709459463
+            }
+        ],
+        "finish": true
+    }
+]

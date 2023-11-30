@@ -4,7 +4,7 @@
         "key": "slayer",
         "perks": [
             {
-                "description": "Starting slayer quests is ehalf price.",
+                "description": "Starting slayer quests is half price.",
                 "name": "SLASHED Pricing"
             },
             {
@@ -12,7 +12,7 @@
                 "name": "Pathfinder"
             },
             {
-                "description": "Earn d25% more Slayer XP.",
+                "description": "Earn 25% more Slayer XP.",
                 "name": "Slayer XP Buff"
             }
         ]
@@ -40,15 +40,15 @@
         "key": "pets",
         "perks": [
             {
-                "description": "Gain d+25 Pet Luck.",
+                "description": "Gain +25 Pet Luck.",
                 "name": "Lucky!"
             },
             {
-                "description": "Mayor Diana will sell the Griffin pet, which lets you find Mythological Creatures and tons of eunique items.",
+                "description": "Mayor Diana will sell the Griffin pet, which lets you find Mythological Creatures and tons of unique items.",
                 "name": "Mythological Ritual"
             },
             {
-                "description": "Gain d35% more pet XP.",
+                "description": "Gain 35% more pet XP.",
                 "name": "Pet XP Buff"
             }
         ]
@@ -62,7 +62,7 @@
                 "name": "Barrier Street"
             },
             {
-                "description": "Increase daily NPC buy limits by e10x.",
+                "description": "Increase daily NPC buy limits by 10x.",
                 "name": "Shopping Spree"
             }
         ]
@@ -94,7 +94,7 @@
                 "name": "Extra Event"
             },
             {
-                "description": "Gain c2.5x gifts from the attack event on Jerry's Workshop.",
+                "description": "Gain 2.5x gifts from the attack event on Jerry's Workshop.",
                 "name": "Benevolence"
             },
             {
@@ -126,15 +126,15 @@
         "key": "dungeons",
         "perks": [
             {
-                "description": "Blessings are d25% stronger.",
+                "description": "Blessings are 25% stronger.",
                 "name": "Benediction"
             },
             {
-                "description": "Gain e10 bonus score on dungeon runs.",
+                "description": "Gain 10 bonus score on dungeon runs.",
                 "name": "EZPZ"
             },
             {
-                "description": "Dungeon reward chests are e20% cheaper.",
+                "description": "Dungeon reward chests are 20% cheaper.",
                 "name": "Marauder"
             }
         ]

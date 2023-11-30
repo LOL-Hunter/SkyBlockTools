@@ -5,7 +5,7 @@ from hyPI.APIError import APIConnectionError, NoAPIKeySetException
 from hyPI.hypixelAPI.loader import HypixelBazaarParser
 from hyPI.skyCoflnetAPI import SkyConflnetAPI
 from hyPI.recipeAPI import RecipeAPI
-from pysettings import tk, iterDict
+from pysettings import tk, iterDict, ID
 from pysettings.jsonConfig import JsonConfig
 from pysettings.text import MsgText, TextColor
 from traceback import format_exc
@@ -20,7 +20,7 @@ from matplotlib.figure import Figure
 from pytz import timezone
 
 from analyzer import getPlotData, getCheapestEnchantmentData
-from constants import STYLE_GROUP as SG, LOAD_STYLE, INFO_LABEL_GROUP as ILG
+from constants import STYLE_GROUP as SG, LOAD_STYLE, INFO_LABEL_GROUP as ILG, Color
 from skyMath import *
 from skyMisc import *
 from widgets import CompleterEntry, CustomPage, CustomMenuPage
@@ -326,6 +326,7 @@ class MayorInfoPage(CustomPage):
         self.currentMayor = self.mayorHist.getCurrentMayor()
         self.configureContentFrame()
     def onShow(self, **kwargs):
+        self.master.updateCurrentPageHook = None  # hook to update tv on new API-Data available
         self.placeRelative()
         self.api.startAPIRequest()
 class ItemInfoPage(CustomPage):
@@ -501,6 +502,7 @@ class ItemInfoPage(CustomPage):
         self.selectedMode = e.getArgs(0)
         self.api.startAPIRequest()
     def onShow(self, **kwargs):
+        self.master.updateCurrentPageHook = None  # hook to update tv on new API-Data available
         for i in self.timeRangeBtns:
             i.setStyle(tk.Style.RAISED)
         self.timeRangeBtns[0].setStyle(tk.Style.SUNKEN)
@@ -690,6 +692,7 @@ class EnchantingBookBazaarProfitPage(CustomPage):
                     image=self.eBookImage
                 )
     def onShow(self, **kwargs):
+        self.master.updateCurrentPageHook = self.updateTreeView  # hook to update tv on new API-Data available
         self.placeRelative()
         self.updateTreeView()
         self.placeContentFrame()
@@ -709,7 +712,6 @@ class EnchantingBookBazaarCheapestPage(CustomPage):
         self.treeView = tk.TreeView(self.contentFrame, SG)
         self.treeView.setTableHeaders("Using-Book", "Buy-Price-Per-Item", "Buy-Amount", "Total-Buy-Price", "Saved-Coins")
         self.treeView.placeRelative(changeHeight=-25)
-
     def updateTreeView(self):
         self.treeView.clear()
         if SKY_BLOCK_API_PARSER is None:
@@ -783,11 +785,8 @@ class EnchantingBookBazaarCheapestPage(CustomPage):
                         prizeToStr(bookCraft.getFromSellVolume(), hideCoins=True),
                         image=self.eBookImage
                     )
-
-
-
-#{'book_from_id': 'ENCHANTMENT_GREEN_THUMB_1', 'book_from_amount': 16, 'anvil_operation_amount': 15, 'book_from_buy_price': 137473706.30000004, 'book_from_buy_volume': 656, 'book_from_sells_per_hour': None}
     def onShow(self, **kwargs):
+        self.master.updateCurrentPageHook = self.updateTreeView  # hook to update tv on new API-Data available
         self.currentItem = kwargs["itemName"]
         self.placeRelative()
         self.updateTreeView()
@@ -803,12 +802,12 @@ class CraftProfitPage(CustomPage):
         super().__init__(master, pageTitle="Bazaar-Craft-Profit", buttonText="Bazaar Craft Profit")
         self.currentParser = None
 
-        self.useBuyOffers = tk.Checkbutton(self.contentFrame, SG)
+        self.useBuyOffers = tk.Checkbutton(self.contentFrame, SG).setSelected()
         self.useBuyOffers.setText("Use-Buy-Offers")
         self.useBuyOffers.onSelectEvent(self.updateTreeView)
         self.useBuyOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150)
 
-        self.useSellOffers = tk.Checkbutton(self.contentFrame, SG)
+        self.useSellOffers = tk.Checkbutton(self.contentFrame, SG).setSelected()
         self.useSellOffers.setText("Use-Sell-Offers")
         self.useSellOffers.onSelectEvent(self.updateTreeView)
         self.useSellOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=150)
@@ -948,6 +947,154 @@ class CraftProfitPage(CustomPage):
                 rec.getRequired()
             )
     def onShow(self, **kwargs):
+        self.master.updateCurrentPageHook = self.updateTreeView  # hook to update tv on new API-Data available
+        self.placeRelative()
+        self.updateTreeView()
+        self.placeContentFrame()
+class BazaarFlipProfitPage(CustomPage):
+    def __init__(self, master):
+        super().__init__(master, pageTitle="Bazaar-Flip-Profit", buttonText="Bazaar Flip Profit")
+        self.currentParser = None
+        self.perMode = None # "per_hour" / "per_week"
+
+        self.useBuyOffers = tk.Checkbutton(self.contentFrame, SG).setSelected()
+        self.useBuyOffers.setText("Use-Buy-Offers")
+        self.useBuyOffers.onSelectEvent(self.updateTreeView)
+        self.useBuyOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150)
+
+        self.useSellOffers = tk.Checkbutton(self.contentFrame, SG).setSelected()
+        self.useSellOffers.setText("Use-Sell-Offers")
+        self.useSellOffers.onSelectEvent(self.updateTreeView)
+        self.useSellOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=150)
+
+        self.showStackProfit = tk.Checkbutton(self.contentFrame, SG)
+        self.showStackProfit.setText("Show-Profit-as-Stack[x64]")
+        self.showStackProfit.onSelectEvent(self.updateTreeView)
+        self.showStackProfit.placeRelative(fixHeight=25, stickDown=True, fixWidth=200, fixX=300)
+
+        self.includeEnchantments = tk.Checkbutton(self.contentFrame, SG)
+        self.includeEnchantments.setText("Include-Enchantments")
+        self.includeEnchantments.onSelectEvent(self.updateTreeView)
+        self.includeEnchantments.placeRelative(fixHeight=25, stickDown=True, fixWidth=200, fixX=700)
+
+        self.showOthersTry = tk.Checkbutton(self.contentFrame, SG)
+        self.showOthersTry.setText("Show-other-Try-To-buy/sell")
+        self.showOthersTry.onSelectEvent(self.updateTreeView)
+        self.showOthersTry.placeRelative(fixHeight=25, stickDown=True, fixWidth=200, fixX=900)
+
+        self.perHour = tk.Button(self.contentFrame, SG)
+        self.perHour.setText("Sells/Buys-per-Hour: Hidden")
+        self.perHour.setCommand(self.toggleSellsPer)
+        self.perHour.placeRelative(fixHeight=25, stickDown=True, fixWidth=200, fixX=1200)
+
+        tk.Label(self.contentFrame, SG).setText("Search:").placeRelative(fixHeight=25, stickDown=True, fixWidth=100, fixX=500)
+
+        self.searchE = tk.Entry(self.contentFrame, SG)
+        self.searchE.bind(self._clearAndUpdate, tk.EventType.RIGHT_CLICK)
+        self.searchE.onUserInputEvent(self.updateTreeView)
+        self.searchE.placeRelative(fixHeight=25, stickDown=True, fixWidth=100, fixX=600)
+
+        self.treeView = tk.TreeView(self.contentFrame, SG)
+        self.treeView.placeRelative(changeHeight=-25)
+
+
+        self._ownBzItems = [i.value for i in BazaarItemID]
+    def toggleSellsPer(self):
+        match self.perMode:
+            case None:
+                self.perMode = "per_week"
+            case "per_week":
+                self.perMode = "per_hour"
+            case "per_hour":
+                self.perMode = None
+        self.updateTreeView()
+    def _clearAndUpdate(self):
+        self.searchE.clear()
+        self.updateTreeView()
+    def isBazaarItem(self, item:str)->bool:
+        return item in self._ownBzItems
+    def updateTreeView(self):
+        self.treeView.clear()
+        if SKY_BLOCK_API_PARSER is None:
+            tk.SimpleDialog.askError(self.master, "Cannot calculate! No API data available!")
+            return
+        if not self.showStackProfit.getValue():
+            factor = 1
+            titles = ["Item", "Profit-Per-Item", "Buy-Price", "Sell-Price"]#"Others-Try-To-Buy", "Others-Try-To-Sell", "Buy-Per-Week", "Sell-Per-Week"
+        else:
+            factor = 64
+            titles = ["Item", "Profit-Per-Stack[x64]", "Buy-Price[x64]", "Sell-Price[x64]"]
+        if self.showOthersTry.getValue():
+            titles.extend(["Others-Try-To-Buy", "Others-Try-To-Sell"])
+        if self.perMode == "per_hour":
+            titles.extend(["Buy-Per-Hour", "Sell-Per-Hour"])
+        if self.perMode == "per_week":
+            titles.extend(["Buy-Per-Week", "Sell-Per-Week"])
+        self.treeView.setTableHeaders(titles)
+
+        validItems = search([BazaarItemID], self.searchE.getValue(), printable=False)
+
+        itemList = []
+        #print("=======================================================================================")
+        for itemID in BazaarItemID:
+            itemID = itemID.value
+
+            if self.searchE.getValue() != "" and itemID not in validItems: continue
+
+            if itemID.startswith("ENCHANTMENT") and not self.includeEnchantments.getValue(): continue
+
+
+            item = SKY_BLOCK_API_PARSER.getProductByID(itemID)
+            if item is None:
+                print(itemID)
+                continue
+            ## Sell price ##
+            if self.useSellOffers.getValue(): # use sell Offer
+                itemSellPrice = item.getInstaBuyPrice()
+            else: # insta sell
+                itemSellPrice = item.getInstaSellPrice()
+            itemSellPrice = applyBazaarTax(itemSellPrice)
+            if not itemSellPrice: continue # sell is zero
+            ## Buy price ##
+            if self.useBuyOffers.getValue():
+                itemBuyPrice = [item.getInstaSellPrice() + .1] * factor
+            else:  # insta buy ingredients
+                itemBuyPrice = item.getInstaBuyPriceList(factor)
+            if len(itemBuyPrice) != factor:
+                print(f"[BazaarFlipper]: Item {itemID}. not enough in buy!")
+                continue
+            itemBuyPrice = sum(itemBuyPrice)
+            profitPerFlip = itemSellPrice - itemBuyPrice # profit calculation
+
+            itemList.append(Sorter(profitPerFlip,
+                                   ID=itemID,
+                                   buy=itemBuyPrice,
+                                   sell=itemSellPrice,
+                                   sellsPerWeek=item.getInstaSellWeek(),
+                                   buysPerWeek=item.getInstaBuyWeek(),
+                                   sellsPerHour=item.getInstaSellWeek() / 168,
+                                   buysPerHour=item.getInstaBuyWeek() / 168,
+                                   sellVolume=item.getSellVolume(),
+                                   sellOrders=item.getSellOrdersTotal(),
+                                   buyVolume=item.getBuyVolume(),
+                                   buyOrders=item.getBuyOrdersTotal()))
+        itemList.sort()
+        for rec in itemList:
+            input_ = [
+                rec["ID"],
+                prizeToStr(rec.get()),
+                prizeToStr(rec["buy"]),
+                prizeToStr(rec["sell"])
+            ]
+            if self.showOthersTry.getValue():
+                input_.extend([f"{rec['buyVolume']} in {rec['buyOrders']} Orders", f"{rec['sellVolume']} in {rec['sellOrders']} Orders"])
+            if self.perMode == "per_hour":
+                input_.extend([f"{round(rec['buysPerHour'], 2)}", f"{round(rec['sellsPerHour'], 2)}"])
+            if self.perMode == "per_week":
+                input_.extend([f"{rec['buysPerWeek']}", f"{rec['sellsPerWeek']}"])
+            self.treeView.addEntry(*input_)
+    def onShow(self, **kwargs):
+        self.master.updateCurrentPageHook = self.updateTreeView  # hook to update tv on new API-Data available
         self.placeRelative()
         self.updateTreeView()
         self.placeContentFrame()
@@ -1023,16 +1170,7 @@ class ComposterProfitPage(CustomPage):
             self.selectedFuel = self.fuelLb.getSelectedIndex()
         self.updateTreeView()
     def parseData(self):
-        class Sorter:
-            def __init__(self, sort, **kwargs):
-                self._sort = sort
-                self._data = kwargs
-            def __lt__(self, other):
-                return self._sort > other._sort
-            def __getitem__(self, item):
-                return self._data[item]
-            def get(self):
-                return self._sort
+
         if SKY_BLOCK_API_PARSER is None: return
         if self.fuel_data is None or self.organic_matter_data is None:
             self.sortedFuel = False
@@ -1179,8 +1317,8 @@ class ComposterProfitPage(CustomPage):
         text += f"Full-Composter-Profit: ~{prizeToStr(singleProfit*self.addMultipleChance(data['multiple_drop_percentage'], compostFull))}\n"
         self.textT.setStrf(text)
     def onShow(self, **kwargs):
+        self.master.updateCurrentPageHook = self.updateTreeView  # hook to update tv on new API-Data available
         self.placeRelative()
-        #self.parseData()
         self.updateTreeView()
         self.placeContentFrame()
 class BazaarToAuctionHouseFlipProfitPage(CustomPage):
@@ -1217,7 +1355,7 @@ class BazaarToAuctionHouseFlipProfitPage(CustomPage):
             AuctionItemID.DAY_SAVER.value
         ]
         self.validRecipes = self._getValidRecipes()
-        print("valid", [i.getID() for i in self.validRecipes])
+        #print("valid", [i.getID() for i in self.validRecipes])
         self.validBzItems = [i.getID() for i in self.validRecipes]
     def _clearAndUpdate(self):
         self.searchE.clear()
@@ -1318,16 +1456,441 @@ class BazaarToAuctionHouseFlipProfitPage(CustomPage):
                 rec.getRequired()
             )
     def onShow(self, **kwargs):
+        self.master.updateCurrentPageHook = self.updateTreeView # hook to update tv on new API-Data available
         self.placeRelative()
         self.updateTreeView()
         self.placeContentFrame()
 
+class LongTimeFlip(tk.Frame):
+    def __init__(self, page, master, data):
+        super().__init__(master, SG)
+        self.isOrder = False
+        self.data = data
+        self.master = master
+        self.page = page
+        self.bind(self.onEdit, tk.EventType.LEFT_CLICK)
+        self.selectedItem = self.data["item_id"]
+        self.setBg(Color.COLOR_GRAY)
+        self.titleL = tk.Label(self, SG).setFont(15)
+        self.titleL.bind(self.onEdit, tk.EventType.LEFT_CLICK)
+        self.titleL.setBg(Color.COLOR_GRAY)
+        self.titleL.setText(self.selectedItem)
+        self.titleL.placeRelative(fixHeight=25)
+        self.spendL = tk.Label(self, SG)
+        self.spendL.bind(self.onEdit, tk.EventType.LEFT_CLICK)
+        self.spendL.setBg(Color.COLOR_GRAY)
+        self.spendL.placeRelative(fixHeight=25, fixY=25)
+        self.sellNowL = tk.Label(self, SG)
+        self.sellNowL.bind(self.onEdit, tk.EventType.LEFT_CLICK)
+        self.sellNowL.setBg(Color.COLOR_GRAY)
+        self.sellNowL.placeRelative(fixHeight=25, fixY=50)
+        self.profitL = tk.Label(self, SG).setFont(16)
+        self.profitL.bind(self.onEdit, tk.EventType.LEFT_CLICK)
+        self.profitL.setBg(Color.COLOR_GRAY)
+        self.profitL.placeRelative(fixHeight=25, fixY=75)
+
+        self.profitL2 = tk.Label(self, SG).setFont(16)
+        self.profitL2.bind(self.onEdit, tk.EventType.LEFT_CLICK)
+        self.profitL2.setBg(Color.COLOR_GRAY)
+        self.profitL2.placeRelative(fixHeight=25, fixY=100)
+    def onEdit(self):
+        NewFlipWindow(self, self.master.getTkMaster(), self.selectedItem, finish=self.page.finishEdit, data=self.data).show()
+    def updateWidget(self, isOrder=None):
+        if isOrder is None:
+            isOrder = self.isOrder
+        else:
+            self.isOrder = isOrder
+        self.titleL.setText(self.data["item_id"])
+
+        sellPricePer = self.getSellSinglePrice(isOrder)
+        sellPrice, exact = self.getSellPrice(isOrder)
+        buyPrice = self.getPriceSpend()
+        buyPricePer = buyPrice/self.getAmountBought()
+        star = "*" if not exact else ""
+        if self.data["items_bought"]:
+            self._setBg(tk.Color.rgb(138, 90, 12))
+            self.profitL2.setFg(Color.COLOR_WHITE)
+            profit = sellPrice - buyPrice
+            self.spendL.setText(f"Coins Spend: {prizeToStr(self.getPriceSpend())} (Price Per: ~{prizeToStr(buyPricePer)})")
+            self.sellNowL.setText(f"Sell now{star}: {prizeToStr(sellPrice)} (Price Per: ~{prizeToStr(sellPricePer)})")
+            self.profitL.setText(f"Profit: {prizeToStr(profit)}")
+            self.profitL2.setText(f"Invest: {prizeToStr(buyPrice)}")
+        else:
+            self.profitL2.setFg("green")
+            self._setBg(tk.Color.rgb(46, 110, 96))
+            profit = sellPrice - buyPrice
+            self.spendL.setText(f"Worth at Start: {prizeToStr(buyPrice)} (Price Per: ~{prizeToStr(buyPricePer)})")
+            self.sellNowL.setText(f"Sell now{star}: {prizeToStr(sellPrice)} (Price Per: ~{prizeToStr(sellPricePer)})")
+            self.profitL.setText(f"Profit: {prizeToStr(profit)}")
+            self.profitL2.setText(f"Sell: {prizeToStr(sellPrice)}")
+        if profit > 0:
+            self.profitL.setFg("green")
+        else:
+            self.profitL.setFg("red")
+
+        self.getTkMaster().updateDynamicWidgets()
+    def _setBg(self, bg):
+        self.setBg(bg)
+        self.titleL.setBg(bg)
+        self.spendL.setBg(bg)
+        self.sellNowL.setBg(bg)
+        self.profitL.setBg(bg)
+        self.profitL2.setBg(bg)
 
 
 
+    def isFlip(self):
+        return self.data["items_bought"]
+    def isFinished(self):
+        return self.data["finished"]
+    def setName(self, name:str):
+        self.titleL.setText(name)
+    def getPriceSpend(self) -> float:
+        price = 0
+        for item in self.data["data"]:
+            price += item["price"] * item["amount"]
+        return price
+    def getAmountBought(self) -> int:
+        amount = 0
+        for item in self.data["data"]:
+            amount += item["amount"]
+        return amount
+    def getSellSinglePrice(self, offer=False):
+        item = SKY_BLOCK_API_PARSER.getProductByID(self.selectedItem)
+        if offer:  # use sell Offer
+            price = item.getInstaBuyPrice()
+        else:  # insta sell result
+            price = item.getInstaSellPrice()
+        return applyBazaarTax(price)  # add tax
+    def getSellPrice(self, offer) -> Tuple[float, bool]:
+        amount = self.getAmountBought()
+        item = SKY_BLOCK_API_PARSER.getProductByID(self.selectedItem)
+        if offer:  # use sell Offer
+            price = item.getInstaBuyPrice() * amount
+        else:  # insta sell result
+            price = item.getInstaSellPriceList(amount)
+            if len(price) != amount:
+                extentAm = amount - len(price)
+                average = sum(price) / amount
+                price.extend([average] * extentAm)
+                return sum(price), False
+            return sum(price), True
+        return applyBazaarTax(price), True  # add tax
+    def getPercentage(self):
+        pass
+    def setData(self, data):
+        self.data = data
+        self.updateWidget()
+    def toData(self):
+        return self.data
+class NewFlipWindow(tk.Dialog):
+    def __init__(self, page, master, itemId, data=None, finish=None):
+        super().__init__(master, SG)
+        self._finishHook = finish
+        self.master = master
+        self.itemID = itemId
+        self.data = data
+        self.page = page
+        self.selectedItem = None
 
+        self.setWindowSize(600, 600)
+        self.setResizeable(False)
+        self.onCloseEvent(self.finish)
+        self.setTitle("Add New Flip")
+        tk.Label(self, SG).setText(f"Selected-Item: {itemId}").setFont(16).placeRelative(fixHeight=30)
 
+        self.priceE = tk.TextEntry(self, SG)
+        self.priceE.setText("Price-Per-Item:")
+        self.priceE.getEntry().bind(self.onChange, tk.EventType.RETURN)
+        self.priceE.place(0, 30, 200, 25, entryStartX=105)
 
+        self.takeOfferPrice = tk.Button(self, SG)
+        self.takeOfferPrice.canTakeFocusByTab(False)
+        self.takeOfferPrice.setText("Use buy Offer Price")
+        self.takeOfferPrice.setCommand(self.takeOffer)
+        self.takeOfferPrice.place(200, 30, 150, 25)
+
+        self.setAmountE = tk.TextEntry(self, SG)
+        self.setAmountE.getEntry().bind(self.onChange, tk.EventType.RETURN)
+        self.setAmountE.setText("Set-Item-Amount:")
+        self.setAmountE.place(0, 30+25, 200, 25, entryStartX=105)
+
+        self.setAmountB = tk.Button(self, SG)
+        self.setAmountB.canTakeFocusByTab(False)
+        self.setAmountB.setText("Set Amount")
+        self.setAmountB.setCommand(self.onChange)
+        self.setAmountB.place(200, 30 + 25, 150, 25)
+
+        self.addAmountE = tk.TextEntry(self, SG)
+        self.addAmountE.setText("Add-Item-Amount:")
+        self.addAmountE.getEntry().bind(self.onChange, tk.EventType.RETURN)
+        self.addAmountE.place(0, 30 + 25*2, 200, 25, entryStartX=105)
+
+        self.addAmountB = tk.Button(self, SG)
+        self.addAmountB.canTakeFocusByTab(False)
+        self.addAmountB.setText("Add-Amount")
+        self.addAmountB.setCommand(self.onChange)
+        self.addAmountB.place(200, 30 + 25*2, 150, 25)
+
+        self.newEntryB = tk.Button(self, SG)
+        self.newEntryB.canTakeFocusByTab(False)
+        self.newEntryB.setText("New Flip Entry")
+        self.newEntryB.setCommand(self.newFlip)
+        self.newEntryB.place(0, 30+25*3, 350, 25)
+
+        self.deleteEntryB = tk.Button(self, SG).setDisabled()
+        self.deleteEntryB.canTakeFocusByTab(False)
+        self.deleteEntryB.setText("Delete Flip Entry")
+        self.deleteEntryB.setCommand(self.deleteSelectedFlip)
+        self.deleteEntryB.place(0, 30 + 25 * 4, 350, 25)
+
+        self.isFlipC = tk.Checkbutton(self, SG)
+        self.isFlipC.canTakeFocusByTab(False)
+        self.isFlipC.setText("0 -> Items bought for price|1-> Item are worth this Price")
+        self.isFlipC.place(0, 30 + 25 * 5, 350, 25)
+
+        self.isFinishedC = tk.Checkbutton(self, SG)
+        self.isFinishedC.canTakeFocusByTab(False)
+        self.isFinishedC.setText("Finished")
+        self.isFinishedC.place(0, 30 + 25 * 6, 350, 25)
+
+        self.disableWidgets()
+        self.treeView = tk.TreeView(self, SG)
+        self.treeView.onSingleSelectEvent(self.onSelect)
+        self.treeView.setTableHeaders("Amount", "Price-Per-Item", "Price")
+        self.treeView.placeRelative(fixY=200)
+        if data is not None:
+            self.isNew = False
+            self.readData(data)
+        else:
+            self.isNew = True
+            self.data = {
+                "item_id":self.itemID,
+                "finished":False,
+                "sold_for":0,
+                "items_bought":False,
+                "data":[]
+            }
+    def takeOffer(self):
+        item = SKY_BLOCK_API_PARSER.getProductByID(self.itemID)
+        price = item.getInstaSellPrice()+.1
+        self.priceE.setValue(str(price))
+    def onChange(self):
+        selectedIndex = self.treeView.getSelectedIndex()[0]
+        if selectedIndex == -1: return
+        add = self.addAmountE.getValue()
+        amount = self.setAmountE.getValue()
+        price = self.priceE.getValue()
+
+        if not amount.isnumeric():
+            tk.SimpleDialog.askError(self.master, "Amount is not Valid or Empty!")
+            return
+
+        if (not price.isnumeric() and "." not in price) or (not price.replace(".", "").isnumeric() and not price.count(".") == 1):
+            tk.SimpleDialog.askError(self.master, "Price is not Valid or Empty!")
+            return
+        if add != "" and not add.isnumeric():
+            tk.SimpleDialog.askError(self.master, "Add is not Valid!")
+            return
+        if add == "": add = 0
+        amount = int(amount) + int(add)
+        price = float(price)
+        if amount == 0 or price == 0:
+            tk.SimpleDialog.askError(self.master, "Price or Amount is Zero!")
+            return
+
+        self.addAmountE.clear()
+        self.setAmountE.setValue(str(amount))
+
+        data = self.data["data"][self.treeView.getSelectedIndex()[0]]
+        data["price"] = price
+        data["amount"] = amount
+
+        self.treeView.setEntry(prizeToStr(amount, True), prizeToStr(price), prizeToStr(amount*price), index=selectedIndex)
+    def onSelect(self):
+        self.enableWidgets()
+        data = self.data["data"][self.treeView.getSelectedIndex()[0]]
+        self.priceE.setValue(data["price"])
+        self.setAmountE.setValue(data["amount"])
+        self.addAmountE.setValue("")
+        if data["amount"] == "":
+            self.addAmountE.setDisabled()
+            self.addAmountB.setDisabled()
+        else:
+            self.addAmountE.setEnabled()
+            self.addAmountB.setEnabled()
+    def deleteSelectedFlip(self):
+        selectedIndex = self.treeView.getSelectedIndex()[0]
+        if selectedIndex == -1: return
+        self.enableWidgets()
+        self.clear()
+        self.disableWidgets()
+        self.data["data"].pop(selectedIndex)
+        self.treeView.deleteItemByIndex(selectedIndex)
+    def disableWidgets(self):
+        self.priceE.setDisabled()
+        self.setAmountE.setDisabled()
+        self.setAmountB.setDisabled()
+        self.addAmountE.setDisabled()
+        self.addAmountB.setDisabled()
+        self.takeOfferPrice.setDisabled()
+        self.deleteEntryB.setDisabled()
+    def enableWidgets(self):
+        self.priceE.setEnabled()
+        self.setAmountE.setEnabled()
+        self.setAmountB.setEnabled()
+        self.addAmountE.setEnabled()
+        self.addAmountB.setEnabled()
+        self.takeOfferPrice.setEnabled()
+        self.deleteEntryB.setEnabled()
+    def clear(self):
+        self.setAmountE.clear()
+        self.addAmountE.clear()
+        self.priceE.clear()
+    def newFlip(self):
+        self.treeView.addEntry("", "", "")
+        self.treeView.setItemSelectedByIndex(-1, clearFirst=True)
+        self.data["data"].append(
+            {
+                "amount":0,
+                "price":0
+            }
+        )
+        self.enableWidgets()
+        self.addAmountB.setDisabled()
+        self.addAmountE.setDisabled()
+    def finish(self):
+        if self.isNew: # create New or apply data
+            self.page.flips.append(LongTimeFlip(self.page, self.page.contentFrame, self.data))
+        self.data["items_bought"] = not self.isFlipC.getValue()
+        self.data["finish"] = not self.isFinishedC.getValue()
+        if self._finishHook is not None: self._finishHook()
+    def readData(self, data):
+        self.selectedItem = data["item_id"]
+        self.isFinishedC.setValue(self.data["finished"])
+        self.isFlipC.setValue(not self.data["items_bought"])
+        self.treeView.clear()
+
+        for dat in self.data["data"]:
+            amount = dat["amount"]
+            price = dat["price"]
+            self.treeView.addEntry(prizeToStr(amount, True), prizeToStr(price), prizeToStr(amount*price))
+class LongTimeFlipHelperPage(CustomPage):
+    def __init__(self, master):
+        super().__init__(master, pageTitle="Long-Time-Flip", buttonText="Long Time Flip")
+
+        self.flipGap = 5
+        self.flipWidth = 300 - self.flipGap
+        self.flipHeight = 150 - self.flipGap
+        self.flipw = 0
+        self.flips: List[LongTimeFlip] = []
+        self.js = None
+
+        self.master:Window = master
+        self.master.onWindowResize(self.onResizeEvent)
+        self.master.updateCurrentPageHook = self.updateView
+        #self.useBuyOffers = tk.Checkbutton(self.contentFrame, SG).setSelected()
+        #self.useBuyOffers.setText("Use-Buy-Offers")
+        #self.useBuyOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150)
+
+        self.useSellOffers = tk.Checkbutton(self.contentFrame, SG).setSelected()
+        self.useSellOffers.setText("Use-Sell-Offers")
+        self.useSellOffers.onSelectEvent(self.updateView)
+        self.useSellOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=0)
+
+        self.newFlip = tk.Button(self.contentFrame, SG)
+        self.newFlip.setText("New Flip")
+        self.newFlip.setCommand(self.addNewFlip)
+        self.newFlip.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=150)
+
+        self.modeS = tk.DropdownMenu(self.contentFrame, SG, optionList=[
+            "Show All Active",
+            "Show All Flips",
+            "Show All in Stock",
+        ])
+        self.modeS.setText("Show All Active")
+        self.modeS.onSelectEvent(self.updateView)
+        self.modeS.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=320)
+
+        self.showFinished = tk.Checkbutton(self.contentFrame, SG)
+        self.showFinished.setText("Show Finished")
+        self.showFinished.onSelectEvent(self.updateView)
+        self.showFinished.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=320+150)
+
+        self._decode()
+    def _decode(self):
+        path = os.path.join(CONFIG, "long_time_flip_config.json")
+        if not os.path.exists(path):
+            tk.SimpleDialog.askWarning(self.master, "long_time_flip_config.json dosent exist. Creating blank at:\n"+path)
+            file = open(path, "w")
+            file.write("[]")
+            file.close()
+        js = JsonConfig.loadConfig(path, ignoreErrors=True)
+        if type(js) == str:
+            tk.SimpleDialog.askError(self.master, js)
+            return
+        self.js = js
+        for flipData in js.getData():
+            self.flips.append(LongTimeFlip(self, self.contentFrame, flipData))
+    def addNewFlip(self):
+        self.openNextMenuPage(self.master.searchPage,
+                              input=[BazaarItemID],
+                              next_page=self
+                              )
+    def onResizeEvent(self, e):
+        if self.master.getWidth() // self.flipWidth != self.flipw:
+            self.placeWidgets()
+    def placeWidgets(self):
+        width = self.master.getWidth()
+        self.flipw = width // self.flipWidth
+        flipRow = 0
+        flipCol = 0
+
+        mode = self.modeS.getValue()
+        showFin = self.showFinished.getValue()
+
+        for frame in self.flips:
+            if showFin != frame.isFinished():
+                frame.placeForget()
+                continue
+
+            if mode == "Show All Flips" and not frame.isFlip():
+                frame.placeForget()
+                continue
+            elif mode == "Show All in Stock" and frame.isFlip():
+                frame.placeForget()
+                continue
+            # else -> "Show All Active"
+
+            frame.place((self.flipWidth + self.flipGap) * flipRow, (self.flipHeight + self.flipGap) * flipCol, self.flipWidth, self.flipHeight)
+            if flipRow+1 == self.flipw:
+                flipRow = 0
+                flipCol += 1
+            else:
+                flipRow += 1
+    def finishEdit(self):
+        self.saveToFile()
+        self.updateView()
+    def saveToFile(self):
+        if self.js is None:
+            tk.SimpleDialog.askError(self.master, "Could not save Data! 'long_time_flip_config.json' does not exist or not readable!")
+            return
+        self.js.setData([i.toData() for i in self.flips])
+        self.js.saveConfig()
+    def updateView(self):
+        self.placeWidgets()
+        for i in self.flips:
+            i.updateWidget(self.useSellOffers.getValue())
+    def onShow(self, **kwargs):
+        if "itemName" in kwargs: # search complete
+            self._menuData["history"].pop(-2) # delete search Page and self
+            self._menuData["history"].pop(-2) # workaround
+            selected = kwargs["itemName"]
+            NewFlipWindow(self, self.master, selected, finish=self.finishEdit).show()
+        self.placeRelative()
+        self.placeContentFrame()
+        self.master.updateDynamicWidgets()
+        self.updateView()
 
 # Menu Pages
 class MainMenuPage(CustomMenuPage):
@@ -1357,6 +1920,12 @@ class MainMenuPage(CustomMenuPage):
 class EnchantingMenuPage(CustomMenuPage):
     def __init__(self, master, tools: List[CustomMenuPage | CustomPage]):
         super().__init__(master, pageTitle="Enchanting Menu", buttonText="Enchanting Menu", showTitle=True)
+
+        for i, tool in enumerate(tools):
+            tk.Button(self, SG).setFont(16).setText(tool.getButtonText()).setCommand(self._run, args=[tool]).placeRelative(centerX=True, fixY=50 * i + 50, fixWidth=300, fixHeight=50)
+class ProfitMenuPage(CustomMenuPage):
+    def __init__(self, master, tools: List[CustomMenuPage | CustomPage]):
+        super().__init__(master, pageTitle="Profit Menu", buttonText="Profit Menu", showTitle=True)
 
         for i, tool in enumerate(tools):
             tk.Button(self, SG).setFont(16).setText(tool.getButtonText()).setCommand(self._run, args=[tool]).placeRelative(centerX=True, fixY=50 * i + 50, fixWidth=300, fixHeight=50)
@@ -1436,6 +2005,7 @@ class Window(tk.Tk):
         self.lockInfoLabel = False
         self.isConfigLoadedFromFile = False
         self.keyPressHooks = []
+        self.updateCurrentPageHook = None
         ## instantiate Pages ##
         MsgText.info("Creating MenuPages...")
         self.searchPage = SearchPage(self)
@@ -1444,14 +2014,18 @@ class Window(tk.Tk):
             InfoMenuPage(self, [
                 ItemInfoPage(self),
                 MayorInfoPage(self),
+            ]),
+            ProfitMenuPage(self, [
+                BazaarFlipProfitPage(self),
                 CraftProfitPage(self),
                 BazaarToAuctionHouseFlipProfitPage(self),
-                ComposterProfitPage(self)
+                ComposterProfitPage(self),
             ]),
             EnchantingMenuPage(self, [
                 EnchantingBookBazaarCheapestPage(self),
                 EnchantingBookBazaarProfitPage(self),
-            ])
+            ]),
+            LongTimeFlipHelperPage(self)
         ])
 
         self.configureWindow()
@@ -1539,3 +2113,5 @@ class Window(tk.Tk):
 
         APIRequest.WAITING_FOR_API_REQUEST = False
         self.lockInfoLabel = False
+        if self.updateCurrentPageHook is not None:
+            self.runTask(self.updateCurrentPageHook).start()

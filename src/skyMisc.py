@@ -182,7 +182,19 @@ def parseTimeFromSec(sec):
     return out
 
 
+class Sorter:
+    def __init__(self, sort, **kwargs):
+        self._sort = sort
+        self._data = kwargs
 
+    def __lt__(self, other):
+        return self._sort > other._sort
+
+    def __getitem__(self, item):
+        return self._data[item]
+
+    def get(self):
+        return self._sort
 
 
 
