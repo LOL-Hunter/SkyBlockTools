@@ -1709,6 +1709,7 @@ class NewFlipWindow(tk.Dialog):
         self.treeView.setEntry(prizeToStr(amount, True), prizeToStr(price), prizeToStr(amount*price), index=selectedIndex)
     def onSelect(self):
         self.enableWidgets()
+        if not len(self.treeView.getSelectedIndex()): return
         data = self.data["data"][self.treeView.getSelectedIndex()[0]]
         self.priceE.setValue(data["price"])
         self.setAmountE.setValue(data["amount"])

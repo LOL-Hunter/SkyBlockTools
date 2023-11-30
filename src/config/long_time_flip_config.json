@@ -45,8 +45,21 @@
         "sold_for": 0,
         "data": [
             {
-                "amount": 10,
+                "amount": 11,
                 "price": 1800002.3709459463
+            }
+        ],
+        "finish": true
+    },
+    {
+        "item_id": "SHARK_FIN",
+        "finished": false,
+        "sold_for": 0,
+        "items_bought": false,
+        "data": [
+            {
+                "amount": 2729,
+                "price": 1390.0
             }
         ],
         "finish": true
