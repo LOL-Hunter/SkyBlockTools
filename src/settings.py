@@ -22,7 +22,9 @@ class Config:
         "api_key":"",
         "constants":{
             "bazaar_tax":1.25,
-            "hypixel_config_path":""
+            "hypixel_bazaar_config_path":"",
+            "hypixel_auction_config_path":"",
+            "hypixel_item_config_path":"",
         },
         "composter":{
             "speed":1,
@@ -54,10 +56,6 @@ class ComposterSettings(tk.Frame):
         Config.SETTINGS_CONFIG["composter"][e.getArgs(0)] = int(value)
         Config.SETTINGS_CONFIG.save()
         if self.onScrollHook is not None: self.onScrollHook()
-
-
-
-
 
 
 class SettingsGUI(tk.Dialog):
@@ -106,10 +104,11 @@ class SettingsGUI(tk.Dialog):
         self.valueLf = tk.LabelFrame(tab, SG)
         self.valueLf.setText("Constants:")
         tk.Text(tab, SG).setText("Ony change the Values if you\nreally know what you are doing!").setFg("red").place(0, 0, 305, 50).setFont(15).setDisabled()
-        heightW = 10
-
-        SettingValue(self.valueLf, name="Bazaar-Tax:", x=0, y=0, key="bazaar_tax")
-        SettingValue(self.valueLf, name="UseConfigValuesAt:", x=0, y=30, key="hypixel_config_path")
+        height = [0]
+        SettingValue(self.valueLf, name="Bazaar-Tax:", x=0, y=height, key="bazaar_tax")
+        SettingValue(self.valueLf, name="UseBazaarConfigAt:", x=0, y=height, key="hypixel_bazaar_config_path")
+        SettingValue(self.valueLf, name="UseAuctionConfigAt:", x=0, y=height, key="hypixel_auction_config_path")
+        SettingValue(self.valueLf, name="UseItemConfigAt:", x=0, y=height, key="hypixel_item_config_path")
 
         self.valueLf.place(0, 50, 305, 300)
 

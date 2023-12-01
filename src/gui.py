@@ -2,7 +2,7 @@
 from hyPI._parsers import MayorData, BazaarHistory, BazaarHistoryProduct
 from hyPI.constants import BazaarItemID, AuctionItemID, ALL_ENCHANTMENT_IDS
 from hyPI.APIError import APIConnectionError, NoAPIKeySetException
-from hyPI.hypixelAPI.loader import HypixelBazaarParser
+from hyPI.hypixelAPI.loader import HypixelBazaarParser, HypixelAuctionParser, HypixelItemParser
 from hyPI.skyCoflnetAPI import SkyConflnetAPI
 from hyPI.recipeAPI import RecipeAPI
 from pysettings import tk, iterDict, ID
@@ -20,7 +20,7 @@ from matplotlib.figure import Figure
 from pytz import timezone
 
 from analyzer import getPlotData, getCheapestEnchantmentData
-from constants import STYLE_GROUP as SG, LOAD_STYLE, INFO_LABEL_GROUP as ILG, Color
+from constants import STYLE_GROUP as SG, LOAD_STYLE, INFO_LABEL_GROUP as ILG, Color, API
 from skyMath import *
 from skyMisc import *
 from widgets import CompleterEntry, CustomPage, CustomMenuPage
@@ -29,7 +29,6 @@ from settings import SettingsGUI, Config
 
 IMAGES = os.path.join(os.path.split(__file__)[0], "images")
 CONFIG = os.path.join(os.path.split(__file__)[0], "config")
-SKY_BLOCK_API_PARSER:HypixelBazaarParser = None
 
 class APIRequest:
     """
@@ -602,7 +601,7 @@ class EnchantingBookBazaarProfitPage(CustomPage):
         self.useWhiteList.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=450)
     def updateTreeView(self):
         self.treeView.clear()
-        if SKY_BLOCK_API_PARSER is None:
+        if API.SKYBLOCK_BAZAAR_API_PARSER is None:
             tk.SimpleDialog.askError(self.master, "Cannot calculate! No API data available!")
             return
 
@@ -621,22 +620,22 @@ class EnchantingBookBazaarProfitPage(CustomPage):
             currentItem = enchIDToLvl[currentItem][-1] # get Highest Enchantment
 
 
-            eData = getCheapestEnchantmentData(SKY_BLOCK_API_PARSER, currentItem, instaBuy=not self.useBuyOffers.getValue())
+            eData = getCheapestEnchantmentData(API.SKYBLOCK_BAZAAR_API_PARSER, currentItem, instaBuy=not self.useBuyOffers.getValue())
             if eData is not None:
                 if self.useSellOffers.getValue(): # insta sell
-                    targetBookInstaBuy = SKY_BLOCK_API_PARSER.getProductByID(currentItem).getInstaBuyPrice()
+                    targetBookInstaBuy = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(currentItem).getInstaBuyPrice()
                 else:
-                    targetBookInstaBuy = SKY_BLOCK_API_PARSER.getProductByID(currentItem).getInstaSellPrice()
+                    targetBookInstaBuy = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(currentItem).getInstaSellPrice()
 
                 targetBookInstaBuy = applyBazaarTax(targetBookInstaBuy) # apply Tax
 
 
                 prods = [
-                    SKY_BLOCK_API_PARSER.getProductByID(BazaarItemID.ENCHANTMENT_ULTIMATE_BANK_5),
-                    SKY_BLOCK_API_PARSER.getProductByID(BazaarItemID.ENCHANTMENT_ULTIMATE_BANK_4),
-                    SKY_BLOCK_API_PARSER.getProductByID(BazaarItemID.ENCHANTMENT_ULTIMATE_BANK_3),
-                    SKY_BLOCK_API_PARSER.getProductByID(BazaarItemID.ENCHANTMENT_ULTIMATE_BANK_2),
-                    SKY_BLOCK_API_PARSER.getProductByID(BazaarItemID.ENCHANTMENT_ULTIMATE_BANK_1),
+                    API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(BazaarItemID.ENCHANTMENT_ULTIMATE_BANK_5),
+                    API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(BazaarItemID.ENCHANTMENT_ULTIMATE_BANK_4),
+                    API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(BazaarItemID.ENCHANTMENT_ULTIMATE_BANK_3),
+                    API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(BazaarItemID.ENCHANTMENT_ULTIMATE_BANK_2),
+                    API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(BazaarItemID.ENCHANTMENT_ULTIMATE_BANK_1),
                 ]
 
                 # == For Test Reason ==
@@ -714,7 +713,7 @@ class EnchantingBookBazaarCheapestPage(CustomPage):
         self.treeView.placeRelative(changeHeight=-25)
     def updateTreeView(self):
         self.treeView.clear()
-        if SKY_BLOCK_API_PARSER is None:
+        if API.SKYBLOCK_BAZAAR_API_PARSER is None:
             tk.SimpleDialog.askError(self.master, "Cannot calculate! No API data available!")
             return
 
@@ -723,17 +722,17 @@ class EnchantingBookBazaarCheapestPage(CustomPage):
         else:
             self.treeView.setTableHeaders("Using-Book", "Buy-Price-Per-Item", "Total-Buy-Price", "Saved-Coins", "Others-try-to-buy")
 
-        eData = getCheapestEnchantmentData(SKY_BLOCK_API_PARSER, self.currentItem, instaBuy=not self.useBuyOffers.getValue())
+        eData = getCheapestEnchantmentData(API.SKYBLOCK_BAZAAR_API_PARSER, self.currentItem, instaBuy=not self.useBuyOffers.getValue())
         if eData is not None:
-            targetBookInstaBuy = SKY_BLOCK_API_PARSER.getProductByID(self.currentItem).getInstaBuyPrice()
+            targetBookInstaBuy = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(self.currentItem).getInstaBuyPrice()
 
             #"""
             prods = [
-                SKY_BLOCK_API_PARSER.getProductByID(BazaarItemID.ENCHANTMENT_ULTIMATE_BANK_5),
-                SKY_BLOCK_API_PARSER.getProductByID(BazaarItemID.ENCHANTMENT_ULTIMATE_BANK_4),
-                SKY_BLOCK_API_PARSER.getProductByID(BazaarItemID.ENCHANTMENT_ULTIMATE_BANK_3),
-                SKY_BLOCK_API_PARSER.getProductByID(BazaarItemID.ENCHANTMENT_ULTIMATE_BANK_2),
-                SKY_BLOCK_API_PARSER.getProductByID(BazaarItemID.ENCHANTMENT_ULTIMATE_BANK_1),
+                API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(BazaarItemID.ENCHANTMENT_ULTIMATE_BANK_5),
+                API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(BazaarItemID.ENCHANTMENT_ULTIMATE_BANK_4),
+                API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(BazaarItemID.ENCHANTMENT_ULTIMATE_BANK_3),
+                API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(BazaarItemID.ENCHANTMENT_ULTIMATE_BANK_2),
+                API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(BazaarItemID.ENCHANTMENT_ULTIMATE_BANK_1),
             ]
 
 
@@ -869,7 +868,7 @@ class CraftProfitPage(CustomPage):
         return item in self._ownBzItems
     def updateTreeView(self):
         self.treeView.clear()
-        if SKY_BLOCK_API_PARSER is None:
+        if API.SKYBLOCK_BAZAAR_API_PARSER is None:
             tk.SimpleDialog.askError(self.master, "Cannot calculate! No API data available!")
             return
         if not self.showStackProfit.getValue():
@@ -892,7 +891,7 @@ class CraftProfitPage(CustomPage):
 
             #if "ENCHANTED_SLIME_BLOCK" != result: continue
             #print("result", result)
-            resultItem = SKY_BLOCK_API_PARSER.getProductByID(result)
+            resultItem = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(result)
             ingredients = recipe.getItemInputList()
             craftPrice = 0
             requiredItemString = "("
@@ -915,7 +914,7 @@ class CraftProfitPage(CustomPage):
 
                 if name not in self._ownBzItems: continue
 
-                ingredientItem = SKY_BLOCK_API_PARSER.getProductByID(name)
+                ingredientItem = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(name)
 
                 ## ingredients price ##
                 if self.useBuyOffers.getValue():  # use buy Offer ingredients
@@ -1015,7 +1014,7 @@ class BazaarFlipProfitPage(CustomPage):
         return item in self._ownBzItems
     def updateTreeView(self):
         self.treeView.clear()
-        if SKY_BLOCK_API_PARSER is None:
+        if API.SKYBLOCK_BAZAAR_API_PARSER is None:
             tk.SimpleDialog.askError(self.master, "Cannot calculate! No API data available!")
             return
         if not self.showStackProfit.getValue():
@@ -1044,7 +1043,7 @@ class BazaarFlipProfitPage(CustomPage):
             if itemID.startswith("ENCHANTMENT") and not self.includeEnchantments.getValue(): continue
 
 
-            item = SKY_BLOCK_API_PARSER.getProductByID(itemID)
+            item = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(itemID)
             if item is None:
                 print(itemID)
                 continue
@@ -1171,7 +1170,7 @@ class ComposterProfitPage(CustomPage):
         self.updateTreeView()
     def parseData(self):
 
-        if SKY_BLOCK_API_PARSER is None: return
+        if API.SKYBLOCK_BAZAAR_API_PARSER is None: return
         if self.fuel_data is None or self.organic_matter_data is None:
             self.sortedFuel = False
             self.sortedMatter = False
@@ -1180,7 +1179,7 @@ class ComposterProfitPage(CustomPage):
         sortedMatter = []
         for name, value in iterDict(self.fuel_data.getData()):
 
-            ingredientItem = SKY_BLOCK_API_PARSER.getProductByID(name)
+            ingredientItem = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(name)
 
             ## ingredients price ##
             if self.useBuyOffers.getValue():  # use buy Offer ingredients
@@ -1199,7 +1198,7 @@ class ComposterProfitPage(CustomPage):
 
         for name, value in iterDict(self.organic_matter_data.getData()):
 
-            ingredientItem = SKY_BLOCK_API_PARSER.getProductByID(name)
+            ingredientItem = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(name)
 
             ## ingredients price ##
             if self.useBuyOffers.getValue():  # use buy Offer ingredients
@@ -1249,7 +1248,7 @@ class ComposterProfitPage(CustomPage):
         return amount
     def updateTreeView(self):
         if self.sortedFuel is None or self.sortedMatter is None: return
-        if SKY_BLOCK_API_PARSER is None: return
+        if API.SKYBLOCK_BAZAAR_API_PARSER is None: return
 
         ## calculation ##
         self.parseData() # calculate current prices
@@ -1264,14 +1263,14 @@ class ComposterProfitPage(CustomPage):
             self.fuelLb.add(f"{matter['name']} [{round(matter.get(), 2)} coins]")
 
         ## Result price ##
-        compost = SKY_BLOCK_API_PARSER.getProductByID(BazaarItemID.COMPOST)
+        compost = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(BazaarItemID.COMPOST)
         if self.useSellOffers.getValue():  # use sell Offer
             compostSellPrice = compost.getInstaBuyPrice()
         else:  # insta sell result
             compostSellPrice = compost.getInstaSellPrice()
         compostSellPrice = applyBazaarTax(compostSellPrice) # add tax
 
-        compostE = SKY_BLOCK_API_PARSER.getProductByID(BazaarItemID.ENCHANTED_COMPOST)
+        compostE = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(BazaarItemID.ENCHANTED_COMPOST)
         if self.useSellOffers.getValue():  # use sell Offer
             compostESellPrice = compostE.getInstaBuyPrice()
         else:  # insta sell result
@@ -1383,7 +1382,7 @@ class BazaarToAuctionHouseFlipProfitPage(CustomPage):
         return item in self._ownBzItems
     def updateTreeView(self):
         self.treeView.clear()
-        if SKY_BLOCK_API_PARSER is None:
+        if API.SKYBLOCK_BAZAAR_API_PARSER is None:
             tk.SimpleDialog.askError(self.master, "Cannot calculate! No API data available!")
             return
         if not self.showStackProfit.getValue():
@@ -1406,7 +1405,7 @@ class BazaarToAuctionHouseFlipProfitPage(CustomPage):
 
             #if "ENCHANTED_SLIME_BLOCK" != result: continue
             #print("result", result)
-            resultItem = SKY_BLOCK_API_PARSER.getProductByID(result)
+            resultItem = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(result)
             ingredients = recipe.getItemInputList()
             craftPrice = 0
             requiredItemString = "("
@@ -1424,7 +1423,7 @@ class BazaarToAuctionHouseFlipProfitPage(CustomPage):
 
                 if name not in self._ownBzItems: continue
 
-                ingredientItem = SKY_BLOCK_API_PARSER.getProductByID(name)
+                ingredientItem = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(name)
 
                 ## ingredients price ##
                 if self.useBuyOffers.getValue():  # use buy Offer ingredients
@@ -1552,7 +1551,7 @@ class LongTimeFlip(tk.Frame):
             amount += item["amount"]
         return amount
     def getSellSinglePrice(self, offer=False):
-        item = SKY_BLOCK_API_PARSER.getProductByID(self.selectedItem)
+        item = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(self.selectedItem)
         if offer:  # use sell Offer
             price = item.getInstaBuyPrice()
         else:  # insta sell result
@@ -1560,7 +1559,7 @@ class LongTimeFlip(tk.Frame):
         return applyBazaarTax(price)  # add tax
     def getSellPrice(self, offer) -> Tuple[float, bool]:
         amount = self.getAmountBought()
-        item = SKY_BLOCK_API_PARSER.getProductByID(self.selectedItem)
+        item = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(self.selectedItem)
         if offer:  # use sell Offer
             price = item.getInstaBuyPrice() * amount
         else:  # insta sell result
@@ -1675,7 +1674,7 @@ class NewFlipWindow(tk.Dialog):
                 "data":[]
             }
     def takeOffer(self):
-        item = SKY_BLOCK_API_PARSER.getProductByID(self.itemID)
+        item = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(self.itemID)
         price = item.getInstaSellPrice()+.1
         self.priceE.setValue(str(price))
     def onChange(self):
@@ -1915,7 +1914,7 @@ class LongTimeFlipHelperPage(CustomPage):
             if not _exact: exact = False
             fullProfit += value
 
-
+        self.master.updateDynamicWidgets()
         star = "*" if not exact else ""
         self.fullProfitL.setText(f"Profit{star}: {prizeToStr(fullProfit)}")
         if fullProfit > 0:
@@ -1991,8 +1990,7 @@ class LoadingPage(CustomPage):
         self.info.placeRelative(fixHeight=25, fixY=340, changeX=+50, changeWidth=-100)
 
     def load(self):
-        global SKY_BLOCK_API_PARSER
-        msgs = ["Loading Config...", "Applying Settings...", "Fetching Hypixel API...", "Finishing Up..."]
+        msgs = ["Loading Config...", "Applying Settings...", "Fetching Hypixel Bazaar API...", "Fetching Hypixel Auction API...", "Fetching Hypixel Item API...", "Finishing Up..."]
         self.processBar.setValues(len(msgs))
         for i, msg in enumerate(msgs):
             self.processBar.addValue()
@@ -2003,11 +2001,11 @@ class LoadingPage(CustomPage):
                 for j, file in enumerate(configList):
                     self.info.setText(msg+f"  ({file.split('.')[0]}) [{j+1}/{len(configList)}]")
                     sleep(.1)
-            elif i == 2: # fetch API
+            elif i == 2: # fetch Bazaar API
                 self.info.setText(msg)
                 self.processBar.setAutomaticMode()
 
-                path = Config.SETTINGS_CONFIG["constants"]["hypixel_config_path"]
+                path = Config.SETTINGS_CONFIG["constants"]["hypixel_bazaar_config_path"]
 
                 if not os.path.exists(path) and path != "":
                     tk.SimpleDialog.askWarning(self.master, "Could not read data from API-Config.\nConfig does not exist!\nSending request to Hypixel-API...")
@@ -2015,13 +2013,35 @@ class LoadingPage(CustomPage):
                 if path == "":
                     path = None
 
-                SKY_BLOCK_API_PARSER = requestHypixelAPI(self.master, path)
+                API.SKYBLOCK_BAZAAR_API_PARSER = requestBazaarHypixelAPI(self.master, path)
 
-                updateInfoLabel(SKY_BLOCK_API_PARSER, path is not None)
+                updateInfoLabel(API.SKYBLOCK_BAZAAR_API_PARSER, path is not None)
                 self.master.isConfigLoadedFromFile = path is not None
 
                 self.processBar.setNormalMode()
                 self.processBar.setValue(i+1)
+            elif i == 3: # fetch Auction API
+                self.info.setText(msg)
+
+                path = Config.SETTINGS_CONFIG["constants"]["hypixel_auction_config_path"]
+
+                if not os.path.exists(path) and path != "":
+                    tk.SimpleDialog.askWarning(self.master,"Could not read data from API-Config.\nConfig does not exist!\nSending request to Hypixel-API...")
+                    path = None
+                if path == "":
+                    path = None
+
+                API.SKYBLOCK_AUCTION_API_PARSER = requestAuctionHypixelAPI(self.master, path, progBar=self.processBar, infoLabel=self.info)
+
+                updateInfoLabel(API.SKYBLOCK_BAZAAR_API_PARSER, path is not None)
+                self.master.isConfigLoadedFromFile = path is not None
+
+                self.processBar.setValues(len(msgs))
+                self.processBar.setNormalMode()
+                self.processBar.setValue(i + 1)
+
+
+
             else:
                 self.info.setText(msg)
                 sleep(.2)
@@ -2086,7 +2106,7 @@ class Window(tk.Tk):
         self.bind(self.onKeyPress, tk.EventType.STRG_LEFT_DOWN, args=["isControlPressed", True])
         self.bind(self.onKeyPress, tk.EventType.STRG_LEFT_UP, args=["isControlPressed", False])
 
-        self.bind(lambda:Thread(target=self.refreshAPIRequest).start(), tk.EventType.hotKey(tk.FunctionKey.ALT, "F5"))
+        self.bind(lambda:Thread(target=self.refreshAPIRequest, args=("all",)).start(), tk.EventType.hotKey(tk.FunctionKey.ALT, "F5"))
         self.bind(lambda:SettingsGUI.openSettings(self), tk.EventType.hotKey(tk.FunctionKey.ALT, "s"))
     def onKeyPress(self, e):
         setattr(self, e.getArgs(0), e.getArgs(1))
@@ -2095,33 +2115,36 @@ class Window(tk.Tk):
     def createGUI(self):
         self.taskBar = tk.TaskBar(self, SG)
         self.taskBar_file = self.taskBar.createSubMenu("File")
+        self.taskBar_api = self.taskBar.createSubMenu("API")
 
 
-        tk.Button(self.taskBar_file, SG).setText("Save current API-Data...").setCommand(self.saveAPIData)
-        tk.Button(self.taskBar_file, SG).setText("Open API-Data...").setCommand(self.openAPIData)
-        tk.Button(self.taskBar_file, SG).setText("Refresh API Data...(Alt+F5)").setCommand(lambda:Thread(target=self.refreshAPIRequest).start())
+        tk.Button(self.taskBar_file, SG).setText("Save current Bazaar API-Data...").setCommand(self.saveAPIData)
+        tk.Button(self.taskBar_file, SG).setText("Open Bazaar API-Data...").setCommand(self.openAPIData)
         self.taskBar_file.addSeparator()
         tk.Button(self.taskBar_file, SG).setText("Settings (Alt+s)").setCommand(lambda:SettingsGUI.openSettings(self))
 
+        tk.Button(self.taskBar_api, SG).setText("Refresh all API Data...(Alt+F5)").setCommand(lambda:Thread(target=self.refreshAPIRequest, args=("all",)).start())
+        self.taskBar_api.addSeparator()
+        tk.Button(self.taskBar_api, SG).setText("Refresh Bazaar API Data...(Alt+F5)").setCommand(lambda:Thread(target=self.refreshAPIRequest, args=("bazaar",)).start())
+        tk.Button(self.taskBar_api, SG).setText("Refresh Auction API Data...(Alt+F5)").setCommand(lambda:Thread(target=self.refreshAPIRequest, args=("auction",)).start())
 
         self.taskBar.create()
     def _updateInfoLabel(self):
         while True:
             sleep(5)
             if self.lockInfoLabel: continue
-            updateInfoLabel(SKY_BLOCK_API_PARSER, self.isConfigLoadedFromFile)
+            updateInfoLabel(API.SKYBLOCK_BAZAAR_API_PARSER, self.isConfigLoadedFromFile)
     def saveAPIData(self):
-        if SKY_BLOCK_API_PARSER is not None:
+        if API.SKYBLOCK_BAZAAR_API_PARSER is not None:
             path = tk.FileDialog.saveFile(self, "SkyBlockTools", types=[".json"])
             if not path.endswith(".json"): path += ".json"
             if os.path.exists(path):
                 if not tk.SimpleDialog.askOkayCancel(self, "Are you sure you want to overwrite the file?", "SkyBlockTools"):
                     return
-            js = JsonConfig.fromDict(SKY_BLOCK_API_PARSER.getRawData())
+            js = JsonConfig.fromDict(API.SKYBLOCK_BAZAAR_API_PARSER.getRawData())
             js.path = path
             js.save()
     def openAPIData(self):
-        global SKY_BLOCK_API_PARSER
         path = tk.FileDialog.openFile(self, "SkyBlockTools", types=[".json"])
         if path is None:
             tk.SimpleDialog.askError(self, "Could not read config!")
@@ -2133,11 +2156,10 @@ class Window(tk.Tk):
         if type(data) == str:
             tk.SimpleDialog.askError(self, data)
             return
-        SKY_BLOCK_API_PARSER = HypixelBazaarParser(data.getData())
+        API.SKYBLOCK_BAZAAR_API_PARSER = HypixelBazaarParser(data.getData())
         self.isConfigLoadedFromFile = True
-        updateInfoLabel(SKY_BLOCK_API_PARSER, self.isConfigLoadedFromFile)
-    def refreshAPIRequest(self):
-        global SKY_BLOCK_API_PARSER
+        updateInfoLabel(API.SKYBLOCK_BAZAAR_API_PARSER, self.isConfigLoadedFromFile)
+    def refreshAPIRequest(self, e):
         if APIRequest.WAITING_FOR_API_REQUEST:
             tk.SimpleDialog.askError(self, "Another api request is still running\ntry again later.")
             return
@@ -2148,9 +2170,12 @@ class Window(tk.Tk):
         ILG.setFg("white")
         ILG.setText("Requesting Hypixel-API...")
         sleep(.3)
-
-        SKY_BLOCK_API_PARSER = requestHypixelAPI(self)
-        updateInfoLabel(SKY_BLOCK_API_PARSER, self.isConfigLoadedFromFile)
+        if e == "all" or e == "bazaar":
+            API.SKYBLOCK_BAZAAR_API_PARSER = requestBazaarHypixelAPI(self)
+            updateInfoLabel(API.SKYBLOCK_BAZAAR_API_PARSER, self.isConfigLoadedFromFile)
+        if e == "all" or e == "auction":
+            API.SKYBLOCK_AUCTION_API_PARSER = requestAuctionHypixelAPI(self, infoLabel=ILG)
+            updateInfoLabel(API.SKYBLOCK_BAZAAR_API_PARSER, self.isConfigLoadedFromFile)
 
         APIRequest.WAITING_FOR_API_REQUEST = False
         self.lockInfoLabel = False

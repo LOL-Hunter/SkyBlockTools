@@ -3,7 +3,9 @@
     "api_key": "ef951dd8-d659-45e7-baaa-46ad977383d7",
     "constants": {
         "bazaar_tax": 1.125,
-        "hypixel_config_path": "C:\\Users\\langh\\Desktop\\bankdata.json"
+        "hypixel_bazaar_config_path": "C:\\Users\\langh\\Desktop\\bankdata.json",
+        "hypixel_auction_config_path": "C:\\Users\\langh\\Desktop\\auctTestData",
+        "hypixel_item_config_path": ""
     },
     "composter": {
         "speed": 5,

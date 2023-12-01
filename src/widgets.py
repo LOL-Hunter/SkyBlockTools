@@ -15,6 +15,15 @@ class SettingValue(tk.Frame):
 
         tk.Button(self, SG).setText("Reset").setCommand(self._reset).place(250, 0, 50, 30)
 
+        if type(x) == list:
+            x_ = x[0]
+            x[0] += 30
+            x = x_
+        if type(y) == list:
+            y_ = y[0]
+            y[0] += 30
+            y = y_
+
         self.place(x, y, 300, 30)
     def _reset(self):
         SettingValue.CONFIG["constants"][self._key] = SettingValue.CONFIG._std["constants"][self._key]

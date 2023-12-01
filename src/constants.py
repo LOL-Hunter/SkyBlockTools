@@ -1,12 +1,17 @@
 from pysettings import tk
 from tkinter import ttk
-
+from hyPI.hypixelAPI.loader import HypixelBazaarParser, HypixelAuctionParser, HypixelItemParser
 
 class Color:
     COLOR_WHITE = tk.Color.rgb(255, 255, 255)
     COLOR_DARK = tk.Color.rgb(50, 50, 50)
     COLOR_GRAY = tk.Color.rgb(160, 160, 160)
 
+
+class API:
+    SKYBLOCK_BAZAAR_API_PARSER: HypixelBazaarParser = None
+    SKYBLOCK_AUCTION_API_PARSER: HypixelAuctionParser = None
+    SKYBLOCK_ITEM_API_PARSER: HypixelItemParser = None
 
 
 

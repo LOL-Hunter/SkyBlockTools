@@ -1,5 +1,6 @@
+import os
 from hyPI.APIError import APIConnectionError, NoAPIKeySetException
-from hyPI.hypixelAPI import HypixelAPIURL, HypixelBazaarParser, APILoader, fileLoader
+from hyPI.hypixelAPI import HypixelAPIURL, HypixelBazaarParser, HypixelAuctionParser, APILoader, fileLoader
 from hyPI.skyCoflnetAPI import SkyConflnetAPI
 from hyPI.constants import ALL_ENCHANTMENT_IDS
 from hyPI import getEnchantmentIDLvl
@@ -13,7 +14,7 @@ from skyMath import parseTimeDelta
 from typing import List, Dict
 from functools import total_ordering
 
-def requestHypixelAPI(master, path=None):
+def requestBazaarHypixelAPI(master, path=None):
     """
 
     @param master:
@@ -39,6 +40,55 @@ def requestHypixelAPI(master, path=None):
         tk.SimpleDialog.askError(master, e.getMessage(), "SkyBlockTools")
         return None
     return parser
+
+def requestAuctionHypixelAPI(master, path=None, progBar:tk.Progressbar=None, infoLabel:tk.Label=None):
+    """
+
+    @param master:
+    @param path:
+    @return:
+    """
+    try:
+        if path is not None:
+            fileList = os.listdir(path)
+            if progBar is not None:
+                progBar.setValue(0)
+                progBar.setValues(len(fileList))
+            parser = HypixelAuctionParser(
+                fileLoader(os.path.join(path, fileList[0]))
+            )
+            for i, fileName in enumerate(fileList[1:]):
+                if progBar is not None: progBar.addValue()
+                if infoLabel is not None: infoLabel.setText(f"Fetching Hypixel Auction API... [{i+1}/{len(fileList)}]")
+                parser.addPage(fileLoader(os.path.join(path, fileName)))
+        else:
+
+            parser = HypixelAuctionParser(
+                APILoader(HypixelAPIURL.AUCTION_URL, "ef951dd8-d659-45e7-baaa-46ad977383d7", "LOL_Hunter")
+            )
+            pages = parser.getPages()
+            if progBar is not None: progBar.setValues(pages)
+            for page in range(1, pages):
+                data = APILoader(HypixelAPIURL.AUCTION_URL,
+                                 Config.SETTINGS_CONFIG["api_key"],
+                                 Config.SETTINGS_CONFIG["player_name"],
+                                 page=page)
+                if infoLabel is not None: infoLabel.setText(f"Fetching Hypixel Auction API... [{page+1}/{pages}]")
+                if progBar is not None: progBar.setValue(page+1)
+                parser.addPage(data)
+    except APIConnectionError as e:
+        TextColor.print(format_exc(), "red")
+        tk.SimpleDialog.askError(master, e.getMessage(), "SkyBlockTools")
+        return None
+    except NoAPIKeySetException as e:
+        TextColor.print(format_exc(), "red")
+        tk.SimpleDialog.askError(master, e.getMessage(), "SkyBlockTools")
+        return None
+    return parser
+
+
+
+
 def updateInfoLabel(api:HypixelBazaarParser | None, loaded=False):
     if api is not None:
         ts:datetime = api.getLastUpdated()
