@@ -1488,7 +1488,6 @@ class LongTimeFlip(tk.Frame):
         self.profitL.bind(self.onEdit, tk.EventType.LEFT_CLICK)
         self.profitL.setBg(Color.COLOR_GRAY)
         self.profitL.placeRelative(fixHeight=25, fixY=75)
-
         self.profitL2 = tk.Label(self, SG).setFont(16)
         self.profitL2.bind(self.onEdit, tk.EventType.LEFT_CLICK)
         self.profitL2.setBg(Color.COLOR_GRAY)
@@ -1517,7 +1516,7 @@ class LongTimeFlip(tk.Frame):
             self.profitL2.setText(f"Invest: {prizeToStr(buyPrice)}")
         else:
             self.profitL2.setFg("green")
-            self._setBg(tk.Color.rgb(46, 110, 96))
+            self._setBg(tk.Color.rgb(22, 51, 45))
             profit = sellPrice - buyPrice
             self.spendL.setText(f"Worth at Start: {prizeToStr(buyPrice)} (Price Per: ~{prizeToStr(buyPricePer)})")
             self.sellNowL.setText(f"Sell now{star}: {prizeToStr(sellPrice)} (Price Per: ~{prizeToStr(sellPricePer)})")
@@ -1536,9 +1535,6 @@ class LongTimeFlip(tk.Frame):
         self.sellNowL.setBg(bg)
         self.profitL.setBg(bg)
         self.profitL2.setBg(bg)
-
-
-
     def isFlip(self):
         return self.data["items_bought"]
     def isFinished(self):
@@ -1583,6 +1579,13 @@ class LongTimeFlip(tk.Frame):
         self.updateWidget()
     def toData(self):
         return self.data
+
+    def getProfit(self, isOrder):
+        buyPrice = self.getPriceSpend()
+        sellPrice, exact = self.getSellPrice(isOrder)
+        if self.data["items_bought"]:
+            return sellPrice - buyPrice, exact
+        return sellPrice, exact
 class NewFlipWindow(tk.Dialog):
     def __init__(self, page, master, itemId, data=None, finish=None):
         super().__init__(master, SG)
@@ -1784,6 +1787,7 @@ class LongTimeFlipHelperPage(CustomPage):
         self.flipWidth = 300 - self.flipGap
         self.flipHeight = 150 - self.flipGap
         self.flipw = 0
+        self.fliph = 0
         self.flips: List[LongTimeFlip] = []
         self.js = None
 
@@ -1818,6 +1822,16 @@ class LongTimeFlipHelperPage(CustomPage):
         self.showFinished.onSelectEvent(self.updateView)
         self.showFinished.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=320+150)
 
+        self.infoLf = tk.LabelFrame(self.contentFrame, SG)
+        self.infoLf.setText("Info")
+        self.fullProfitL = tk.Label(self.infoLf, SG)
+        self.fullProfitL.setText("Profit: None")
+        self.fullProfitL.setFont(16)
+        self.fullProfitL.placeRelative(changeWidth=-5, fixHeight=25)
+        self.infoLf.placeRelative(fixHeight=self.flipHeight, fixWidth=self.flipWidth, stickDown=True, stickRight=True, changeY=-30)
+
+
+
         self._decode()
     def _decode(self):
         path = os.path.join(CONFIG, "long_time_flip_config.json")
@@ -1839,17 +1853,20 @@ class LongTimeFlipHelperPage(CustomPage):
                               next_page=self
                               )
     def onResizeEvent(self, e):
-        if self.master.getWidth() // self.flipWidth != self.flipw:
+        if self.master.getWidth() // (self.flipWidth + self.flipGap) != self.flipw or (self.master.getHeight()-200) // (self.flipHeight + self.flipGap) != self.fliph:
             self.placeWidgets()
-    def placeWidgets(self):
+    def placeWidgets(self)->List[LongTimeFlip]:
+        if self.js is None: return []
         width = self.master.getWidth()
-        self.flipw = width // self.flipWidth
+        height = self.master.getHeight()
+        self.flipw = width // self.flipWidth # how many x elements fit
+        self.fliph = (height-40) // self.flipHeight # how many y elements fit
         flipRow = 0
         flipCol = 0
 
         mode = self.modeS.getValue()
         showFin = self.showFinished.getValue()
-
+        placedFlips = []
         for frame in self.flips:
             if showFin != frame.isFinished():
                 frame.placeForget()
@@ -1862,13 +1879,22 @@ class LongTimeFlipHelperPage(CustomPage):
                 frame.placeForget()
                 continue
             # else -> "Show All Active"
-
+            if height - 105 <= (self.flipHeight + self.flipGap) * (flipCol+2) and flipRow+1 == self.flipw:
+                frame.placeForget()
+                placedFlips.append(frame)
+                continue
+            if height-105 <= (self.flipHeight + self.flipGap) * (flipCol+1):
+                frame.placeForget()
+                placedFlips.append(frame)
+                continue
+            placedFlips.append(frame)
             frame.place((self.flipWidth + self.flipGap) * flipRow, (self.flipHeight + self.flipGap) * flipCol, self.flipWidth, self.flipHeight)
             if flipRow+1 == self.flipw:
                 flipRow = 0
                 flipCol += 1
             else:
                 flipRow += 1
+        return placedFlips
     def finishEdit(self):
         self.saveToFile()
         self.updateView()
@@ -1879,9 +1905,23 @@ class LongTimeFlipHelperPage(CustomPage):
         self.js.setData([i.toData() for i in self.flips])
         self.js.saveConfig()
     def updateView(self):
-        self.placeWidgets()
-        for i in self.flips:
-            i.updateWidget(self.useSellOffers.getValue())
+        placedFlips = self.placeWidgets()
+        fullProfit = 0
+        exact = True
+        for flip in self.flips:
+            flip.updateWidget(self.useSellOffers.getValue())
+        for flip in placedFlips:
+            value, _exact = flip.getProfit(self.useSellOffers.getValue())
+            if not _exact: exact = False
+            fullProfit += value
+
+
+        star = "*" if not exact else ""
+        self.fullProfitL.setText(f"Profit{star}: {prizeToStr(fullProfit)}")
+        if fullProfit > 0:
+            self.fullProfitL.setFg("green")
+        else:
+            self.fullProfitL.setFg("red")
     def onShow(self, **kwargs):
         if "itemName" in kwargs: # search complete
             self._menuData["history"].pop(-2) # delete search Page and self

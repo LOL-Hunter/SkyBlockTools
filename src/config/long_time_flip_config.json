@@ -7,7 +7,7 @@
         "data": [
             {
                 "amount": 6912,
-                "price": 7000.0
+                "price": 7300.0
             }
         ],
         "finish": true
@@ -60,6 +60,32 @@
             {
                 "amount": 2729,
                 "price": 1390.0
+            }
+        ],
+        "finish": true
+    },
+    {
+        "item_id": "ECTOPLASM",
+        "finished": false,
+        "sold_for": 0,
+        "items_bought": false,
+        "data": [
+            {
+                "amount": 30,
+                "price": 110000.0
+            }
+        ],
+        "finish": true
+    },
+    {
+        "item_id": "BAT_FIREWORK",
+        "finished": false,
+        "sold_for": 0,
+        "items_bought": false,
+        "data": [
+            {
+                "amount": 25,
+                "price": 120000.10515267176
             }
         ],
         "finish": true
