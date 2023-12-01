@@ -3,13 +3,15 @@ from pysettings.jsonConfig import AdvancedJsonConfig
 from pysettings import iterDict
 from constants import STYLE_GROUP as SG
 import os
+from datetime import datetime
+from threading import Thread
 from webbrowser import open as openURL
 from widgets import SettingValue
+from skyMisc import parseTimeToStr, parseTimeDelta, requestItemHypixelAPI
+from constants import API, Constants
 IMAGES = os.path.join(os.path.split(__file__)[0], "images")
 CONFIG = os.path.join(os.path.split(__file__)[0], "config")
 API_URL = "https://developer.hypixel.net/"
-
-
 
 
 
@@ -36,6 +38,7 @@ class Config:
     })
     SETTINGS_CONFIG.load("settings.json")
     SettingValue.CONFIG = SETTINGS_CONFIG
+    Constants.BAZAAR_TAX = SETTINGS_CONFIG["constants"]["bazaar_tax"]
 
 class ComposterSettings(tk.Frame):
     def __init__(self, master, onScrollHook=None):
@@ -57,7 +60,6 @@ class ComposterSettings(tk.Frame):
         Config.SETTINGS_CONFIG.save()
         if self.onScrollHook is not None: self.onScrollHook()
 
-
 class SettingsGUI(tk.Dialog):
     def __init__(self, master):
         super().__init__(master, SG, False)
@@ -75,7 +77,6 @@ class SettingsGUI(tk.Dialog):
 
         self.show()
         self.lift()
-
     def createGeneralTab(self, tab):
         self.keyLf = tk.LabelFrame(tab, SG)
         self.keyLf.setText("API-Authentication")
@@ -99,6 +100,27 @@ class SettingsGUI(tk.Dialog):
         self.urlL.bind(self._click, tk.EventType.LEFT_CLICK)
         self.keyLf.place(0, 0, 205, 125)
 
+
+
+        self.itemAPILf = tk.LabelFrame(tab, SG)
+        self.itemAPILf.setText("Item-API")
+        self.lastUpd = tk.Label(self.itemAPILf, SG).placeRelative(fixHeight=25, changeWidth=-5)
+        self.regItems = tk.Label(self.itemAPILf, SG).placeRelative(fixHeight=25, changeWidth=-5, fixY=25)
+        self.uptBtn = tk.Button(self.itemAPILf, SG).setText("Update Now").setCommand(self._updateItemAPI).placeRelative(fixHeight=25, changeWidth=-5, fixY=50)
+        self.itemAPILf.place(205, 0, 205, 125)
+        self.updateItemAPIWidgets()
+
+    def updateItemAPIWidgets(self):
+        if API.SKYBLOCK_ITEM_API_PARSER is not None:
+            amount = API.SKYBLOCK_ITEM_API_PARSER.getItemAmount()
+            ts: datetime = API.SKYBLOCK_ITEM_API_PARSER.getLastUpdated()
+            diff = parseTimeDelta(datetime.now() - ts)
+        else:
+            amount = 0
+            diff = "-1"
+
+        self.lastUpd.setText(f"Last-Updated: {parseTimeToStr(diff)} ago")
+        self.regItems.setText(f"Registered-Items: {amount}")
     def createConstantsTab(self, tab):
 
         self.valueLf = tk.LabelFrame(tab, SG)
@@ -108,9 +130,25 @@ class SettingsGUI(tk.Dialog):
         SettingValue(self.valueLf, name="Bazaar-Tax:", x=0, y=height, key="bazaar_tax")
         SettingValue(self.valueLf, name="UseBazaarConfigAt:", x=0, y=height, key="hypixel_bazaar_config_path")
         SettingValue(self.valueLf, name="UseAuctionConfigAt:", x=0, y=height, key="hypixel_auction_config_path")
-        SettingValue(self.valueLf, name="UseItemConfigAt:", x=0, y=height, key="hypixel_item_config_path")
 
         self.valueLf.place(0, 50, 305, 300)
+    def _requestAPI(self):
+        Constants.WAITING_FOR_API_REQUEST = True
+
+        API.SKYBLOCK_ITEM_API_PARSER = requestItemHypixelAPI(self, Config, saveTo=os.path.join(CONFIG, "hypixel_item_config.json"))
+
+        if API.SKYBLOCK_AUCTION_API_PARSER is not None:
+            API.SKYBLOCK_AUCTION_API_PARSER.changeItemParser(API.SKYBLOCK_ITEM_API_PARSER)
+
+        Constants.WAITING_FOR_API_REQUEST = False
+        self.uptBtn.setEnabled()
+        self.updateItemAPIWidgets()
+    def _updateItemAPI(self):
+        if Constants.WAITING_FOR_API_REQUEST: return
+        self.lastUpd.setText("Updating...")
+        self.regItems.setText("")
+        self.uptBtn.setDisabled()
+        Thread(target=self._requestAPI).start()
 
 
     def _enter(self):
@@ -120,7 +158,6 @@ class SettingsGUI(tk.Dialog):
     def _click(self):
         openURL(API_URL)
         self.urlL.setText("Click to generate API-Key.")
-
     def _openChangeWindow(self):
         SettingsGUI.openAPIKeyChange(self)
 
@@ -131,7 +168,6 @@ class SettingsGUI(tk.Dialog):
         ComposterSettings(dialog, onScrollHook)
         if finishHook is not None: dialog.onCloseEvent(finishHook)
         dialog.show()
-
     @staticmethod
     def openAPIKeyChange(master, continueAt=None):
         def setData():
@@ -189,4 +225,12 @@ class SettingsGUI(tk.Dialog):
     @staticmethod
     def isAPIKeySet()->bool:
         return Config.SETTINGS_CONFIG["api_key"] != ""
-
+    @staticmethod
+    def checkItemConfigExist()->bool:
+        path = os.path.join(CONFIG, "hypixel_item_config.json")
+        if not os.path.exists(path):
+            file = open(path, "w")
+            file.write("{}")
+            file.close()
+            return False
+        return True

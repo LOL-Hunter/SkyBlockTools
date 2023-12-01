@@ -100,3 +100,8 @@ def CONFIGURE_NOTEBOOK_STYLE(style):
         background=Color.COLOR_DARK,
         foreground=Color.COLOR_WHITE
     )
+
+
+class Constants:
+    BAZAAR_TAX = 1
+    WAITING_FOR_API_REQUEST = False

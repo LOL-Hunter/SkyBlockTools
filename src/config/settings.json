@@ -1,6 +1,6 @@
 {
-    "player_name": "LOL_Hunter",
-    "api_key": "ef951dd8-d659-45e7-baaa-46ad977383d7",
+    "player_name": "",
+    "api_key": "",
     "constants": {
         "bazaar_tax": 1.125,
         "hypixel_bazaar_config_path": "C:\\Users\\langh\\Desktop\\bankdata.json",

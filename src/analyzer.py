@@ -1,5 +1,5 @@
 from hyPI.constants import BazaarItemID, AuctionItemID, ALL_ENCHANTMENT_IDS
-from hyPI.hypixelAPI import HypixelBazaarParser
+from hyPI.hypixelAPI.loader import HypixelBazaarParser
 from hyPI import getEnchantmentIDLvl
 
 from skyMath import getMedianExponent, parsePrizeList

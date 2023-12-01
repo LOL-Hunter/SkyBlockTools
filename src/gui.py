@@ -39,7 +39,6 @@ class APIRequest:
     start the API request by using 'startAPIRequest'
 
     """
-    WAITING_FOR_API_REQUEST = False
     def __init__(self, page, tkMaster:tk.Tk | tk.Toplevel, showLoadingFrame=True):
         self._tkMaster = tkMaster
         self._page = page
@@ -55,7 +54,7 @@ class APIRequest:
         @return:
         """
         assert self._hook is not None, "REQUEST HOOK IS NONE!"
-        if APIRequest.WAITING_FOR_API_REQUEST:
+        if Constants.WAITING_FOR_API_REQUEST:
             self._waitingLabel.placeForget()
             self._page.placeContentFrame()
             return
@@ -88,9 +87,9 @@ class APIRequest:
                 self._waitingLabel.setText("Waiting for API response"+"."*self._dots)
             self._tkMaster.update()
     def _requestAPI(self):
-        APIRequest.WAITING_FOR_API_REQUEST = True
+        Constants.WAITING_FOR_API_REQUEST = True
         self._hook() # request API
-        APIRequest.WAITING_FOR_API_REQUEST = False
+        Constants.WAITING_FOR_API_REQUEST = False
         self._dataAvailable = True
         self._finishAPIRequest()
     def _finishAPIRequest(self):
@@ -1988,9 +1987,8 @@ class LoadingPage(CustomPage):
 
         self.info = tk.Label(self, SG).setFont(16)
         self.info.placeRelative(fixHeight=25, fixY=340, changeX=+50, changeWidth=-100)
-
     def load(self):
-        msgs = ["Loading Config...", "Applying Settings...", "Fetching Hypixel Bazaar API...", "Fetching Hypixel Auction API...", "Fetching Hypixel Item API...", "Finishing Up..."]
+        msgs = ["Loading Config...", "Applying Settings...", "Fetching Hypixel Bazaar API...", "Checking Hypixel Item API...", "Fetching Hypixel Auction API...", "Finishing Up..."]
         self.processBar.setValues(len(msgs))
         for i, msg in enumerate(msgs):
             self.processBar.addValue()
@@ -2013,14 +2011,32 @@ class LoadingPage(CustomPage):
                 if path == "":
                     path = None
 
-                API.SKYBLOCK_BAZAAR_API_PARSER = requestBazaarHypixelAPI(self.master, path)
+                API.SKYBLOCK_BAZAAR_API_PARSER = requestBazaarHypixelAPI(self.master, Config, path=path)
 
                 updateInfoLabel(API.SKYBLOCK_BAZAAR_API_PARSER, path is not None)
                 self.master.isConfigLoadedFromFile = path is not None
 
                 self.processBar.setNormalMode()
                 self.processBar.setValue(i+1)
-            elif i == 3: # fetch Auction API
+            elif i == 3: # check/fetch Item API
+                self.info.setText(msg)
+
+                path = os.path.join(CONFIG, "hypixel_item_config.json")
+
+                if not SettingsGUI.checkItemConfigExist():
+                    tk.SimpleDialog.askWarning(self.master, "Could not read data from Item-API-Config.\nConfig does not exist!\nCreating new...")
+                    API.SKYBLOCK_ITEM_API_PARSER = requestItemHypixelAPI(self.master, Config, saveTo=path)
+                else:
+                    API.SKYBLOCK_ITEM_API_PARSER = requestItemHypixelAPI(self.master, Config, path=path)
+
+
+                updateInfoLabel(API.SKYBLOCK_BAZAAR_API_PARSER, path is not None)
+                self.master.isConfigLoadedFromFile = path is not None
+
+                self.processBar.setValues(len(msgs))
+                self.processBar.setNormalMode()
+                self.processBar.setValue(i + 1)
+            elif i == 4: # fetch Auction API
                 self.info.setText(msg)
 
                 path = Config.SETTINGS_CONFIG["constants"]["hypixel_auction_config_path"]
@@ -2031,14 +2047,14 @@ class LoadingPage(CustomPage):
                 if path == "":
                     path = None
 
-                API.SKYBLOCK_AUCTION_API_PARSER = requestAuctionHypixelAPI(self.master, path, progBar=self.processBar, infoLabel=self.info)
-
+                API.SKYBLOCK_AUCTION_API_PARSER = requestAuctionHypixelAPI(self.master, Config, path=path, progBar=self.processBar, infoLabel=self.info)
                 updateInfoLabel(API.SKYBLOCK_BAZAAR_API_PARSER, path is not None)
                 self.master.isConfigLoadedFromFile = path is not None
 
                 self.processBar.setValues(len(msgs))
                 self.processBar.setNormalMode()
                 self.processBar.setValue(i + 1)
+
 
 
 
@@ -2160,24 +2176,24 @@ class Window(tk.Tk):
         self.isConfigLoadedFromFile = True
         updateInfoLabel(API.SKYBLOCK_BAZAAR_API_PARSER, self.isConfigLoadedFromFile)
     def refreshAPIRequest(self, e):
-        if APIRequest.WAITING_FOR_API_REQUEST:
+        if Constants.WAITING_FOR_API_REQUEST:
             tk.SimpleDialog.askError(self, "Another api request is still running\ntry again later.")
             return
         self.lockInfoLabel = True
-        APIRequest.WAITING_FOR_API_REQUEST = True
+        Constants.WAITING_FOR_API_REQUEST = True
         self.isConfigLoadedFromFile = False
 
         ILG.setFg("white")
         ILG.setText("Requesting Hypixel-API...")
         sleep(.3)
         if e == "all" or e == "bazaar":
-            API.SKYBLOCK_BAZAAR_API_PARSER = requestBazaarHypixelAPI(self)
+            API.SKYBLOCK_BAZAAR_API_PARSER = requestBazaarHypixelAPI(self, Config)
             updateInfoLabel(API.SKYBLOCK_BAZAAR_API_PARSER, self.isConfigLoadedFromFile)
         if e == "all" or e == "auction":
-            API.SKYBLOCK_AUCTION_API_PARSER = requestAuctionHypixelAPI(self, infoLabel=ILG)
+            API.SKYBLOCK_AUCTION_API_PARSER = requestAuctionHypixelAPI(self, Config, infoLabel=ILG)
             updateInfoLabel(API.SKYBLOCK_BAZAAR_API_PARSER, self.isConfigLoadedFromFile)
 
-        APIRequest.WAITING_FOR_API_REQUEST = False
+        Constants.WAITING_FOR_API_REQUEST = False
         self.lockInfoLabel = False
         if self.updateCurrentPageHook is not None:
             self.runTask(self.updateCurrentPageHook).start()
