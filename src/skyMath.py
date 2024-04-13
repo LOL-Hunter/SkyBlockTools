@@ -62,8 +62,6 @@ class TimeDelta:
         self.second = seconds
 
 
-
-
 def parseTimeDelta(td):
     minutes = (td.seconds//60) % 60
     day = td.days
