@@ -1,4 +1,4 @@
-from constants import STYLE_GROUP as SG, INFO_LABEL_GROUP as ILG
+from constants import STYLE_GROUP as SG, AUCT_INFO_LABEL_GROUP as AILG, BAZAAR_INFO_LABEL_GROUP as BILG
 from pysettings import tk
 from images import IconLoader
 
@@ -33,8 +33,6 @@ class SettingValue(tk.Frame):
     def _set(self):
         SettingValue.CONFIG["constants"][self._key] = self._e.getValue()
         SettingValue.CONFIG.save()
-
-
 class CustomPage(tk.MenuPage):
     """
     Custom Content Page. Uses the tk MenuPage to act as a Menu-page with history.
@@ -60,7 +58,8 @@ class CustomPage(tk.MenuPage):
         if showHomeButton:
             tk.Button(self, SG).setImage(IconLoader.ICONS["home"]).setCommand(self._home).placeRelative(stickDown=True, stickRight=True, fixWidth=100, fixHeight=40)
         if showInfoLabel:
-            self._info = tk.Label(self, ILG).placeRelative(stickDown=True, fixHeight=15, changeX=100, changeWidth=-200)
+            self._info = tk.Label(self, AILG).placeRelative(stickDown=True, fixHeight=15, changeX=100, changeWidth=-200, changeY=-15)
+            self._info2 = tk.Label(self, BILG).placeRelative(stickDown=True, fixHeight=15, changeX=100, changeWidth=-200)
     def _home(self):
         self.master.mainMenuPage._menuData["history"] = [self.master.mainMenuPage]
         self.placeForget()
@@ -121,7 +120,6 @@ class CompleterEntry(tk.Entry):
         elif isinstance(_master, tk.Tk) or isinstance(_master, tk.Frame) or isinstance(_master, tk.LabelFrame) or isinstance(_master, tk.NotebookTab):
             #data = {"master":_master, "widget":_tk_.Entry(_master._get())}
             super().__init__(_master, SG)
-            #self._addData(data)
             self.selected = -1 # selected index during the lb is open
             self._listBox = tk.Listbox(_master, SG)
             self.bind(self._onRelPlace, tk.EventType.CUSTOM_RELATIVE_UPDATE)
@@ -203,14 +201,14 @@ class CompleterEntry(tk.Entry):
     def _decryptEvent(self, args):
         return args
     def onUserInputEvent(self, func, args:list=None, priority:int=0, defaultArgs=False, disableArgs=False):
-        event = tk.EventHandler._registerNewEvent(self, func, tk.EventType.KEY_UP, args, priority, decryptValueFunc=self._decryptEvent, defaultArgs=defaultArgs, disableArgs=disableArgs)
+        event = tk._EventHandler._registerNewEvent(self, func, tk.EventType.KEY_UP, args, priority, decryptValueFunc=self._decryptEvent, defaultArgs=defaultArgs, disableArgs=disableArgs)
         event["afterTriggered"] = self._updateMenu
     """def onListBoxSelectEvent(self, func, args: list = None, priority: int = 0, defaultArgs=False, disableArgs=False):
-        self._listboxSelect = tk.EventHandler._registerNewEvent(self._listBox, func, tk.EventType.LISTBOX_SELECT, args, priority, defaultArgs=defaultArgs, disableArgs=disableArgs, decryptValueFunc=self.__decryptEvent)"""
+        self._listboxSelect = tk._EventHandler._registerNewEvent(self._listBox, func, tk.EventType.LISTBOX_SELECT, args, priority, defaultArgs=defaultArgs, disableArgs=disableArgs, decryptValueFunc=self.__decryptEvent)"""
     def onSelectEvent(self, func, args: list = None, priority: int = 0, defaultArgs=False, disableArgs=False):
-        tk.EventHandler._registerNewEvent(self._listBox, func, tk.EventType.LISTBOX_SELECT, args, priority, decryptValueFunc=self._onListboxSelect, defaultArgs=defaultArgs, disableArgs=disableArgs)
-        tk.EventHandler._registerNewEvent(self._listBox, func, tk.EventType.DOUBBLE_LEFT, args, priority, decryptValueFunc=self._onListboxSelect, defaultArgs=defaultArgs, disableArgs=disableArgs)
-        tk.EventHandler._registerNewEvent(self, func, tk.EventType.RETURN, args, priority, decryptValueFunc=self._onListboxSelect, defaultArgs=defaultArgs, disableArgs=disableArgs)
+        tk._EventHandler._registerNewEvent(self._listBox, func, tk.EventType.LISTBOX_SELECT, args, priority, decryptValueFunc=self._onListboxSelect, defaultArgs=defaultArgs, disableArgs=disableArgs)
+        tk._EventHandler._registerNewEvent(self._listBox, func, tk.EventType.DOUBBLE_LEFT, args, priority, decryptValueFunc=self._onListboxSelect, defaultArgs=defaultArgs, disableArgs=disableArgs)
+        tk._EventHandler._registerNewEvent(self, func, tk.EventType.RETURN, args, priority, decryptValueFunc=self._onListboxSelect, defaultArgs=defaultArgs, disableArgs=disableArgs)
     def __decryptEvent(self, args):
         try:
             w = args.widget

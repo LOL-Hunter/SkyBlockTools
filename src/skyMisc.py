@@ -11,14 +11,15 @@ from pysettings.jsonConfig import JsonConfig
 from pysettings.text import TextColor, MsgText
 from traceback import format_exc
 from datetime import datetime
-from constants import INFO_LABEL_GROUP as ILG
+from constants import BAZAAR_INFO_LABEL_GROUP as BILG, AUCT_INFO_LABEL_GROUP as AILG
 from skyMath import parseTimeDelta
 from typing import List, Dict
 from constants import API
 
-def requestBazaarHypixelAPI(master, config, path=None):
+def requestBazaarHypixelAPI(master, config, path=None, saveTo=None)->HypixelBazaarParser | None:
     """
 
+    @param saveTo:
     @param config:
     @param master:
     @param path:
@@ -34,6 +35,12 @@ def requestBazaarHypixelAPI(master, config, path=None):
         else:
             TextColor.printStrf("§INFO§cRequesting 'BAZAAR_DATA' from Hypixel-API")
             data = APILoader(HypixelAPIURL.BAZAAR_URL, config.SETTINGS_CONFIG["api_key"], config.SETTINGS_CONFIG["player_name"])
+
+            if saveTo is not None:
+                conf = JsonConfig.loadConfig(saveTo, create=True)
+                conf.setData(data)
+                conf.save()
+
         parser = HypixelBazaarParser(data)
     except APIConnectionError as e:
         TextColor.print(format_exc(), "red")
@@ -44,9 +51,10 @@ def requestBazaarHypixelAPI(master, config, path=None):
         tk.SimpleDialog.askError(master, e.getMessage(), "SkyBlockTools")
         return None
     return parser
-def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=None, infoLabel:tk.Label=None):
+def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=None, infoLabel:tk.Label=None, saveTo:str=None)->HypixelAuctionParser | None:
     """
 
+    @param saveTo:
     @param infoLabel:
     @param progBar:
     @param config:
@@ -57,6 +65,9 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
     try:
         if path is not None:
             fileList = os.listdir(path)
+            if not len(fileList):
+                tk.SimpleDialog.askError(master, "Could not Load Auction Data!\nRequesting api...")
+                return requestAuctionHypixelAPI(master, config, None, progBar, infoLabel, saveTo)
             if progBar is not None:
                 progBar.setValue(0)
                 progBar.setValues(len(fileList))
@@ -69,6 +80,11 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
                 if infoLabel is not None: infoLabel.setText(f"Fetching Hypixel Auction API... [{i+1}/{len(fileList)}]")
                 parser.addPage(fileLoader(os.path.join(path, fileName)))
         else:
+            if saveTo is not None:
+                TextColor.printStrf("§INFO§gDeleting old Auction-House config files...")
+                for file in os.listdir(saveTo):
+                    delPath = os.path.join(saveTo, file)
+                    os.remove(delPath)
             TextColor.printStrf("§INFO§cRequesting 'AUCTION_DATA' from Hypixel-API")
             parser = HypixelAuctionParser(
                 APILoader(HypixelAPIURL.AUCTION_URL,
@@ -76,6 +92,11 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
                           config.SETTINGS_CONFIG["player_name"]),
                 API.SKYBLOCK_ITEM_API_PARSER
             )
+            if saveTo is not None:
+                file = JsonConfig.fromDict(parser._data)
+                file.setPath(os.path.join(saveTo, "file000.json"))
+                file.save()
+
             pages = parser.getPages()
             if progBar is not None: progBar.setValues(pages)
             for page in range(1, pages):
@@ -84,6 +105,10 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
                                  config.SETTINGS_CONFIG["api_key"],
                                  config.SETTINGS_CONFIG["player_name"],
                                  page=page)
+                if saveTo is not None:
+                    file = JsonConfig.fromDict(data)
+                    file.setPath(os.path.join(saveTo, f"file{str(page).rjust(3, '0')}.json"))
+                    file.save()
                 if infoLabel is not None: infoLabel.setText(f"Fetching Hypixel Auction API... [{page+1}/{pages}]")
                 if progBar is not None: progBar.setValue(page+1)
                 parser.addPage(data)
@@ -96,7 +121,7 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
         tk.SimpleDialog.askError(master, e.getMessage(), "SkyBlockTools")
         return None
     return parser
-def requestItemHypixelAPI(master, config, path=None, saveTo=None):
+def requestItemHypixelAPI(master, config, path=None, saveTo=None)->HypixelItemParser | None:
     """
 
     @param saveTo:
@@ -133,26 +158,46 @@ def requestItemHypixelAPI(master, config, path=None, saveTo=None):
         return None
     return parser
 
-def updateInfoLabel(api:HypixelBazaarParser | None, loaded=False):
+def updateBazaarInfoLabel(api:HypixelBazaarParser | None, loaded=False):
     if api is not None:
         ts:datetime = api.getLastUpdated()
         diff = parseTimeDelta(datetime.now()-ts)
 
         if any([diff.minute, diff.day, diff.hour]):
-            ILG.setFg("orange")
+            BILG.setFg("orange")
         else:
-            ILG.setFg("green")
+            BILG.setFg("green")
         if loaded:
-            ILG.setFg("cyan")
+            BILG.setFg("cyan")
 
         _timeStr = parseTimeToStr(diff)
         if not loaded:
-            ILG.setText(f"SkyBlock-API successful! Last request was [{_timeStr}] ago.")
+            BILG.setText(f"SkyBlock-Bazaar-API successful! Last request was [{_timeStr}] ago.")
         else:
-            ILG.setText(f"SkyBlock-API was loaded from config! Request was [{_timeStr}] ago.")
+            BILG.setText(f"SkyBlock-Bazaar-API was loaded from config! Request was [{_timeStr}] ago.")
     else:
-        ILG.setFg("red")
-        ILG.setText("SkyBlock-API request failed!")
+        BILG.setFg("red")
+        BILG.setText("SkyBlock-Bazaar-API request failed!")
+def updateAuctionInfoLabel(api:HypixelAuctionParser | None, loaded=False):
+    if api is not None:
+        ts:datetime = api.getLastUpdated()
+        diff = parseTimeDelta(datetime.now()-ts)
+
+        if any([diff.minute, diff.day, diff.hour]):
+            AILG.setFg("orange")
+        else:
+            AILG.setFg("green")
+        if loaded:
+            AILG.setFg("cyan")
+
+        _timeStr = parseTimeToStr(diff)
+        if not loaded:
+            AILG.setText(f"SkyBlock-Auction-API successful! Last request was [{_timeStr}] ago.")
+        else:
+            AILG.setText(f"SkyBlock-Auction-API was loaded from config! Request was [{_timeStr}] ago.")
+    else:
+        AILG.setFg("red")
+        AILG.setText("SkyBlock-Auction-API request failed!")
 def modeToBazaarAPIFunc(mode):
     match mode:
         case "hour":
@@ -178,7 +223,7 @@ def prizeToStr(inputPrize:int | float | None, hideCoins=False)->str | None:
     if neg:
         inputPrize = abs(inputPrize)
     prefix = ["", "k", "m", "b", "Tr", "Q"]
-    while inputPrize > 1000:
+    while inputPrize >= 1000:
         inputPrize = inputPrize/1000
         exponent += 1
         if exponent > 5:
@@ -248,7 +293,7 @@ def search(searchInput, value:str, minLength=0, printable=True):
                     else:
                         suggestions.append(itemName.replace(" ", "_"))
     return suggestions
-def parseTimeFromSec(sec):
+def parseTimeFromSec(sec)->str:
     minutes = 0
     hour = 0
     day = 0
@@ -272,15 +317,17 @@ def parseTimeFromSec(sec):
     out += f"{hour}h " if hour > 0 else ""
     out += f"{minutes}m " if minutes > 0 else ""
     out += f"{sec}s"
-    return out
+    return out.strip()
 
 
 class Sorter:
-    def __init__(self, sort, **kwargs):
-        self._sort = sort
+    def __init__(self, sort=None, sortKey=None, **kwargs):
+        self._sort = sort if sort is not None else kwargs[sortKey]
         self._data = kwargs
 
     def __lt__(self, other):
+        if type(self._sort) == str: return False
+        if type(other._sort) == str: return True
         return self._sort > other._sort
 
     def __getitem__(self, item):
@@ -297,7 +344,6 @@ class BookCraft:
         self._book_from_buy_price = data["book_from_buy_price"]
         self._book_from_sell_volume = data["book_from_sell_volume"]
         self._targetPrice = targetPrice
-
     def getShowAbleIDFrom(self):
         return self.getIDFrom().replace("ENCHANTMENT_", "").lower()
     def getShowAbleIDTo(self):
@@ -328,23 +374,22 @@ class BookCraft:
     def __repr__(self):
         return f"{self.getSavedCoins()}"
 class RecipeResult:
-    def __init__(self, id_, profit, craftPrice, req):
+    def __init__(self, id_, profit, craftPrice, req, depth=1):
         self._id = id_
         self._profit = profit
         self._craftPrice = craftPrice
         self.rq = req
+        self._depth = depth
+    def getCraftDepth(self):
+        return self._depth
     def getCraftPrice(self):
         return self._craftPrice
     def getRequired(self):
         return self.rq
     def getID(self):
         return self._id
-
     def getProfit(self):
         return self._profit
-
-
-
     def __lt__(self, other):
         return self.getProfit() > other.getProfit()
 

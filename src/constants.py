@@ -14,6 +14,20 @@ class API:
     SKYBLOCK_ITEM_API_PARSER: HypixelItemParser = None
 
 
+RARITY_COLOR_CODE = {
+    "COMMON":"white",
+    "UNCOMMON":"#55FF55",
+    "RARE":"#5555FF",
+    "EPIC":"#AA00AA",
+    "LEGENDARY":"#FFAA00",
+    "DIVINE":"#55FFFF",
+    "MYTHIC":"#FF55FF",
+    "SPECIAL":"#AA0000",
+    "VERY_SPECIAL":"#AA0000",
+    "ULTIMATE":"#AA0000",
+    "SUPREME":"#AA0000",
+}
+
 
 STYLE_GROUP = tk.WidgetGroup()
 STYLE_GROUP.addCommand("setBg", Color.COLOR_DARK, ignoreErrors=True)
@@ -24,7 +38,8 @@ STYLE_GROUP.addCommand("setSelectBackGroundColor", Color.COLOR_GRAY, ignoreError
 STYLE_GROUP.addCommand("setSelectColor", Color.COLOR_GRAY, ignoreErrors=True)
 STYLE_GROUP.addCommand("setSlotBgAll", Color.COLOR_GRAY, ignoreErrors=True)
 
-INFO_LABEL_GROUP = tk.WidgetGroup(instantiate=STYLE_GROUP)
+BAZAAR_INFO_LABEL_GROUP = tk.WidgetGroup(instantiate=STYLE_GROUP)
+AUCT_INFO_LABEL_GROUP = tk.WidgetGroup(instantiate=STYLE_GROUP)
 
 
 def LOAD_STYLE():

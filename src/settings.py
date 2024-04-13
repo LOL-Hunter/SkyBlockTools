@@ -14,7 +14,6 @@ CONFIG = os.path.join(os.path.split(__file__)[0], "config")
 API_URL = "https://developer.hypixel.net/"
 
 
-
 class Config:
     AdvancedJsonConfig.setConfigFolderPath(CONFIG)
 
@@ -34,7 +33,8 @@ class Config:
             "fuel_cap":1,
             "matter_cap":1,
             "cost_reduction":1
-        }
+        },
+        "auction_creator_uuids":{}
     })
     SETTINGS_CONFIG.load("settings.json")
     SettingValue.CONFIG = SETTINGS_CONFIG
@@ -65,7 +65,7 @@ class SettingsGUI(tk.Dialog):
         super().__init__(master, SG, False)
         self.master = master
         self.setTitle("SkyBlockTools-Settings")
-        self.setMinSize(400, 400)
+        self.setMinSize(410, 410)
 
         self.notebook = tk.Notebook(self, SG)
         self.generalTab = self.notebook.createNewTab("General", SG)
@@ -90,17 +90,12 @@ class SettingsGUI(tk.Dialog):
         self.apiKeyTextE.setText("API-Key:")
         self.apiKeyTextE.getEntry().disable()
         self.apiKeyTextE.place(0, 25, 200, 25)
-        tk.Button(self.keyLf, SG).setText("Change...").setCommand(self._openChangeWindow).placeRelative(changeWidth=-5,
-                                                                                                        fixY=50,
-                                                                                                        fixHeight=25)
-        self.urlL = tk.Label(self.keyLf, SG).setText("Click to generate API-Key.").placeRelative(changeWidth=-5,
-                                                                                                 fixY=75, fixHeight=25)
+        tk.Button(self.keyLf, SG).setText("Change...").setCommand(self._openChangeWindow).placeRelative(changeWidth=-5,  fixY=50, fixHeight=25)
+        self.urlL = tk.Label(self.keyLf, SG).setText("Click to generate API-Key.").placeRelative(changeWidth=-5, fixY=75, fixHeight=25)
         self.urlL.bind(self._enter, tk.EventType.ENTER)
         self.urlL.bind(self._leave, tk.EventType.LEAVE)
         self.urlL.bind(self._click, tk.EventType.LEFT_CLICK)
         self.keyLf.place(0, 0, 205, 125)
-
-
 
         self.itemAPILf = tk.LabelFrame(tab, SG)
         self.itemAPILf.setText("Item-API")
@@ -108,8 +103,39 @@ class SettingsGUI(tk.Dialog):
         self.regItems = tk.Label(self.itemAPILf, SG).placeRelative(fixHeight=25, changeWidth=-5, fixY=25)
         self.uptBtn = tk.Button(self.itemAPILf, SG).setText("Update Now").setCommand(self._updateItemAPI).placeRelative(fixHeight=25, changeWidth=-5, fixY=50)
         self.itemAPILf.place(205, 0, 205, 125)
-        self.updateItemAPIWidgets()
 
+        self.ownAuct = tk.LabelFrame(tab, SG)
+        self.ownAuct.setText("Own-Auctions")
+
+        self.players = tk.Listbox(self.ownAuct, SG)
+        for uuid, player in iterDict(Config.SETTINGS_CONFIG["auction_creator_uuids"]):
+            self.players.add(player+" : "+uuid)
+        self.players.placeRelative(fixHeight=55, changeWidth=-5)
+        self.uptBtn2 = tk.Button(self.ownAuct, SG).setText("Delete Selected Player").setCommand(self.deleteSelectedPlayer).placeRelative(fixHeight=25, changeWidth=-5, changeY=-45, stickDown=True)
+        self.uptBtn3 = tk.Button(self.ownAuct, SG).setText("Add Player...").setCommand(self.addPlayer).placeRelative(fixHeight=25, changeWidth=-5, fixY=50, changeY=-20, stickDown=True)
+        self.ownAuct.place(0, 125, 205, 125)
+
+
+        self.updateItemAPIWidgets()
+    def deleteSelectedPlayer(self):
+        sel = self.players.getSelectedItem()
+        if sel is not None:
+            if tk.SimpleDialog.askOkayCancel(self, "Are you sure?", "Settings"):
+                uuid = sel.split(":")[1].strip()
+                Config.SETTINGS_CONFIG["auction_creator_uuids"].pop(uuid)
+                Config.SETTINGS_CONFIG.save()
+                self.players.clear()
+                for uuid, player in iterDict(Config.SETTINGS_CONFIG["auction_creator_uuids"]):
+                    self.players.add(player + " : " + uuid)
+    def addPlayer(self):
+        anw = tk.SimpleDialog.askUsernamePassword(self, unameString="Player Name: ", passwString="UUID: ", hidePassword=False)
+        if anw is not None:
+            pname, uuid = anw
+            Config.SETTINGS_CONFIG["auction_creator_uuids"][uuid.replace("-", "")] = pname
+            Config.SETTINGS_CONFIG.save()
+            self.players.clear()
+            for uuid, player in iterDict(Config.SETTINGS_CONFIG["auction_creator_uuids"]):
+                self.players.add(player + " : " + uuid)
     def updateItemAPIWidgets(self):
         if API.SKYBLOCK_ITEM_API_PARSER is not None:
             amount = API.SKYBLOCK_ITEM_API_PARSER.getItemAmount()
@@ -132,7 +158,7 @@ class SettingsGUI(tk.Dialog):
         SettingValue(self.valueLf, name="UseAuctionConfigAt:", x=0, y=height, key="hypixel_auction_config_path")
 
         self.valueLf.place(0, 50, 305, 300)
-    def _requestAPI(self):
+    def _requestItemAPI(self):
         Constants.WAITING_FOR_API_REQUEST = True
 
         API.SKYBLOCK_ITEM_API_PARSER = requestItemHypixelAPI(self, Config, saveTo=os.path.join(CONFIG, "hypixel_item_config.json"))
@@ -148,9 +174,7 @@ class SettingsGUI(tk.Dialog):
         self.lastUpd.setText("Updating...")
         self.regItems.setText("")
         self.uptBtn.setDisabled()
-        Thread(target=self._requestAPI).start()
-
-
+        Thread(target=self._requestItemAPI).start()
     def _enter(self):
         self.urlL.setText(API_URL)
     def _leave(self):
@@ -191,7 +215,6 @@ class SettingsGUI(tk.Dialog):
             master.destroy()
             if continueAt is not None:
                 continueAt()
-
         def cancel():
             master.destroy()
             if continueAt is not None:

@@ -3,11 +3,6 @@ from numpy import median, percentile
 from datetime import datetime
 from constants import Constants
 
-def addPositiveTax(price, taxVal):
-    return
-def addNegativeTax(price, taxVal):
-    return
-
 def getPlotTicksFromInterval(data:list, interval:int)->list:
     """
     This function is used to configure the x/y-Axis label amount.
@@ -95,7 +90,7 @@ def getSuspiciousData(inputList: List[float], flattenFactor: float = 1.0) -> Lis
         if single < borderDown or single > borderUp:
             isSusList.append(single)
     return isSusList
-def applyBazaarTax(in_:float):
+def applyBazaarTax(in_:float)->float:
     tax = float(Constants.BAZAAR_TAX)
     in_ *= (100 - tax) / 100  # apply tax to instaSell Result
     return in_
@@ -105,7 +100,9 @@ class TimeDelta:
         self.hour = hours
         self.minute = minutes
         self.second = seconds
-def parseTimeDelta(td):
+    def toSeconds(self):
+        return self.second + self.minute*60 + self.hour*60*60 + self.day*60*60*24
+def parseTimeDelta(td)->TimeDelta:
     minutes = (td.seconds//60) % 60
     day = td.days
     hour = td.seconds//3600

@@ -13,79 +13,93 @@
         "finish": true
     },
     {
-        "item_id": "PURPLE_CANDY",
+        "item_id": "COMPOST",
         "finished": false,
+        "sold_for": 0,
         "items_bought": true,
-        "sold_for": 0,
         "data": [
             {
-                "amount": 3456,
-                "price": 13394.0
+                "amount": 556,
+                "price": 14911.1
             }
         ],
         "finish": true
     },
     {
-        "item_id": "ENCHANTMENT_VAMPIRISM_6",
+        "item_id": "ENCHANTED_LUSH_BERBERIS",
         "finished": false,
+        "sold_for": 0,
         "items_bought": true,
-        "sold_for": 0,
         "data": [
             {
-                "amount": 37,
-                "price": 550000.0
+                "amount": 1511,
+                "price": 2000.0
             }
         ],
         "finish": true
     },
     {
-        "item_id": "GREAT_WHITE_SHARK_TOOTH",
+        "item_id": "ENCHANTED_LAPIS_LAZULI",
         "finished": false,
-        "items_bought": false,
         "sold_for": 0,
+        "items_bought": true,
         "data": [
             {
-                "amount": 11,
-                "price": 1800002.3709459463
+                "amount": 1114,
+                "price": 3.3000000000000003
+            },
+            {
+                "amount": 45,
+                "price": 40.300000000000004
+            },
+            {
+                "amount": 112,
+                "price": 60.1
+            },
+            {
+                "amount": 65,
+                "price": 75.0
+            },
+            {
+                "amount": 933,
+                "price": 76.2
+            },
+            {
+                "amount": 1076,
+                "price": 100.0
+            },
+            {
+                "amount": 1741,
+                "price": 221.0
+            },
+            {
+                "amount": 425,
+                "price": 254.0
+            },
+            {
+                "amount": 2342,
+                "price": 300.0
+            },
+            {
+                "amount": 2574,
+                "price": 350.0
+            },
+            {
+                "amount": 1030,
+                "price": 500.0
             }
         ],
         "finish": true
     },
     {
-        "item_id": "SHARK_FIN",
+        "item_id": "TREASURITE",
         "finished": false,
         "sold_for": 0,
-        "items_bought": false,
+        "items_bought": true,
         "data": [
             {
-                "amount": 2729,
-                "price": 1390.0
-            }
-        ],
-        "finish": true
-    },
-    {
-        "item_id": "ECTOPLASM",
-        "finished": false,
-        "sold_for": 0,
-        "items_bought": false,
-        "data": [
-            {
-                "amount": 30,
-                "price": 110000.0
-            }
-        ],
-        "finish": true
-    },
-    {
-        "item_id": "BAT_FIREWORK",
-        "finished": false,
-        "sold_for": 0,
-        "items_bought": false,
-        "data": [
-            {
-                "amount": 25,
-                "price": 120000.10515267176
+                "amount": 1473,
+                "price": 5340.200000000001
             }
         ],
         "finish": true

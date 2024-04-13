@@ -1,17 +1,21 @@
 {
-    "player_name": "",
-    "api_key": "",
+    "player_name": "LOL_Hunter",
+    "api_key": "ef951dd8-d659-45e7-baaa-46ad977383d7",
     "constants": {
         "bazaar_tax": 1.125,
-        "hypixel_bazaar_config_path": "C:\\Users\\langh\\Desktop\\bankdata.json",
-        "hypixel_auction_config_path": "C:\\Users\\langh\\Desktop\\auctTestData",
+        "hypixel_bazaar_config_path": "",
+        "hypixel_auction_config_path": "",
         "hypixel_item_config_path": ""
     },
     "composter": {
         "speed": 5,
-        "multi_drop": 5,
-        "fuel_cap": 0,
-        "matter_cap": 5,
-        "cost_reduction": 0
+        "multi_drop": 7,
+        "fuel_cap": 3,
+        "matter_cap": 6,
+        "cost_reduction": 3
+    },
+    "auction_creator_uuids": {
+        "1ceb4ac6a2b2471dbdd9a02a5bc69b2f": "LOL_Hunter",
+        "a3e55ce81e49453486f357cea507c3ff": "glaciodraco"
     }
 }
