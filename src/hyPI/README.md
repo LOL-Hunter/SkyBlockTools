@@ -1,3 +1,6 @@
+Integrated API to access all needed data from external API's. \
+IMPORTAINT: This reference is NOT complete yet! 
+
 # hyPI reference
 This API is used to get detailed information about hypixel recipes, prices, and other.
 The API is split into three parts:
