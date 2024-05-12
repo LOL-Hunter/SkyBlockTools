@@ -1,5 +1,5 @@
 # -*- coding: iso-8859-15 -*-
-import os
+import os as _os
 from hyPI.APIError import APIConnectionError, NoAPIKeySetException
 from hyPI.hypixelAPI import HypixelAPIURL, APILoader, fileLoader
 from hyPI.hypixelAPI.loader import HypixelBazaarParser, HypixelAuctionParser, HypixelItemParser
@@ -15,6 +15,7 @@ from constants import BAZAAR_INFO_LABEL_GROUP as BILG, AUCT_INFO_LABEL_GROUP as 
 from skyMath import parseTimeDelta
 from typing import List, Dict
 from constants import API
+from platform import system
 
 def requestBazaarHypixelAPI(master, config, path=None, saveTo=None)->HypixelBazaarParser | None:
     """
@@ -64,7 +65,7 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
     """
     try:
         if path is not None:
-            fileList = os.listdir(path)
+            fileList = _os.listdir(path)
             if not len(fileList):
                 tk.SimpleDialog.askError(master, "Could not Load Auction Data!\nRequesting api...")
                 return requestAuctionHypixelAPI(master, config, None, progBar, infoLabel, saveTo)
@@ -72,19 +73,19 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
                 progBar.setValue(0)
                 progBar.setValues(len(fileList))
             parser = HypixelAuctionParser(
-                fileLoader(os.path.join(path, fileList[0])),
+                fileLoader(_os.path.join(path, fileList[0])),
                 API.SKYBLOCK_ITEM_API_PARSER
             )
             for i, fileName in enumerate(fileList[1:]):
                 if progBar is not None: progBar.addValue()
                 if infoLabel is not None: infoLabel.setText(f"Fetching Hypixel Auction API... [{i+1}/{len(fileList)}]")
-                parser.addPage(fileLoader(os.path.join(path, fileName)))
+                parser.addPage(fileLoader(_os.path.join(path, fileName)))
         else:
             if saveTo is not None:
                 TextColor.printStrf("§INFO§gDeleting old Auction-House config files...")
-                for file in os.listdir(saveTo):
-                    delPath = os.path.join(saveTo, file)
-                    os.remove(delPath)
+                for file in _os.listdir(saveTo):
+                    delPath = _os.path.join(saveTo, file)
+                    _os.remove(delPath)
             TextColor.printStrf("§INFO§cRequesting 'AUCTION_DATA' from Hypixel-API")
             parser = HypixelAuctionParser(
                 APILoader(HypixelAPIURL.AUCTION_URL,
@@ -94,7 +95,7 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
             )
             if saveTo is not None:
                 file = JsonConfig.fromDict(parser._data)
-                file.setPath(os.path.join(saveTo, "file000.json"))
+                file.setPath(_os.path.join(saveTo, "file000.json"))
                 file.save()
 
             pages = parser.getPages()
@@ -107,7 +108,7 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
                                  page=page)
                 if saveTo is not None:
                     file = JsonConfig.fromDict(data)
-                    file.setPath(os.path.join(saveTo, f"file{str(page).rjust(3, '0')}.json"))
+                    file.setPath(_os.path.join(saveTo, f"file{str(page).rjust(3, '0')}.json"))
                     file.save()
                 if infoLabel is not None: infoLabel.setText(f"Fetching Hypixel Auction API... [{page+1}/{pages}]")
                 if progBar is not None: progBar.setValue(page+1)
@@ -393,4 +394,15 @@ class RecipeResult:
     def __lt__(self, other):
         return self.getProfit() > other.getProfit()
 
+def checkSavedFiles(path):
+    pass
 
+
+
+def checkWindows():
+    match (system()):
+        case "Windows":
+            PATH = _os.path.join(_os.path.expanduser("~"), "AppData", "Roaming")
+            checkSavedFiles(PATH)
+        case _:
+            raise NotImplementedError("This game is only implemented for Windows yet.")

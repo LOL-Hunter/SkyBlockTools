@@ -1,7 +1,7 @@
-from typing import List, Tuple
+from typing import List as _List, Tuple as _Tuple
 from numpy import median, percentile
-from datetime import datetime
-from constants import Constants
+from constants import Constants as _Constants
+
 
 def getPlotTicksFromInterval(data:list, interval:int)->list:
     """
@@ -20,7 +20,7 @@ def getPlotTicksFromInterval(data:list, interval:int)->list:
         data.pop(0)
         length = len(data)
     return data[::interval]
-def parsePrizeList(prizes:List[float], exponent:int)->List[float]:
+def parsePrizeList(prizes:_List[float], exponent:int)->_List[float]:
     """
     Returns the prizes parsed to fix exponent.
 
@@ -32,7 +32,7 @@ def parsePrizeList(prizes:List[float], exponent:int)->List[float]:
     for x in range(len(prizes)):
         mappedPrizes.append(prizes[x] / (10 ** (exponent * 3)))
     return mappedPrizes
-def getMedianExponent(prizes:list)->Tuple[int, str] | Tuple[None, None]:
+def getMedianExponent(prizes:list)->_Tuple[int, str] | _Tuple[None, None]:
     """
     Returns the median Exponent of given list and the Prefix.
 
@@ -48,7 +48,7 @@ def getMedianExponent(prizes:list)->Tuple[int, str] | Tuple[None, None]:
         if exponent > 5:
             return None, None
     return exponent, prefixList[exponent]
-def getFlattenList(inputList:List[float])->List[float]:
+def getFlattenList(inputList:_List[float])->_List[float]:
     inputList = inputList.copy()
     listOfSusData = getSuspiciousData(inputList)
     clearedList = []
@@ -65,9 +65,9 @@ def getFlattenList(inputList:List[float])->List[float]:
             clearedList.append(inputList[x])
         x += 1
     return clearedList
-def getMedianFromList(_in:List[float])->float:
+def getMedianFromList(_in:_List[float])->float:
     return float(median(_in))
-def getSuspiciousData(inputList: List[float], flattenFactor: float = 1.0) -> List[float]:
+def getSuspiciousData(inputList: _List[float], flattenFactor: float = 1.0) -> _List[float]:
     isSusList = []
     x = 0
     underMedian, overMedian = percentile(inputList, [25 - x, 75 + x])
@@ -91,7 +91,7 @@ def getSuspiciousData(inputList: List[float], flattenFactor: float = 1.0) -> Lis
             isSusList.append(single)
     return isSusList
 def applyBazaarTax(in_:float)->float:
-    tax = float(Constants.BAZAAR_TAX)
+    tax = float(_Constants.BAZAAR_TAX)
     in_ *= (100 - tax) / 100  # apply tax to instaSell Result
     return in_
 class TimeDelta:

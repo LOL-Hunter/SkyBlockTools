@@ -118,5 +118,5 @@ def CONFIGURE_NOTEBOOK_STYLE(style):
 
 
 class Constants:
-    BAZAAR_TAX = 1
+    BAZAAR_TAX = None
     WAITING_FOR_API_REQUEST = False

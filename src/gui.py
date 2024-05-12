@@ -1,36 +1,71 @@
 # -*- coding: iso-8859-15 -*-
-import math
-from hyPI._parsers import MayorData, BazaarHistory, BazaarHistoryProduct, BaseAuctionProduct, BINAuctionProduct, NORAuctionProduct
-from hyPI.constants import BazaarItemID, AuctionItemID
+
 from hyPI.APIError import APIConnectionError, NoAPIKeySetException
-from hyPI.hypixelAPI.loader import HypixelBazaarParser, HypixelAuctionParser, HypixelItemParser
-from hyPI.skyCoflnetAPI import SkyConflnetAPI
+from hyPI._parsers import MayorData, BazaarHistoryProduct, BaseAuctionProduct, BINAuctionProduct, NORAuctionProduct
+from hyPI.constants import BazaarItemID, AuctionItemID, ALL_ENCHANTMENT_IDS
+from hyPI.hypixelAPI.loader import HypixelBazaarParser
 from hyPI.recipeAPI import RecipeAPI
-from pysettings import tk, iterDict, ID
+from hyPI.skyCoflnetAPI import SkyConflnetAPI
+
+from pysettings import tk, iterDict
 from pysettings.geometry import _map
 from pysettings.jsonConfig import JsonConfig
 from pysettings.text import MsgText, TextColor
-from pyperclip import copy as copyStr
-from traceback import format_exc
+
+import os
 from datetime import datetime, timedelta
+from ctypes import windll
 from threading import Thread
 from time import time, sleep
-from ctypes import windll
-from typing import List
-import os
-
+from traceback import format_exc
+from typing import List, Tuple
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
+from pyperclip import copy as copyStr
 from pytz import timezone
 
 from analyzer import getPlotData, getCheapestEnchantmentData
-from constants import STYLE_GROUP as SG, LOAD_STYLE, BAZAAR_INFO_LABEL_GROUP as BILG, AUCT_INFO_LABEL_GROUP as AILG, Color, API, RARITY_COLOR_CODE
-from skyMath import *
-from skyMisc import *
-from widgets import CompleterEntry, CustomPage, CustomMenuPage
+from constants import (
+    RARITY_COLOR_CODE,
+    LOAD_STYLE,
+    STYLE_GROUP as SG,
+    BAZAAR_INFO_LABEL_GROUP as BILG,
+    AUCT_INFO_LABEL_GROUP as AILG,
+    API,
+    Color,
+    Constants
+)
 from images import IconLoader
-from settings import SettingsGUI, Config
+from settings import SettingsGUI, Config, checkConfigForUpdates
+from skyMath import (
+    getPlotTicksFromInterval,
+    parsePrizeList,
+    getMedianExponent,
+    getFlattenList,
+    getMedianFromList,
+    applyBazaarTax
+)
+from skyMisc import (
+    requestAuctionHypixelAPI,
+    requestItemHypixelAPI,
+    requestBazaarHypixelAPI,
+    updateAuctionInfoLabel,
+    updateBazaarInfoLabel,
+    modeToBazaarAPIFunc,
+    parseTimeDelta,
+    parseTimeToStr,
+    parseTimeFromSec,
+    prizeToStr,
+    search,
+    Sorter,
+    BookCraft,
+    RecipeResult,
+    getDictEnchantmentIDToLevels,
+    checkWindows
+)
+from widgets import CompleterEntry, CustomPage, CustomMenuPage
 
+APP_DATA = os.path.join(os.path.expanduser("~"), "AppData", "Roaming")
 IMAGES = os.path.join(os.path.split(__file__)[0], "images")
 CONFIG = os.path.join(os.path.split(__file__)[0], "config")
 
@@ -506,7 +541,8 @@ class ItemInfoPage(CustomPage):
         self.selectedMode = e.getArgs(0)
         self.api.startAPIRequest()
     def onShow(self, **kwargs):
-        self.master.updateCurrentPageHook = None  # hook to update tv on new API-Data available
+        if "ignoreHook" not in kwargs.keys() or not kwargs["ignoreHook"]:
+            self.master.updateCurrentPageHook = None  # hook to update tv on new API-Data available
         for i in self.timeRangeBtns:
             i.setStyle(tk.Style.RAISED)
         self.timeRangeBtns[0].setStyle(tk.Style.SUNKEN)
@@ -565,6 +601,157 @@ class SearchPage(CustomPage):
         self.setPageTitle(self.msg)
         self.placeRelative()
         self.entry.setFocus()
+class AlchemyXPCalculatorPage(CustomPage):
+    def __init__(self, master):
+        super().__init__(master,
+                         pageTitle="Alchemy XP",
+                         buttonText="Alchemy XP Calc")
+        self.master: Window = master
+        self.headerIndex = ""
+
+        self.alchemyLvlConfig = JsonConfig.loadConfig(os.path.join(CONFIG, "alchemy_lvl.json"))
+        self.alchemyXPConfig = JsonConfig.loadConfig(os.path.join(CONFIG, "alchemy_xp.json"))
+        self.alchemySellConfigDefault = JsonConfig.loadConfig(os.path.join(CONFIG, "alchemy_sell.json"))
+        self.alchemySellConfigGlowstone = JsonConfig.loadConfig(os.path.join(CONFIG, "alchemy_sell_glowstone.json"))
+
+        self.calcMode = tk.DropdownMenu(self.contentFrame, SG)
+        self.calcMode.setText("Default (shown ingredient)")
+        self.calcMode.setOptionList([
+            "Default (shown ingredient)",
+            "Default + 1 (shown ingredient + 1 glowstone)",
+        ])
+        self.calcMode.onSelectEvent(self.updateTreeView)
+        self.calcMode.placeRelative(fixHeight=25, stickDown=True, fixWidth=250)
+
+        self.wisdom = tk.TextEntry(self.contentFrame, SG)
+        self.wisdom.setText("Wisdom: ")
+        self.wisdom.setValue(Config.SETTINGS_CONFIG["wisdom"])
+        self.wisdom.getEntry().onUserInputEvent(self.updateTreeView)
+        self.wisdom.placeRelative(fixHeight=25, stickDown=True, fixWidth=100, fixX=250)
+
+        self.fromTo = tk.TextEntry(self.contentFrame, SG)
+        self.fromTo.setText("Level Range: ")
+        self.fromTo.getEntry().onUserInputEvent(self.updateTreeView)
+        self.fromTo.placeRelative(fixHeight=25, stickDown=True, fixWidth=200, fixX=350)
+
+        self.info = tk.Label(self.contentFrame, SG)
+        self.info.placeRelative(fixHeight=25, stickDown=True, fixX=550)
+
+        self.treeView = tk.TreeView(self.contentFrame, SG)
+        scrollbar = tk.ScrollBar(self.master)
+        self.treeView.attachVerticalScrollBar(scrollbar)
+        self.treeView.bind(self.onItemInfo, tk.EventType.DOUBBLE_LEFT)
+        self.treeView.onSelectHeader(self.onHeaderClick)
+        self.treeView.placeRelative(changeHeight=-25)
+    def onItemInfo(self):
+        sel = self.treeView.getSelectedItems()
+        if sel is None: return
+        self.master.showItemInfo(self, sel[0]["Item"])
+    def onHeaderClick(self, e:tk.Event):
+        self.headerIndex:str = e.getValue()
+        self.updateTreeView()
+    def updateTreeView(self):
+        self.treeView.clear()
+        self.treeView.setTableHeaders("Item", "Cost", "Brews(3-Pots)")
+
+        wisdom = self.wisdom.getValue()
+        if wisdom.isnumeric():
+            wisdomFactor = int(wisdom)
+            Config.SETTINGS_CONFIG["wisdom"] = wisdomFactor
+            Config.SETTINGS_CONFIG.save()
+            wisdomFactor = 1+(wisdomFactor/100)
+        else:
+            self.info.setText(f"Wrong wisdom value! Must be > 0.")
+            return
+
+
+        content = self.fromTo.getValue()
+        if content.count("-") == 1:
+            fr, to = content.split("-")
+            if fr == "":
+                fr = 0
+            elif not fr.isnumeric():
+                self.info.setText(f"Error: 'from' in level range is nan. {fr}. ({-1} xp)")
+                return
+            fr = int(fr)
+            if to == "":
+                to = len(self.alchemyLvlConfig.getData())-1
+            elif not to.isnumeric():
+                self.info.setText(f"Error: 'to' in level range is nan. {to}. ({-1} xp)")
+                return
+            to = int(to)
+            if not (0 < fr <= len(self.alchemyLvlConfig.getData())):
+                self.info.setText(f"Error: 'from' in level range is not in range. {fr}. ({-1} xp)")
+                return
+            if not (0 < to <= len(self.alchemyLvlConfig.getData())):
+                self.info.setText(f"Error: 'to' in level range is not in range. {to}. ({-1} xp)")
+                return
+            if fr >= to:
+                self.info.setText(f"Error: 'to' cannot be less or equal to 'from'. {to}. ({-1} xp)")
+                return
+
+            _range = self.alchemyLvlConfig.getData()[fr-1:to]
+            requiredXP = sum(_range)
+
+            self.info.setText(f"Showing range of {len(_range)} Levels. ({requiredXP} xp)")
+
+
+        elif content == "":
+            self.info.setText(f"Showing all 50 Levels. ({sum(self.alchemyLvlConfig.getData())} xp)")
+            requiredXP = sum(self.alchemyLvlConfig.getData())
+        elif content.isnumeric():
+            content = int(content)
+            if content > 0 and content <= len(self.alchemyLvlConfig.getData()):
+                requiredXP = self.alchemyLvlConfig.getData()[content-1]
+                self.info.setText(f"Showing Level {content}. ({requiredXP} xp)")
+            else:
+                self.info.setText(f"Error: There is no Level {content}. ({-1} xp)")
+                return
+        else:
+            self.info.setText(f"Error: Wrong range or Level {content}. ({-1} xp)")
+            return
+
+
+
+        if self.calcMode.getValue() == "Default (shown ingredient)":
+            alchemySellConfig = self.alchemySellConfigDefault
+        else:
+            alchemySellConfig = self.alchemySellConfigGlowstone
+
+        sorters = []
+        for itemID in self.alchemyXPConfig.keys():
+            item = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(itemID)
+            singleXp = self.alchemyXPConfig[itemID]
+            npcSellPrice = alchemySellConfig[itemID]*3
+
+
+            brews = int(requiredXP / (singleXp*wisdomFactor*3))+1
+
+            ## Buy price ##
+
+            itemBuyPrice = (item.getInstaSellPrice() + .1-npcSellPrice) * brews
+
+            sorters.append(
+                Sorter(
+                    sortKey="cost",
+                    itemID=itemID,
+                    cost=itemBuyPrice,
+                    brews=brews
+                )
+            )
+        sorters.sort()
+        sorters.reverse()
+        for s in sorters:
+            self.treeView.addEntry(
+                s["itemID"],
+                prizeToStr(s["cost"]),
+                s["brews"]
+            )
+    def onShow(self, **kwargs):
+        self.master.updateCurrentPageHook = self.updateTreeView  # hook to update tv on new API-Data available
+        self.placeRelative()
+        self.updateTreeView()
+        self.placeContentFrame()
 class EnchantingBookBazaarProfitPage(CustomPage):
     def __init__(self, master):
         super().__init__(master, pageTitle="Book Combine Profit Page", buttonText="Book Combine Profit")
@@ -588,12 +775,12 @@ class EnchantingBookBazaarProfitPage(CustomPage):
                 self.whiteList = js.getData()
 
 
-        self.useBuyOffers = tk.Checkbutton(self.contentFrame, SG)
+        self.useBuyOffers = tk.Checkbutton(self.contentFrame, SG).setSelected()
         self.useBuyOffers.setText("Use-Buy-Offers")
         self.useBuyOffers.onSelectEvent(self.updateTreeView)
         self.useBuyOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150)
 
-        self.useSellOffers = tk.Checkbutton(self.contentFrame, SG)
+        self.useSellOffers = tk.Checkbutton(self.contentFrame, SG).setSelected()
         self.useSellOffers.setText("Use-Sell-Offers")
         self.useSellOffers.onSelectEvent(self.updateTreeView)
         self.useSellOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=150)
@@ -966,7 +1153,7 @@ class BazaarFlipProfitPage(CustomPage):
             "Sell-Per-Hour":"sellsPerHour",
             "Buy-Per-Week":"buysPerWeek",
             "Sell-Per-Week":"sellsPerWeek",
-            "Flip-Rating":"profitPerHour",
+            "Flip-Rating":"flipRating",
             "Average Buy Order":"averagePriceToBuyDiff"
         }
 
@@ -1002,9 +1189,9 @@ class BazaarFlipProfitPage(CustomPage):
         self.hideLowInstaSell.setText("Hide Insta-Sells < 1/h").setTextOrientation()
         self.hideLowInstaSell.placeRelative(fixHeight=25, fixWidth=200, fixY=150-25)
 
-        self.showProfitPerHour = tk.Checkbutton(self.settingsWindow, SG).setSelected()
-        self.showProfitPerHour.setText("Show-Flip-Rating").setTextOrientation()
-        self.showProfitPerHour.placeRelative(fixHeight=25, fixWidth=200, fixY=175-25)
+        self.showFlipRatingHour = tk.Checkbutton(self.settingsWindow, SG).setSelected()
+        self.showFlipRatingHour.setText("Show-Flip-Rating").setTextOrientation()
+        self.showFlipRatingHour.placeRelative(fixHeight=25, fixWidth=200, fixY=175 - 25)
 
         self.saveAndClose = tk.Button(self.settingsWindow, SG)
         self.saveAndClose.setText("Save & Close")
@@ -1028,9 +1215,22 @@ class BazaarFlipProfitPage(CustomPage):
         self.factorSelect.setText("1")
         self.factorSelect.setOptionList([1, 16, 32, 64, 160, 1024, 71680, "custom..."])
         self.factorSelect.onSelectEvent(self.updateTreeView)
-        self.factorSelect.placeRelative(fixHeight=25, stickDown=True, fixWidth=100, fixX=400)
+        self.factorSelect.placeRelative(fixHeight=25, stickDown=True, fixWidth=50, fixX=400)
+
+        self.flipRatingSelect = tk.DropdownMenu(self.contentFrame, SG)
+        self.flipRatingSelect.setText("flipping")
+        self.flipRatingSelect.setOptionList(["flipping"])
+        self.flipRatingSelect.onSelectEvent(self.updateTreeView)
+        self.flipRatingSelect.placeRelative(fixHeight=25, stickDown=True, fixWidth=100, fixX=450)
+
+        self.filterManip = tk.Checkbutton(self.contentFrame, SG)
+        self.filterManip.setText("Filter Manipulated Data")
+        self.filterManip.onSelectEvent(self.updateTreeView)
+        self.filterManip.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=550)
 
         self.treeView = tk.TreeView(self.contentFrame, SG)
+        scrollbar = tk.ScrollBar(self.master)
+        self.treeView.attachVerticalScrollBar(scrollbar)
         self.treeView.bind(self.onItemInfo, tk.EventType.DOUBBLE_LEFT)
         self.treeView.onSelectHeader(self.onHeaderClick)
         self.treeView.placeRelative(changeHeight=-25)
@@ -1124,7 +1324,7 @@ class BazaarFlipProfitPage(CustomPage):
             titles.extend(["Buy-Per-Hour", "Sell-Per-Hour"])
         if self.perMode == "per_week":
             titles.extend(["Buy-Per-Week", "Sell-Per-Week"])
-        if self.showProfitPerHour.getValue():
+        if self.showFlipRatingHour.getValue():
             titles.append("Flip-Rating")
         titles.append("Average Buy Order")
         self.treeView.setTableHeaders(titles)
@@ -1169,13 +1369,31 @@ class BazaarFlipProfitPage(CustomPage):
                 averageBuyPrice = self.averageRequestedPrices[itemID] * factor
                 averagePriceToBuyDiff = averageBuyPrice - itemBuyPrice
 
+
             profitPerFlip = itemSellPrice - itemBuyPrice # profit calculation
 
             sellsPerHour = item.getInstaSellWeek() / 168
             buysPerHour = item.getInstaBuyWeek() / 168
 
-            profitPerHour = profitPerFlip * min([sellsPerHour, buysPerHour])
-            offerAmountFactor = 1-1/(min([sellsPerHour, buysPerHour])**(1/5)) # filter 
+            flipRating = -1
+            if self.flipRatingSelect.getValue() == "flipping":
+                minBuysSells = min([sellsPerHour, buysPerHour])
+                flipRating = profitPerFlip * minBuysSells
+                if minBuysSells > 1000:
+                    flipRating*=10
+
+
+
+                #flipRating = ((1-(1/min([sellsPerHour, buysPerHour])**(1/1000)))+(1-(1/profitPerFlip)))/2
+
+
+
+            elif self.flipRatingSelect.getValue() == "profit per Hour":
+                profitPerHour = profitPerFlip * min([sellsPerHour, buysPerHour])
+                offerAmountFactor = 1-1/(min([sellsPerHour, buysPerHour])**(1/5)) # filter
+                flipRating = profitPerHour*offerAmountFactor
+
+
 
             itemList.append(
                 Sorter(
@@ -1193,7 +1411,7 @@ class BazaarFlipProfitPage(CustomPage):
                     sellOrders=item.getSellOrdersTotal(),
                     buyVolume=item.getBuyVolume(),
                     buyOrders=item.getBuyOrdersTotal(),
-                    profitPerHour=profitPerHour*offerAmountFactor,
+                    flipRating=flipRating,
                     averagePriceToBuyDiff=averagePriceToBuyDiff,
                     averageBuyPrice=averageBuyPrice,
                 )
@@ -1212,8 +1430,9 @@ class BazaarFlipProfitPage(CustomPage):
                 input_.extend([f"{round(rec['buysPerHour'], 2)}", f"{round(rec['sellsPerHour'], 2)}"])
             if self.perMode == "per_week":
                 input_.extend([f"{rec['buysPerWeek']}", f"{rec['sellsPerWeek']}"])
-            if self.showProfitPerHour.getValue():
-                input_.append(f"{prizeToStr(rec['profitPerHour'])}")
+            if self.showFlipRatingHour.getValue():
+                input_.append(f"{prizeToStr(rec['flipRating'], hideCoins=True)}")
+
 
             colorTag = "none"
             if rec["averageBuyPrice"] != "":
@@ -2172,11 +2391,12 @@ class LongTimeFlipHelperPage(CustomPage):
         exact = True
         for flip in self.flips:
             flip.updateWidget(self.useSellOffers.getValue())
+
         for flip in placedFlips:
             value, _exact = flip.getProfit(self.useSellOffers.getValue())
             if not _exact: exact = False
             fullProfit += value
-        for flip in placedFlips:
+
             value, _exact = flip.getSellPrice(self.useSellOffers.getValue())
             if not _exact: exact = False
             totalValue += value
@@ -2780,6 +3000,7 @@ class MainMenuPage(CustomMenuPage):
 class LoadingPage(CustomPage):
     def __init__(self, master):
         super().__init__(master, showTitle=False, showHomeButton=False, showBackButton=False, showInfoLabel=False)
+        self.loadingComplete = False
         self.master:Window = master
         self.image = tk.PILImage.loadImage(os.path.join(IMAGES, "logo.png"))
         self.image.preRender()
@@ -2867,15 +3088,12 @@ class LoadingPage(CustomPage):
                 self.processBar.setValues(len(msgs))
                 self.processBar.setNormalMode()
                 self.processBar.setValue(i + 1)
-
-
-
-
             else:
                 self.info.setText(msg)
                 #sleep(.2)
         self.placeForget()
         self.master.mainMenuPage.openMenuPage()
+        self.loadingComplete = True
     def requestAPIHook(self):
         pass
     def onShow(self, **kwargs):
@@ -2884,6 +3102,8 @@ class LoadingPage(CustomPage):
 
 class Window(tk.Tk):
     def __init__(self):
+        checkWindows() # ensures saved files
+        checkConfigForUpdates()
         MsgText.info("Creating GUI...")
         super().__init__(group=SG)
         MsgText.info("Loading Style...")
@@ -2912,6 +3132,7 @@ class Window(tk.Tk):
                 BazaarFlipProfitPage(self),
                 BazaarCraftProfitPage(self),
                 AuctionHousePage(self),
+                AlchemyXPCalculatorPage(self),
                 ItemInfoPage(self),
                 BazaarToAuctionHouseFlipProfitPage(self),
                 ComposterProfitPage(self),
@@ -2931,9 +3152,23 @@ class Window(tk.Tk):
         self.configureWindow()
         self.createGUI()
         self.loadingPage.openMenuPage()
+        Thread(target=self._autoRequestAPI).start()
         Thread(target=self._updateInfoLabel).start()
         Thread(target=self.loadingPage.load).start()
         self.configureWindows()
+
+    def _autoRequestAPI(self):
+        timer = time()
+        while True:
+            sleep(.1)
+            if self.loadingPage.loadingComplete:
+                sleep(5)
+                self.loadingPage.loadingComplete = False
+            if Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"]:
+                if time()-timer >= Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_interval"]:
+                    print("request")
+                    timer = time()
+
     def configureWindow(self):
         self.setMinSize(600, 600)
         self.setTitle("SkyBlockTools")
@@ -3048,7 +3283,7 @@ class Window(tk.Tk):
         if self.updateCurrentPageHook is not None:
             self.runTask(self.updateCurrentPageHook).start()
     def showItemInfo(self, page:CustomPage, itemID:str):
-        self.infoPage.onShow(itemName=itemID, selectMode="day")
+        self.infoPage.onShow(itemName=itemID, selectMode="day", ignoreHook=True)
         self.infoTopLevel.show()
 
 

@@ -1,6 +1,7 @@
 from pysettings import tk
 from pysettings.jsonConfig import AdvancedJsonConfig
 from pysettings import iterDict
+from pysettings.text import MsgText
 from constants import STYLE_GROUP as SG
 import os
 from datetime import datetime
@@ -9,13 +10,20 @@ from webbrowser import open as openURL
 from widgets import SettingValue
 from skyMisc import parseTimeToStr, parseTimeDelta, requestItemHypixelAPI
 from constants import API, Constants
+
+APP_DATA = os.path.join(os.path.expanduser("~"), "AppData", "Roaming")
+APP_DATA_SETTINGS = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", ".SkyBlockTools")
 IMAGES = os.path.join(os.path.split(__file__)[0], "images")
 CONFIG = os.path.join(os.path.split(__file__)[0], "config")
 API_URL = "https://developer.hypixel.net/"
 
 
+if not os.path.exists(APP_DATA_SETTINGS):
+    os.mkdir(APP_DATA_SETTINGS)
+    MsgText.warning("Settings Folder missing! Creating at: "+APP_DATA_SETTINGS)
+
 class Config:
-    AdvancedJsonConfig.setConfigFolderPath(CONFIG)
+    AdvancedJsonConfig.setConfigFolderPath(APP_DATA_SETTINGS)
 
     SETTINGS_CONFIG = AdvancedJsonConfig("SettingsConfig")
     SETTINGS_CONFIG.setDefault({
@@ -26,6 +34,11 @@ class Config:
             "hypixel_bazaar_config_path":"",
             "hypixel_auction_config_path":"",
             "hypixel_item_config_path":"",
+        },
+        "wisdom":0,
+        "auto_api_requests":{
+            "bazaar_auto_request":False,
+            "bazaar_auto_request_interval": 60
         },
         "composter":{
             "speed":1,
@@ -39,6 +52,16 @@ class Config:
     SETTINGS_CONFIG.load("settings.json")
     SettingValue.CONFIG = SETTINGS_CONFIG
     Constants.BAZAAR_TAX = SETTINGS_CONFIG["constants"]["bazaar_tax"]
+
+def checkConfigForUpdates():
+    for key in Config.SETTINGS_CONFIG.getDefault().keys():
+        if key not in Config.SETTINGS_CONFIG.keys():
+            MsgText.warning(f"Key '{key}' in settings config missing! Adding default...")
+            if hasattr(Config.SETTINGS_CONFIG.getDefault()[key], "copy"):
+                Config.SETTINGS_CONFIG[key] = Config.SETTINGS_CONFIG.getDefault()[key].copy()
+            else:
+                Config.SETTINGS_CONFIG[key] = Config.SETTINGS_CONFIG.getDefault()[key]
+    Config.SETTINGS_CONFIG.save()
 
 class ComposterSettings(tk.Frame):
     def __init__(self, master, onScrollHook=None):
@@ -115,8 +138,44 @@ class SettingsGUI(tk.Dialog):
         self.uptBtn3 = tk.Button(self.ownAuct, SG).setText("Add Player...").setCommand(self.addPlayer).placeRelative(fixHeight=25, changeWidth=-5, fixY=50, changeY=-20, stickDown=True)
         self.ownAuct.place(0, 125, 205, 125)
 
+        self.autoRequests = tk.LabelFrame(tab, SG)
+        self.autoRequests.setText("Auto-API-Requests")
+        self.isAutoReq = tk.Checkbutton(self.autoRequests, SG)
+        self.isAutoReq.onSelectEvent(self.writeAutoAPISettings)
+        self.isAutoReq.setState(Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"])
+        self.isAutoReq.setText("Bazaar-API-Auto-Request")
+        self.isAutoReq.placeRelative(fixHeight=25, changeWidth=-5)
+        self.reqInterval = tk.DropdownMenu(self.autoRequests, SG)
+
+        options = {
+            "300":"1 Request/5 Minutes (Slow)",
+            "60":"1 Request/Minute (Normal)",
+            "20":"3 Request/Minute (Fast)",
+        }
+
+        self.reqInterval.setOptionList(list(options.values()))
+        self.reqInterval.onSelectEvent(self.writeAutoAPISettings)
+        self.reqInterval.setValue(options[Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_interval"]])
+        self.reqInterval.placeRelative(fixHeight=25, fixY=25, changeWidth=-5)
+        self.autoRequests.place(205, 125, 205, 125)
 
         self.updateItemAPIWidgets()
+    def writeAutoAPISettings(self):
+        state = self.isAutoReq.getState()
+        interval = self.reqInterval.getValue()
+        transl = {
+            "slow":300,
+            "normal":60,
+            "fast":20
+        }
+        for type_ in ["slow", "normal", "fast"]:
+            if type_ in interval.lower():
+                interval = transl[type_]
+                break
+        Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"] = state
+        Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_interval"] = interval
+        Config.SETTINGS_CONFIG.save()
+
     def deleteSelectedPlayer(self):
         sel = self.players.getSelectedItem()
         if sel is not None:
@@ -257,3 +316,4 @@ class SettingsGUI(tk.Dialog):
             file.close()
             return False
         return True
+
