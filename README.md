@@ -4,3 +4,5 @@ The software provides numerous features in connection with the Minecraft game mo
 
 ## Features
 * Mayor Info
+
+![A test image](src/images/reference/mayor.png)
