@@ -611,6 +611,7 @@ class AlchemyXPCalculatorPage(CustomPage):
 
         self.alchemyLvlConfig = JsonConfig.loadConfig(os.path.join(CONFIG, "alchemy_lvl.json"))
         self.alchemyXPConfig = JsonConfig.loadConfig(os.path.join(CONFIG, "alchemy_xp.json"))
+        self.alchemyXPGoldGainConfig = JsonConfig.loadConfig(os.path.join(CONFIG, "alchemy_lvl_gold.json"))
         self.alchemySellConfigDefault = JsonConfig.loadConfig(os.path.join(CONFIG, "alchemy_sell.json"))
         self.alchemySellConfigGlowstone = JsonConfig.loadConfig(os.path.join(CONFIG, "alchemy_sell_glowstone.json"))
 
@@ -692,6 +693,7 @@ class AlchemyXPCalculatorPage(CustomPage):
 
             _range = self.alchemyLvlConfig.getData()[fr-1:to]
             requiredXP = sum(_range)
+            lvlEarn = sum(self.alchemyXPGoldGainConfig.getData()[fr-1:to])
 
             self.info.setText(f"Showing range of {len(_range)} Levels. ({requiredXP} xp)")
 
@@ -699,10 +701,12 @@ class AlchemyXPCalculatorPage(CustomPage):
         elif content == "":
             self.info.setText(f"Showing all 50 Levels. ({sum(self.alchemyLvlConfig.getData())} xp)")
             requiredXP = sum(self.alchemyLvlConfig.getData())
+            lvlEarn = sum(self.alchemyXPGoldGainConfig.getData())
         elif content.isnumeric():
             content = int(content)
             if content > 0 and content <= len(self.alchemyLvlConfig.getData()):
                 requiredXP = self.alchemyLvlConfig.getData()[content-1]
+                lvlEarn = self.alchemyXPGoldGainConfig.getData()[content-1]
                 self.info.setText(f"Showing Level {content}. ({requiredXP} xp)")
             else:
                 self.info.setText(f"Error: There is no Level {content}. ({-1} xp)")
@@ -735,7 +739,7 @@ class AlchemyXPCalculatorPage(CustomPage):
                 Sorter(
                     sortKey="cost",
                     itemID=itemID,
-                    cost=itemBuyPrice,
+                    cost=itemBuyPrice-lvlEarn,
                     brews=brews
                 )
             )
@@ -2252,8 +2256,8 @@ class NewFlipWindow(tk.Dialog):
 class LongTimeFlipHelperPage(CustomPage):
     def __init__(self, master):
         super().__init__(master,
-                         pageTitle="Long-Time-Flip",
-                         buttonText="Long Time Flip")
+                         pageTitle="Active-Flips",
+                         buttonText="Active Flips")
 
         self.flipGap = 5
         self.flipWidth = 300 - self.flipGap
