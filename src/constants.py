@@ -13,6 +13,10 @@ class API:
     SKYBLOCK_AUCTION_API_PARSER: HypixelAuctionParser = None
     SKYBLOCK_ITEM_API_PARSER: HypixelItemParser = None
 
+BazaarItemID = [] # creation on runtime
+AuctionItemID = [] # creation on runtime
+
+ALL_ENCHANTMENT_IDS = []
 
 RARITY_COLOR_CODE = {
     "COMMON":"white",

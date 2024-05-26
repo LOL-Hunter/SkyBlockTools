@@ -1,12 +1,9 @@
 # -*- coding: iso-8859-15 -*-
-
 from hyPI.APIError import APIConnectionError, NoAPIKeySetException
 from hyPI._parsers import MayorData, BazaarHistoryProduct, BaseAuctionProduct, BINAuctionProduct, NORAuctionProduct
-from hyPI.constants import BazaarItemID, AuctionItemID, ALL_ENCHANTMENT_IDS
 from hyPI.hypixelAPI.loader import HypixelBazaarParser
 from hyPI.recipeAPI import RecipeAPI
 from hyPI.skyCoflnetAPI import SkyConflnetAPI
-
 from pysettings import tk, iterDict
 from pysettings.geometry import _map
 from pysettings.jsonConfig import JsonConfig
@@ -33,7 +30,10 @@ from constants import (
     AUCT_INFO_LABEL_GROUP as AILG,
     API,
     Color,
-    Constants
+    Constants,
+    BazaarItemID,
+    AuctionItemID,
+    ALL_ENCHANTMENT_IDS
 )
 from images import IconLoader
 from settings import SettingsGUI, Config, checkConfigForUpdates
@@ -61,7 +61,9 @@ from skyMisc import (
     BookCraft,
     RecipeResult,
     getDictEnchantmentIDToLevels,
-    checkWindows
+    checkWindows,
+    updateItemLists,
+    addPetsToAuctionHouse
 )
 from widgets import CompleterEntry, CustomPage, CustomMenuPage
 
@@ -69,6 +71,7 @@ APP_DATA = os.path.join(os.path.expanduser("~"), "AppData", "Roaming")
 IMAGES = os.path.join(os.path.split(__file__)[0], "images")
 CONFIG = os.path.join(os.path.split(__file__)[0], "config")
 
+#helloo
 
 class APIRequest:
     """
@@ -830,11 +833,11 @@ class EnchantingBookBazaarProfitPage(CustomPage):
 
 
                 prods = [
-                    API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(BazaarItemID.ENCHANTMENT_ULTIMATE_BANK_5),
-                    API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(BazaarItemID.ENCHANTMENT_ULTIMATE_BANK_4),
-                    API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(BazaarItemID.ENCHANTMENT_ULTIMATE_BANK_3),
-                    API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(BazaarItemID.ENCHANTMENT_ULTIMATE_BANK_2),
-                    API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(BazaarItemID.ENCHANTMENT_ULTIMATE_BANK_1),
+                    API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID("ENCHANTMENT_ULTIMATE_BANK_5"),
+                    API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID("ENCHANTMENT_ULTIMATE_BANK_4"),
+                    API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID("ENCHANTMENT_ULTIMATE_BANK_3"),
+                    API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID("ENCHANTMENT_ULTIMATE_BANK_2"),
+                    API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID("ENCHANTMENT_ULTIMATE_BANK_1"),
                 ]
 
                 # == For Test Reason ==
@@ -998,18 +1001,17 @@ class BazaarCraftProfitPage(CustomPage):
         self.treeView.setTableHeaders("Recipe", "Profit-Per-Item[x64]", "Ingredients-Buy-Price-Per-Item", "Needed-Item-To-Craft")
         self.treeView.placeRelative(changeHeight=-25)
 
-        self._ownBzItems = [i.value for i in BazaarItemID]
         self.forceAdd = [
-            BazaarItemID.GRAND_EXP_BOTTLE.value,
-            BazaarItemID.TITANIC_EXP_BOTTLE.value,
-            BazaarItemID.ENCHANTED_GOLDEN_CARROT.value,
-            BazaarItemID.BUDGET_HOPPER.value,
-            BazaarItemID.ENCHANTED_HOPPER.value,
-            BazaarItemID.CORRUPT_SOIL.value,
-            BazaarItemID.HOT_POTATO_BOOK.value,
-            BazaarItemID.ENCHANTED_EYE_OF_ENDER.value,
-            BazaarItemID.ENCHANTED_COOKIE.value,
-            BazaarItemID.BLESSED_BAIT.value
+            "GRAND_EXP_BOTTLE",
+            "TITANIC_EXP_BOTTLE",
+            "ENCHANTED_GOLDEN_CARROT",
+            "BUDGET_HOPPER",
+            "ENCHANTED_HOPPER",
+            "CORRUPT_SOIL",
+            "HOT_POTATO_BOOK",
+            "ENCHANTED_EYE_OF_ENDER",
+            "ENCHANTED_COOKIE",
+            "BLESSED_BAIT"
         ]
         self.validRecipes = self._getValidRecipes()
         self.validBzItems = [i.getID() for i in self.validRecipes]
@@ -1018,7 +1020,6 @@ class BazaarCraftProfitPage(CustomPage):
         tk.Button(self.rMenu).setText("ItemInfo").setCommand(self.onItemInfo)
         self.rMenu.create()
 
-        self._ownBzItems = [i.value for i in BazaarItemID]
     def onItemInfo(self):
         sel = self.treeView.getSelectedItems()
         if sel is None: return
@@ -1045,7 +1046,7 @@ class BazaarCraftProfitPage(CustomPage):
                 validRecipes.append(recipe)
         return validRecipes
     def isBazaarItem(self, item:str)->bool:
-        return item in self._ownBzItems
+        return item in BazaarItemID
 
     def getIngredient(self, item)->Tuple[List[str], List[str]]:
 
@@ -1100,7 +1101,7 @@ class BazaarCraftProfitPage(CustomPage):
                 amount = ingredient["amount"]
                 requiredItemString+=f"{name}[{amount*factor}], "
 
-                if name not in self._ownBzItems: continue
+                if name not in BazaarItemID: continue
 
                 ingredientItem = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(name)
 
@@ -1242,7 +1243,6 @@ class BazaarFlipProfitPage(CustomPage):
         self.rMenu = tk.ContextMenu(self.treeView, SG)
         tk.Button(self.rMenu).setText("Request Average Price...").setCommand(self.requestAverage)
         self.rMenu.create()
-        self._ownBzItems = [i.value for i in BazaarItemID]
     def loadAverage(self):
         self.averageFilePath = os.path.join(CONFIG, "skyblock_save", "average_price_save.json")
         if not os.path.exists(self.averageFilePath):
@@ -1304,7 +1304,7 @@ class BazaarFlipProfitPage(CustomPage):
         self.updateTreeView()
         self.searchE.setFocus()
     def isBazaarItem(self, item:str)->bool:
-        return item in self._ownBzItems
+        return item in BazaarItemID
     def updateTreeView(self):
         self.treeView.clear()
         if API.SKYBLOCK_BAZAAR_API_PARSER is None:
@@ -1338,7 +1338,6 @@ class BazaarFlipProfitPage(CustomPage):
         itemList = []
         #print("=======================================================================================")
         for itemID in BazaarItemID:
-            itemID = itemID.value
 
             if self.searchE.getValue() != "" and itemID not in validItems: continue
 
@@ -1634,14 +1633,14 @@ class ComposterProfitPage(CustomPage):
             self.fuelLb.add(f"{matter['name']} [{round(matter.get(), 2)} coins]")
 
         ## Result price ##
-        compost = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(BazaarItemID.COMPOST)
+        compost = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID("COMPOST")
         if self.useSellOffers.getValue():  # use sell Offer
             compostSellPrice = compost.getInstaBuyPrice()
         else:  # insta sell result
             compostSellPrice = compost.getInstaSellPrice()
         compostSellPrice = applyBazaarTax(compostSellPrice) # add tax
 
-        compostE = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(BazaarItemID.ENCHANTED_COMPOST)
+        compostE = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID("ENCHANTED_COMPOST")
         if self.useSellOffers.getValue():  # use sell Offer
             compostESellPrice = compostE.getInstaBuyPrice()
         else:  # insta sell result
@@ -1719,10 +1718,9 @@ class BazaarToAuctionHouseFlipProfitPage(CustomPage):
         self.treeView.placeRelative(changeHeight=-25)
 
 
-        self._ownAucItems = [i.value for i in AuctionItemID]
-        self._ownBzItems = [i.value for i in BazaarItemID]
+
         self.forceAdd = [
-            AuctionItemID.DAY_SAVER.value
+            "DAY_SAVER"
         ]
         self.validRecipes = self._getValidRecipes()
         #print("valid", [i.getID() for i in self.validRecipes])
@@ -1735,7 +1733,7 @@ class BazaarToAuctionHouseFlipProfitPage(CustomPage):
         validRecipes = []
         for recipe in RecipeAPI.getRecipes():
 
-            #if recipe.getID() not in self._ownAucItems and recipe.getID() not in self._ownBzItems:
+            #if recipe.getID() not in AuctionItemID and recipe.getID() not in self._ownBzItems:
             #    print(recipe.getID())
 
             if not self.isAuctionItem(recipe.getID()): continue # filter Items to only take Auction Items
@@ -1753,9 +1751,9 @@ class BazaarToAuctionHouseFlipProfitPage(CustomPage):
                 validRecipes.append(recipe)
         return validRecipes
     def isAuctionItem(self, item:str)->bool:
-        return item in self._ownAucItems
+        return item in AuctionItemID
     def isBazaarItem(self, item:str)->bool:
-        return item in self._ownBzItems
+        return item in BazaarItemID
     def updateTreeView(self):
         self.treeView.clear()
         if API.SKYBLOCK_BAZAAR_API_PARSER is None:
@@ -1803,7 +1801,7 @@ class BazaarToAuctionHouseFlipProfitPage(CustomPage):
                 amount = ingredient["amount"]
                 requiredItemString+=f"{name}[{amount}], "
 
-                if name not in self._ownBzItems: continue
+                if name not in BazaarItemID: continue
 
                 ingredientItem = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(name)
 
@@ -1884,8 +1882,6 @@ class LongTimeFlip(tk.Frame):
         tk.Button(self.rMenu).setText("ItemInfo").setCommand(self.onItemInfo)
         tk.Button(self.rMenu).setText("Request Average Price...").setCommand(self.requestAverage)
         self.rMenu.create()
-
-        self._ownBzItems = [i.value for i in BazaarItemID]
 
     def loadAverage(self):
         self.averageFilePath = os.path.join(CONFIG, "skyblock_save", "average_price_save.json")
@@ -2880,6 +2876,250 @@ class AuctionHousePage(CustomPage):
         self.placeRelative()
         self.updateTreeView()
         self.placeContentFrame()
+class PestProfitPage(CustomPage):
+    def __init__(self, master):
+        super().__init__(master, pageTitle="Pest Profit Page", buttonText="Pest Profit")
+
+        self.selectedPest = None
+        self.pestNameMetaSorter = {}
+
+        self.rarePestChances = JsonConfig.loadConfig(os.path.join(CONFIG, "pest_chances_rare.json"))
+        self.commonPestChances = JsonConfig.loadConfig(os.path.join(CONFIG, "pest_chances_common.json"))
+
+        self.treeView = tk.TreeView(self.contentFrame, SG)
+        self.treeView.onSingleSelectEvent(self.onSelect)
+        self.treeView.setTableHeaders("Pest-Name", "Average-Profit-Per-Pest")
+        self.treeView.placeRelative(changeHeight=-25, changeWidth=-300)
+
+        self.frame = tk.LabelFrame(self.contentFrame, SG)
+        self.frame.setText("Pest-Details")
+        self.frame.placeRelative(fixWidth=300, stickRight=True, changeHeight=-25)
+
+        self.innerFrame1 = tk.LabelFrame(self.frame, SG)
+        self.innerFrame1.setText("Common Loot")
+        self.commonList = tk.Listbox(self.innerFrame1, SG)
+        self.commonList.placeRelative(changeWidth=-5, changeHeight=-20)
+        self.innerFrame1.placeRelative(fixY=25, fixHeight=100)
+
+        self.innerFrame2 = tk.LabelFrame(self.frame, SG)
+        self.innerFrame2.setText("Rare Loot")
+        self.rareList = tk.Listbox(self.innerFrame2, SG)
+        self.rareList.placeRelative(changeWidth=-5, changeHeight=-20)
+        self.innerFrame2.placeRelative(fixY=125, fixHeight=200)
+
+        self.fullProfit = tk.Label(self.frame, SG)
+        self.fullProfit.setFont(15)
+        self.fullProfit.placeRelative(fixY=325, fixHeight=25)
+
+        self.pestName = tk.Label(self.frame, SG)
+        self.pestName.setFont(19)
+        self.pestName.placeRelative(fixHeight=25, changeWidth=-5)
+
+        self.useSellOffers = tk.Checkbutton(self.contentFrame, SG).setSelected()
+        self.useSellOffers.setText("Use-Sell-Offers")
+        self.useSellOffers.onSelectEvent(self.updateTreeView)
+        self.useSellOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=0)
+
+        self.farmingFortune = tk.TextEntry(self.contentFrame, SG)
+        self.farmingFortune.setText("Farming-Fortune:")
+        self.farmingFortune.setValue(Config.SETTINGS_CONFIG["pest_profit"]["farming_fortune"])
+        self.farmingFortune.getEntry().onUserInputEvent(self.updateTreeView)
+        self.farmingFortune.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=150)
+
+        self.cropFortune = tk.TextEntry(self.contentFrame, SG)
+        self.cropFortune.setText("Crop-Fortune:")
+        self.cropFortune.setValue(Config.SETTINGS_CONFIG["pest_profit"]["crop_fortune"])
+        self.cropFortune.getEntry().onUserInputEvent(self.updateTreeView)
+        self.cropFortune.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=300)
+
+        self.petChance = tk.TextEntry(self.contentFrame, SG)
+        self.petChance.setText("Pet-Luck:")
+        self.petChance.setValue(Config.SETTINGS_CONFIG["pest_profit"]["pet_luck"])
+        self.petChance.getEntry().onUserInputEvent(self.updateTreeView)
+        self.petChance.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=450)
+
+        self.pestsActive = tk.Checkbutton(self.contentFrame, SG)
+        self.pestsActive.setText("Bonus-Farming-Fortune")
+        self.pestsActive.onSelectEvent(self.updateTreeView)
+        self.pestsActive.placeRelative(fixHeight=25, stickDown=True, fixWidth=200, fixX=600)
+
+        self.noneSelected = tk.Label(self.frame, SG)
+        self.noneSelected.setText("No Pest Selected!")
+    def onSelect(self):
+        sel = self.treeView.getSelectedItems()
+        if sel is None: return
+        pestName = sel[0]["Pest-Name"]
+        self.selectedPest = pestName
+        self.updateTreeView()
+        sorter = self.pestNameMetaSorter[pestName]
+        self.pestName.setText(pestName)
+
+        self.commonList.clear()
+        self.rareList.clear()
+
+        self.commonList.add(f"{sorter['itemID']}")
+        self.commonList.add(f"Amount-Per-Pest: {sorter['amount']}")
+        self.commonList.add(f"Sell-Price: {prizeToStr(sorter['profitCommonSingle'])}")
+        self.commonList.add(f"Sell-Price-x{sorter['amount']}: {prizeToStr(sorter['profitCommon'])}")
+
+        self.fullProfit.setText(f"Profit per Pest: {prizeToStr(sorter['profit'])}")
+
+        for sorter in sorter["profitRareSorter"]:
+            self.rareList.add(f"{sorter['itemID']}")
+            self.rareList.add(f"Chance: {round(sorter['raw_chance'], 2)}% -> {round(sorter['chance'], 2)}%")
+            self.rareList.add(f"Average-Pests: {round(sorter['rawAverageNeededPestsForARareDrop'], 2)} -> {round(sorter['averageNeededPestsForARareDrop'], 2)}")
+            self.rareList.add(f"Sell-Price: {prizeToStr(sorter['profit_full'])}")
+            self.rareList.add(f"Sell-Price / Pest: {prizeToStr(sorter['profit'])}")
+            self.rareList.add(f"")
+            self.rareList.add(f"")
+    def updateTreeView(self):
+        self.treeView.clear()
+        if API.SKYBLOCK_BAZAAR_API_PARSER is None:
+            tk.SimpleDialog.askError(self.master, "Cannot calculate! No API data available!")
+            return
+        isPestsActive = self.pestsActive.getValue()
+        if self.selectedPest is None:
+            self.noneSelected.placeRelative(changeWidth=-5, changeHeight=-20)
+        else:
+            self.noneSelected.placeForget()
+        farmingFortune = self.farmingFortune.getValue()
+        if farmingFortune.isnumeric():
+            farmingFortune = int(farmingFortune)
+            Config.SETTINGS_CONFIG["pest_profit"]["farming_fortune"] = farmingFortune
+            Config.SETTINGS_CONFIG.save()
+        elif farmingFortune == "": farmingFortune = 0
+        else:
+            self.farmingFortune.getEntry().onUserInputEvent(self.updateTreeView)
+            tk.SimpleDialog.askError(self.master, f"Wrong Farming Fortune value! Must be > 0.")
+        cropFortune = self.cropFortune.getValue()
+
+        if cropFortune.isnumeric():
+            cropFortune = int(cropFortune)
+            Config.SETTINGS_CONFIG["pest_profit"]["crop_fortune"] = cropFortune
+            Config.SETTINGS_CONFIG.save()
+        elif cropFortune == "": cropFortune = 0
+        else:
+            self.cropFortune.setValue(Config.SETTINGS_CONFIG["pest_profit"]["crop_fortune"])
+            tk.SimpleDialog.askError(self.master, f"Wrong Crop Fortune value! Must be > 0.")
+        petLuck = self.petChance.getValue()
+
+        if petLuck.isnumeric():
+            petLuck = int(petLuck)
+            Config.SETTINGS_CONFIG["pest_profit"]["pet_luck"] = petLuck
+            Config.SETTINGS_CONFIG.save()
+        elif petLuck == "": petLuck = 0
+        else:
+            self.petChance.setValue(Config.SETTINGS_CONFIG["pest_profit"]["pet_luck"])
+            tk.SimpleDialog.askError(self.master, f"Wrong Pet Luck value! Must be > 0.")
+        if isPestsActive: farmingFortune += 200
+        """
+        The Pest chances are given in percenteges.
+        Rare Drops are drops with a basechance lower 5%
+        Common Drops are drops with a basechance higher than 5%
+        """
+
+        metaSorters = []
+        for pestName in self.rarePestChances.keys():
+            sorters = []
+            for singleDropItemID, dropChance in iterDict(self.rarePestChances[pestName]):
+
+                if singleDropItemID in BazaarItemID: # Bazaar Item!
+                    item = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(singleDropItemID)
+
+                    if self.useSellOffers.getValue():  # use sell Offer
+                        itemSellPrice = item.getInstaBuyPrice()
+                    else:  # insta sell
+                        itemSellPrice = item.getInstaSellPrice()
+                    itemSellPrice = applyBazaarTax(itemSellPrice)
+                else:
+                    rarity = None
+                    if singleDropItemID.endswith("epic"):
+                        singleDropItemID = singleDropItemID.replace("_epic", "")
+                        rarity = "EPIC"
+                    if singleDropItemID.endswith("legendary"):
+                        singleDropItemID = singleDropItemID.replace("_legendary", "")
+                        rarity = "LEGENDARY"
+                    active = API.SKYBLOCK_AUCTION_API_PARSER.getBINAuctionByID(singleDropItemID)
+
+                    auctSorters = []
+                    for auction in active:
+                        if rarity is not None:
+                            if rarity.lower() != auction.getRarity().lower():
+                                continue
+                        auctSorters.append(
+                            Sorter(
+                                sortKey="profit",
+                                profit=auction.getPrice(),
+                            )
+                        )
+                    auctSorters.sort()
+                    if len(auctSorters) == 0:
+                        itemSellPrice = 0
+                        MsgText.error(f"Could not calculate price for {singleDropItemID}.")
+                    else:
+                        itemSellPrice = auctSorters[-1]["profit"]
+
+                if "PET" in singleDropItemID:
+                    rareDropChance = dropChance * (1 + (farmingFortune + cropFortune + petLuck) / 600)
+                else:
+                    rareDropChance = dropChance * (1 + (farmingFortune + cropFortune) / 600)
+                averageNeededPestsForARareDrop = 1 / (rareDropChance / 100)
+                rawAverageNeededPestsForARareDrop = 1 / (dropChance / 100)
+                pestProfitRare = (rareDropChance / 100) * itemSellPrice
+
+                sorters.append(
+                    Sorter(
+                        sortKey="profit",
+
+                        itemID=singleDropItemID,
+                        pestName=pestName,
+                        averageNeededPestsForARareDrop=averageNeededPestsForARareDrop,
+                        rawAverageNeededPestsForARareDrop=rawAverageNeededPestsForARareDrop,
+                        profit=pestProfitRare,
+                        profit_full=itemSellPrice,
+                        chance=rareDropChance,
+                        raw_chance=dropChance,
+                    )
+                )
+            sorters.sort()
+
+            item = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(self.commonPestChances[pestName])
+
+            if self.useSellOffers.getValue():  # use sell Offer
+                itemSellPrice = item.getInstaBuyPrice()
+            else:  # insta sell
+                itemSellPrice = item.getInstaSellPrice()
+            itemSellPrice = applyBazaarTax(itemSellPrice)
+
+            pestProfitCommon = itemSellPrice * (1+farmingFortune/100)
+
+            metaSorters.append(
+                Sorter(
+                    sortKey="profit",
+
+                    itemID=self.commonPestChances[pestName],
+                    amount=(1+farmingFortune/100),
+                    pestName=pestName,
+                    profitRareSorter=sorters,
+                    profitCommon=pestProfitCommon,
+                    profitCommonSingle=itemSellPrice,
+                    profit=pestProfitCommon + sum([i["profit"] for i in sorters])
+                )
+            )
+            self.pestNameMetaSorter[pestName] = metaSorters[-1]
+        metaSorters.sort()
+        for sorter in metaSorters:
+            self.treeView.addEntry(
+                sorter["pestName"],
+                prizeToStr(sorter["profit"])
+            )
+    def onShow(self, **kwargs):
+        self.master.updateCurrentPageHook = self.onSelect  # hook to update tv on new API-Data available
+        self.placeRelative()
+        self.updateTreeView()
+        self.placeContentFrame()
+
+
 
 # Menu Pages
 class MainMenuPage(CustomMenuPage):
@@ -3016,7 +3256,10 @@ class LoadingPage(CustomPage):
         self.info = tk.Label(self, SG).setFont(16)
         self.info.placeRelative(fixHeight=25, fixY=340, changeX=+50, changeWidth=-100)
     def load(self):
-        msgs = ["Loading Config...", "Applying Settings...", "Fetching Hypixel Bazaar API...", "Checking Hypixel Item API...", "Fetching Hypixel Auction API...", "Finishing Up..."]
+        itemAPISuccessful = False
+        bazaarAPISuccessful = False
+        actionAPISuccessful = False
+        msgs = ["Loading Config...", "Applying Settings...", "Fetching Hypixel Bazaar API...", "Checking Hypixel Item API...", "Creating Dynamic Item lists...", "Fetching Hypixel Auction API...", "Finishing Up..."]
         self.processBar.setValues(len(msgs))
         for i, msg in enumerate(msgs):
             self.processBar.addValue()
@@ -3044,6 +3287,8 @@ class LoadingPage(CustomPage):
 
                 API.SKYBLOCK_BAZAAR_API_PARSER = requestBazaarHypixelAPI(self.master, Config, path=path)
 
+                if API.SKYBLOCK_BAZAAR_API_PARSER is not None: bazaarAPISuccessful = True
+
                 updateBazaarInfoLabel(API.SKYBLOCK_BAZAAR_API_PARSER, path is not None)
                 self.master.isConfigLoadedFromFile = path is not None
 
@@ -3059,14 +3304,23 @@ class LoadingPage(CustomPage):
                     API.SKYBLOCK_ITEM_API_PARSER = requestItemHypixelAPI(self.master, Config, saveTo=path)
                 else:
                     API.SKYBLOCK_ITEM_API_PARSER = requestItemHypixelAPI(self.master, Config, path=path)
-
+                if API.SKYBLOCK_ITEM_API_PARSER is not None: itemAPISuccessful = True
                 updateBazaarInfoLabel(API.SKYBLOCK_BAZAAR_API_PARSER, path is not None)
                 self.master.isConfigLoadedFromFile = path is not None
 
                 self.processBar.setValues(len(msgs))
                 self.processBar.setNormalMode()
                 self.processBar.setValue(i + 1)
-            elif i == 4: # fetch Auction API
+            elif i == 4: # build item lists
+                if not itemAPISuccessful or not bazaarAPISuccessful:
+                    MsgText.error("Could not parse Items!")
+                    continue
+                self.info.setText(msg)
+                updateItemLists()
+                self.processBar.setValues(len(msgs))
+                self.processBar.setNormalMode()
+                self.processBar.setValue(i + 1)
+            elif i == 5: # fetch Auction API
                 self.info.setText(msg)
 
                 path = Config.SETTINGS_CONFIG["constants"]["hypixel_auction_config_path"]
@@ -3086,12 +3340,22 @@ class LoadingPage(CustomPage):
                                                                            progBar=self.processBar,
                                                                            infoLabel=self.info,
                                                                            saveTo=os.path.join(CONFIG, "skyblock_save", "auctionhouse"))
+                if API.SKYBLOCK_AUCTION_API_PARSER is not None: actionAPISuccessful = True
                 updateAuctionInfoLabel(API.SKYBLOCK_AUCTION_API_PARSER, path is not None)
                 self.master.isConfigLoadedFromFile = path is not None
 
                 self.processBar.setValues(len(msgs))
                 self.processBar.setNormalMode()
                 self.processBar.setValue(i + 1)
+
+            elif i == 6:
+                self.info.setText(msg)
+                if actionAPISuccessful:
+                    addPetsToAuctionHouse()
+                self.processBar.setValues(len(msgs))
+                self.processBar.setNormalMode()
+                self.processBar.setValue(i + 1)
+
             else:
                 self.info.setText(msg)
                 #sleep(.2)
@@ -3136,6 +3400,7 @@ class Window(tk.Tk):
                 BazaarFlipProfitPage(self),
                 BazaarCraftProfitPage(self),
                 AuctionHousePage(self),
+                PestProfitPage(self),
                 AlchemyXPCalculatorPage(self),
                 ItemInfoPage(self),
                 BazaarToAuctionHouseFlipProfitPage(self),
@@ -3160,7 +3425,6 @@ class Window(tk.Tk):
         Thread(target=self._updateInfoLabel).start()
         Thread(target=self.loadingPage.load).start()
         self.configureWindows()
-
     def _autoRequestAPI(self):
         timer = time()
         while True:
@@ -3172,7 +3436,6 @@ class Window(tk.Tk):
                 if time()-timer >= Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_interval"]:
                     print("request")
                     timer = time()
-
     def configureWindow(self):
         self.setMinSize(600, 600)
         self.setTitle("SkyBlockTools")
