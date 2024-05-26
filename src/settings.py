@@ -35,6 +35,12 @@ class Config:
             "hypixel_auction_config_path":"",
             "hypixel_item_config_path":"",
         },
+        "pest_profit":{
+            "farming_fortune":0,
+            "crop_fortune":0,
+            "pet_luck":0,
+
+        },
         "wisdom":0,
         "auto_api_requests":{
             "bazaar_auto_request":False,
@@ -155,7 +161,7 @@ class SettingsGUI(tk.Dialog):
 
         self.reqInterval.setOptionList(list(options.values()))
         self.reqInterval.onSelectEvent(self.writeAutoAPISettings)
-        self.reqInterval.setValue(options[Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_interval"]])
+        self.reqInterval.setValue(options[str(Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_interval"])])
         self.reqInterval.placeRelative(fixHeight=25, fixY=25, changeWidth=-5)
         self.autoRequests.place(205, 125, 205, 125)
 

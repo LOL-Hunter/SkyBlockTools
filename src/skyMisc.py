@@ -4,17 +4,15 @@ from hyPI.APIError import APIConnectionError, NoAPIKeySetException
 from hyPI.hypixelAPI import HypixelAPIURL, APILoader, fileLoader
 from hyPI.hypixelAPI.loader import HypixelBazaarParser, HypixelAuctionParser, HypixelItemParser
 from hyPI.skyCoflnetAPI import SkyConflnetAPI
-from hyPI.constants import ALL_ENCHANTMENT_IDS
 from hyPI import getEnchantmentIDLvl
 from pysettings import tk
 from pysettings.jsonConfig import JsonConfig
 from pysettings.text import TextColor, MsgText
 from traceback import format_exc
 from datetime import datetime
-from constants import BAZAAR_INFO_LABEL_GROUP as BILG, AUCT_INFO_LABEL_GROUP as AILG
+from constants import BAZAAR_INFO_LABEL_GROUP as BILG, AUCT_INFO_LABEL_GROUP as AILG, API, ALL_ENCHANTMENT_IDS, AuctionItemID, BazaarItemID
 from skyMath import parseTimeDelta
 from typing import List, Dict
-from constants import API
 from platform import system
 
 def requestBazaarHypixelAPI(master, config, path=None, saveTo=None)->HypixelBazaarParser | None:
@@ -74,7 +72,8 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
                 progBar.setValues(len(fileList))
             parser = HypixelAuctionParser(
                 fileLoader(_os.path.join(path, fileList[0])),
-                API.SKYBLOCK_ITEM_API_PARSER
+                API.SKYBLOCK_ITEM_API_PARSER,
+                AuctionItemID
             )
             for i, fileName in enumerate(fileList[1:]):
                 if progBar is not None: progBar.addValue()
@@ -91,7 +90,8 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
                 APILoader(HypixelAPIURL.AUCTION_URL,
                           config.SETTINGS_CONFIG["api_key"],
                           config.SETTINGS_CONFIG["player_name"]),
-                API.SKYBLOCK_ITEM_API_PARSER
+                API.SKYBLOCK_ITEM_API_PARSER,
+                AuctionItemID
             )
             if saveTo is not None:
                 file = JsonConfig.fromDict(parser._data)
@@ -272,12 +272,6 @@ def search(searchInput, value:str, minLength=0, printable=True):
     suggestions = []
     if len(value) >= minLength:
         for i, searchList in enumerate(_searchInput):
-            if isinstance(searchInput, dict):
-                type_ = getType(list(searchInput.keys())[i])
-            elif isinstance(searchInput, list) and len(searchInput) == 1:
-                type_ = getType(_searchInput[0])
-            else:
-                raise Exception(f"Invalid search input! {searchInput}")
             for item in searchList:
                 itemName = item.value if hasattr(item, "value") else item
                 itemName = itemName.replace("_", " ")
@@ -287,10 +281,7 @@ def search(searchInput, value:str, minLength=0, printable=True):
                         show = False
                 if show:
                     if printable:
-                        if type_ is None:
-                            suggestions.append(f"{itemName.lower()}")
-                        else:
-                            suggestions.append(f"{itemName.lower()} - {type_}")
+                        suggestions.append(f"{itemName.lower()}")
                     else:
                         suggestions.append(itemName.replace(" ", "_"))
     return suggestions
@@ -320,6 +311,26 @@ def parseTimeFromSec(sec)->str:
     out += f"{sec}s"
     return out.strip()
 
+def updateItemLists():
+    BazaarItemID.clear()
+    AuctionItemID.clear()
+    ALL_ENCHANTMENT_IDS.clear()
+
+    BazaarItemID.extend(API.SKYBLOCK_BAZAAR_API_PARSER.getProductIDs())
+
+    for itemID in API.SKYBLOCK_ITEM_API_PARSER.getItems():
+        id_ = itemID.getID()
+        if id_ in BazaarItemID or id_ in AuctionItemID: continue
+        AuctionItemID.append(id_)
+
+def addPetsToAuctionHouse():
+    for item in [*API.SKYBLOCK_AUCTION_API_PARSER.getAuctions(), *API.SKYBLOCK_AUCTION_API_PARSER.getBinAuctions()]:
+        id_ = item.getID()
+        if id_ is None: continue
+        if id_.startswith("PET_") and id_ not in AuctionItemID:
+            AuctionItemID.append(id_)
+    ALL_ENCHANTMENT_IDS.clear()
+    ALL_ENCHANTMENT_IDS.extend([i for i in BazaarItemID if i.startswith("enchantment".upper())])
 
 class Sorter:
     def __init__(self, sort=None, sortKey=None, **kwargs):
@@ -396,8 +407,6 @@ class RecipeResult:
 
 def checkSavedFiles(path):
     pass
-
-
 
 def checkWindows():
     match (system()):

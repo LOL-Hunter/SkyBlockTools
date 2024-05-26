@@ -274,7 +274,7 @@ def ensureTransNor(item:str):
         return HYPIXEL_TO_NORMAL[item]
     return item
 
-class BazaarItemID(Enum):
+class BazaarItemID__(Enum):
     INK_SACK_3 = "INK_SACK-3"
     INK_SACK_4 = "INK_SACK:4"
     CORRUPTED_BAIT = "CORRUPTED_BAIT"
@@ -1540,7 +1540,7 @@ class BazaarItemID(Enum):
     ENCHANTMENT_ULTIMATE_WISDOM_3 = "ENCHANTMENT_ULTIMATE_WISDOM_3"
     ENCHANTMENT_TURBO_POTATO_2 = "ENCHANTMENT_TURBO_POTATO_2"
     ENCHANTMENT_BANE_OF_ARTHROPODS_5 = "ENCHANTMENT_BANE_OF_ARTHROPODS_5"
-class AuctionItemID(Enum):
+class AuctionItemID__(Enum):
     #custom
     SKIN = "SKIN"
     HAT_OF_CELEBRATION = "HAT_OF_CELEBRATION"
@@ -3550,6 +3550,3 @@ class AuctionItemID(Enum):
     SLEEPY_HOLLOW = "SLEEPY_HOLLOW"
     SPOOKY_TREE = "SPOOKY_TREE"
     UNIQUE_RUNE_PRIMAL_FEAR = "UNIQUE_RUNE_PRIMAL_FEAR"
-
-ALL_ENCHANTMENT_IDS = [i.name for i in BazaarItemID if i.value.startswith("enchantment".upper())]
-ALL_AUCTION_IDS = [i.value for i in AuctionItemID]

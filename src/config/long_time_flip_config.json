@@ -1,1 +1,41 @@
-[]
+[
+    {
+        "item_id": "FERMENTO",
+        "finished": false,
+        "sold_for": 0,
+        "items_bought": true,
+        "data": [
+            {
+                "amount": 234,
+                "price": 230009.0
+            }
+        ],
+        "finish": true
+    },
+    {
+        "item_id": "PURPLE_CANDY",
+        "finished": false,
+        "sold_for": 0,
+        "items_bought": true,
+        "data": [
+            {
+                "amount": 5000,
+                "price": 23075.5
+            }
+        ],
+        "finish": true
+    },
+    {
+        "item_id": "BOOSTER_COOKIE",
+        "finished": false,
+        "sold_for": 0,
+        "items_bought": false,
+        "data": [
+            {
+                "amount": 9,
+                "price": 10523999.1
+            }
+        ],
+        "finish": true
+    }
+]

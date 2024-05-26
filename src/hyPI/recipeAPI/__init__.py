@@ -1,4 +1,3 @@
-from hyPI.constants import BazaarItemID, AuctionItemID
 from hyPI._parsers import Recipe as _Recipe
 from pysettings.jsonConfig import JsonConfig as _JsonConfig
 from pysettings import iterDict
@@ -12,7 +11,7 @@ _RECIPE_MAPPING = _JsonConfig.loadConfig(_RECIPE_MAPPING_PATH)
 
 class RecipeAPI:
     @staticmethod
-    def getRecipeFromID(itemID:BazaarItemID | AuctionItemID | str)->_Recipe | None:
+    def getRecipeFromID(itemID:str)->_Recipe | None:
         itemID = itemID.value if hasattr(itemID, "value") else itemID
         recipe = _RECIPE_MAPPING.get(itemID, None)
         if recipe is None: return None

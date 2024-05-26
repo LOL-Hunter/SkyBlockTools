@@ -10,6 +10,7 @@ View [features](/FEATURES.md) here.
 1. Download Repos
 2. Have python 3.10+ installed
 3. run ``pip install -r requirements.txt`` to install required packages.
+4. manually drag [pysettings-Library](https://github.com/LOL-Hunter/pysettings) to ``/pythonxx/Lib`` (unfortunately not yet added to pip)
 
 ## Credit:
  - [hypixel API](https://api.hypixel.net/)

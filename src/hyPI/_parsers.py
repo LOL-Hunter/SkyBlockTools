@@ -1,7 +1,7 @@
 from typing import List, Dict, Tuple, Any
 from pysettings import iterDict
 
-from hyPI.constants import Config, Category, AuctionItemID, MODIFIER, ALL_AUCTION_IDS, _RUNE_CONVERT, ROMIC_NUMBERS
+from hyPI.constants import Config, Category, MODIFIER, _RUNE_CONVERT, ROMIC_NUMBERS
 from hyPI.APIError import YearNotAvailableInData
 from datetime import datetime as dt, timedelta
 from pytz import timezone
@@ -11,7 +11,6 @@ def getHypTimezone(tz)->dt:
     time_zone = timezone(Config.TARGET_TIME_ZONE)
     time = dt.fromtimestamp(unixTime)
     return time_zone.localize(time)# + timedelta(hours=1)
-
 
 def getTimezone(tz:str)->dt | None:
     if tz is None: return None
@@ -23,7 +22,7 @@ def getTimezone(tz:str)->dt | None:
 
     time = dt.fromisoformat(tz)
     return time_zone.localize(time)# + timedelta(hours=1)
-def convertAuctionNameToID(data:dict, itemParser)->dict:
+def convertAuctionNameToID(data:dict, itemParser, auctionIDs:[str])->dict:
     displayName = name = data["item_name"]
     category = data["category"]
     name = name.upper().replace(" ", "_")
@@ -93,7 +92,7 @@ def convertAuctionNameToID(data:dict, itemParser)->dict:
     if not level: # no pet
         id_ = itemParser.getItemByName(displayName)
         if id_ is None: # not in hypixel-item-data
-            if name in ALL_AUCTION_IDS: # in Auction IDs
+            if name in auctionIDs or name.startswith("PET_"): # in Auction IDs
                 id_ = name
             elif "SKIN" in name:
                 id_ = "SKIN"
@@ -133,7 +132,7 @@ def convertAuctionNameToID(data:dict, itemParser)->dict:
                     name = name.strip("_")
                 id_ = itemParser.getItemByName(name)
                 if id_ is None:  # not in hypixel-item-data
-                    if name in ALL_AUCTION_IDS:  # in Auction IDs
+                    if name in auctionIDs or name.startswith("PET_"):  # in Auction IDs
                         id_ = name
                 else:
                     id_ = id_.getID()
@@ -141,6 +140,7 @@ def convertAuctionNameToID(data:dict, itemParser)->dict:
             id_ = id_.getID()
     else:
         id_ = name # pet
+
     return {
         "id":id_,
         "name":displayName,
@@ -287,7 +287,6 @@ class MayorData:
         if "perks" in i["winner"].keys():
             return MayorData(i)
         return None
-
 
 class MayorHistory:
     def __init__(self, data):
@@ -535,8 +534,6 @@ class BaseAuctionProduct:
         pass
     def getBidAmount(self)->int:
         pass
-
-
 
 class BINAuctionProduct(BaseAuctionProduct):
     def __init__(self, auctData:dict, itemData:dict):

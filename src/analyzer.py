@@ -1,11 +1,11 @@
-from hyPI.constants import BazaarItemID, AuctionItemID, ALL_ENCHANTMENT_IDS
 from hyPI.hypixelAPI.loader import HypixelBazaarParser
 from hyPI import getEnchantmentIDLvl
 
+from constants import BazaarItemID, AuctionItemID, ALL_ENCHANTMENT_IDS
 from skyMath import getMedianExponent, parsePrizeList
 from skyMisc import getDictEnchantmentIDToLevels
 
-def getPlotData(itemId:BazaarItemID | AuctionItemID | str, func):
+def getPlotData(itemId:str, func):
     hist = func(itemId)
     pastRawBuyPrizes = []
     pastRawSellPrizes = []
@@ -49,7 +49,7 @@ def getPlotData(itemId:BazaarItemID | AuctionItemID | str, func):
     }
 
 
-def getCheapestEnchantmentData(parser:HypixelBazaarParser, inputEnchantment: BazaarItemID | str, instaBuy=False) -> list | None:
+def getCheapestEnchantmentData(parser:HypixelBazaarParser, inputEnchantment:str, instaBuy=False) -> list | None:
     inputEnchantment = inputEnchantment.name if hasattr(inputEnchantment, "value") else inputEnchantment
 
     # getting the prizes of all Enchantments
