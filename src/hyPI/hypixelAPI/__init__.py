@@ -16,7 +16,6 @@ def APILoader(url:HypixelAPIURL, api_key, name, **kwargs)->dict:
     if data["key"] == "": raise NoAPIKeySetException()
 
     req = getReq(url.value, data)
-    print(req.json().keys())
     return req.json()
 
 def fileLoader(path:str)->dict:

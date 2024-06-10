@@ -4,8 +4,7 @@ from typing import Dict, List, Tuple, Any
 from datetime import datetime
 from hyPI.APIError import *
 from hyPI._parsers import ProductWithOrders, BINAuctionProduct, NORAuctionProduct, convertAuctionNameToID, Item
-from hyPI.constants import BazaarItemID, AuctionItemID
-
+from traceback import format_exc
 
 
 def getTimezone(tz)->datetime:
@@ -32,7 +31,7 @@ class HypixelBazaarParser:
     def getProducts(self)->List[ProductWithOrders]:
         return list(self._products.values())
 
-    def getProductByID(self, id_:BazaarItemID | str)->ProductWithOrders | None:
+    def getProductByID(self, id_:str)->ProductWithOrders | None:
         id_ = id_.value if hasattr(id_, "value") else id_
         if id_ not in self._products.keys():
             return None
@@ -65,7 +64,7 @@ class HypixelItemParser:
         return len(self._data["items"])
     def getItems(self)->List[Item]:
         return self._items
-    def getItemByID(self, id_:AuctionItemID | BazaarItemID)->Item | None:
+    def getItemByID(self, id_:str)->Item | None:
         if id_ in self._byID.keys():
             return self._byID[id_]
         return None
@@ -76,24 +75,27 @@ class HypixelItemParser:
         return None
 
 class HypixelAuctionParser:
-    def __init__(self, rawData:dict, itemParser:HypixelItemParser):
+    def __init__(self, rawData:dict, itemParser:HypixelItemParser, auctionIDs:[str]):
         self._data = rawData
         self._binAucts = []
         self._binByID = {}
         self._norAucts = []
         self._norByID = {}
+        self._auctionIDs = auctionIDs
         self._itemParser:HypixelItemParser = itemParser
         self._decode(rawData["auctions"])
+        #print(ascii(self._binByID.keys()))
     def changeItemParser(self, parser:HypixelItemParser):
         self._itemParser._data = parser._data
     def _decode(self, data:list):
         for auctData in data:
             if auctData["bin"]:
                 try:
-                    itemData = convertAuctionNameToID(auctData, self._itemParser)
+                    itemData = convertAuctionNameToID(auctData, self._itemParser, self._auctionIDs)
                 except:
-                    MsgText.warning(f"Could not parse Item name: {auctData['item_name']}")
+                    MsgText.warning(f"Could not parse Item name: {ascii(auctData['item_name'])}")
                     continue
+                #if "PET" in itemData["id"]: print(ascii(itemData["id"]))
                 #if itemData["id"] is None: print(ascii(itemData["name"]))
                 _bin = BINAuctionProduct(auctData, itemData)
                 if itemData["id"] in self._binByID.keys():
@@ -103,9 +105,10 @@ class HypixelAuctionParser:
                 self._binAucts.append(_bin)
             else:
                 try:
-                    itemData = convertAuctionNameToID(auctData, self._itemParser)
+                    itemData = convertAuctionNameToID(auctData, self._itemParser, self._auctionIDs)
                 except:
-                    MsgText.warning(f"Could not parse Item name: {auctData['item_name']}")
+                    MsgText.error(format_exc(), True)
+                    MsgText.warning(f"Could not parse Item name: {ascii(auctData['item_name'])}")
                     continue
                 _auc = NORAuctionProduct(auctData, itemData)
                 if itemData["id"] in self._norByID.keys():
@@ -119,12 +122,12 @@ class HypixelAuctionParser:
         return self._binAucts
     def getAuctions(self)->List[NORAuctionProduct]:
         return self._norAucts
-    def getBINAuctionByID(self, id_:AuctionItemID | str)->List[BINAuctionProduct]:
+    def getBINAuctionByID(self, id_:str)->List[BINAuctionProduct]:
         id_ = id_.value if hasattr(id_, "value") else id_
         if id_ in self._binByID:
             return self._binByID[id_]
         return []
-    def getAuctionByID(self, id_:AuctionItemID | str)->List[NORAuctionProduct]:
+    def getAuctionByID(self, id_:str)->List[NORAuctionProduct]:
         id_ = id_.value if hasattr(id_, "value") else id_
         if id_ in self._norByID:
             return self._norByID[id_]
