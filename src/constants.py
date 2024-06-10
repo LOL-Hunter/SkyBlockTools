@@ -1,11 +1,22 @@
 from pysettings import tk
+from pysettings.jsonConfig import JsonConfig
 from tkinter import ttk
 from hyPI.hypixelAPI.loader import HypixelBazaarParser, HypixelAuctionParser, HypixelItemParser
+import os
+
+CONFIG = os.path.join(os.path.split(__file__)[0], "config")
 
 class Color:
     COLOR_WHITE = tk.Color.rgb(255, 255, 255)
     COLOR_DARK = tk.Color.rgb(50, 50, 50)
     COLOR_GRAY = tk.Color.rgb(160, 160, 160)
+
+class ConfigFile:
+    MAYOR_DATA = JsonConfig.loadConfig(os.path.join(CONFIG, "mayor.json"))
+    AVERAGE_PRICE = JsonConfig.loadConfig(os.path.join(CONFIG, "skyblock_save", "average_price_save.json"), create=True)
+
+
+
 
 
 class API:
@@ -13,8 +24,8 @@ class API:
     SKYBLOCK_AUCTION_API_PARSER: HypixelAuctionParser = None
     SKYBLOCK_ITEM_API_PARSER: HypixelItemParser = None
 
-BazaarItemID = [] # creation on runtime
-AuctionItemID = [] # creation on runtime
+BazaarItemID: [str] = [] # creation on runtime
+AuctionItemID: [str] = [] # creation on runtime
 
 ALL_ENCHANTMENT_IDS = []
 

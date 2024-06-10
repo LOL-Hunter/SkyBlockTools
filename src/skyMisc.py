@@ -14,6 +14,7 @@ from constants import BAZAAR_INFO_LABEL_GROUP as BILG, AUCT_INFO_LABEL_GROUP as 
 from skyMath import parseTimeDelta
 from typing import List, Dict
 from platform import system
+from winsound import Beep
 
 def requestBazaarHypixelAPI(master, config, path=None, saveTo=None)->HypixelBazaarParser | None:
     """
@@ -217,7 +218,7 @@ def parseTimeToStr(d)->str:
             out += f"{t}{i} "
             av = True
     return out
-def prizeToStr(inputPrize:int | float | None, hideCoins=False)->str | None:
+def prizeToStr(inputPrize:int | float | None, hideCoins=False, forceSign=False)->str | None:
     if inputPrize is None: return None
     exponent = 0
     neg = inputPrize < 0
@@ -229,7 +230,7 @@ def prizeToStr(inputPrize:int | float | None, hideCoins=False)->str | None:
         exponent += 1
         if exponent > 5:
             return f"Overflow {inputPrize}"
-    return ("-" if neg else "")+str(round(inputPrize, 1)) +" "+ prefix[exponent] + ("" if hideCoins else " coins")
+    return ("-" if neg else ("+" if forceSign else ""))+str(round(inputPrize, 1)) +" "+ prefix[exponent] + ("" if hideCoins else " coins")
 def getDictEnchantmentIDToLevels()->Dict[str, List[str]]:
     """
     Returns a dictionary to access the valid enchantment levels from raw enchantmentID.
@@ -308,8 +309,11 @@ def parseTimeFromSec(sec)->str:
     out += f"{day}d " if day > 0 else ""
     out += f"{hour}h " if hour > 0 else ""
     out += f"{minutes}m " if minutes > 0 else ""
-    out += f"{sec}s"
+    out += f"{round(sec, 3)}s"
     return out.strip()
+
+def playNotificationSound():
+    Beep(800, 300)
 
 def updateItemLists():
     BazaarItemID.clear()

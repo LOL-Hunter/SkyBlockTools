@@ -39,7 +39,15 @@ class Config:
             "farming_fortune":0,
             "crop_fortune":0,
             "pet_luck":0,
-
+        },
+        "magic_find":{
+            "base_chance":1,
+            "pet_luck":0,
+            "magic_find":0,
+            "magic_find_bestiary":0,
+            "looting_lvl":0,
+            "luck_lvl":0,
+            "item_type":0
         },
         "wisdom":0,
         "auto_api_requests":{
@@ -112,13 +120,13 @@ class SettingsGUI(tk.Dialog):
         self.apiUsernameTextE = tk.TextEntry(self.keyLf, SG)
         self.apiUsernameTextE.setValue(Config.SETTINGS_CONFIG["player_name"])
         self.apiUsernameTextE.setText("Username:")
-        self.apiUsernameTextE.getEntry().disable()
         self.apiUsernameTextE.place(0, 0, 200, 25)
+        self.apiUsernameTextE.getEntry().disable()
         self.apiKeyTextE = tk.TextEntry(self.keyLf, SG)
         self.apiKeyTextE.setValue("*" * 16 if Config.SETTINGS_CONFIG["api_key"] != "" else "No api key set!")
         self.apiKeyTextE.setText("API-Key:")
-        self.apiKeyTextE.getEntry().disable()
         self.apiKeyTextE.place(0, 25, 200, 25)
+        self.apiKeyTextE.getEntry().disable()
         tk.Button(self.keyLf, SG).setText("Change...").setCommand(self._openChangeWindow).placeRelative(changeWidth=-5,  fixY=50, fixHeight=25)
         self.urlL = tk.Label(self.keyLf, SG).setText("Click to generate API-Key.").placeRelative(changeWidth=-5, fixY=75, fixHeight=25)
         self.urlL.bind(self._enter, tk.EventType.ENTER)

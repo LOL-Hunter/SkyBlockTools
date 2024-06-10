@@ -242,3 +242,33 @@ class CompleterEntry(tk.Entry):
         self["widget"].place(x=x, y=y, width=width, height=height, anchor=anchor)
         self["alive"] = True
         return self
+class TrackerWidget(tk.LabelFrame):
+    def __init__(self, master, title):
+        super().__init__(master, SG)
+
+        self.setText(title)
+
+        self.treeView = tk.TreeView(self, SG)
+        self.treeView.setTableHeaders(
+            "Item",
+            "Buy-Price",
+            "Sell-Price",
+            "Profit-Per-Item",
+            "Time",
+        )
+        self.treeView.placeRelative(changeWidth=-3, changeHeight=-50)
+
+        self.showType = tk.DropdownMenu(self, SG, [
+            "All",
+            "New",
+        ])
+        self.showType.setText("All")
+        self.showType.placeRelative(stickDown=True, changeY=-25, fixWidth=100, fixHeight=25)
+
+        self.notify = tk.Checkbutton(self, SG)
+        self.notify.setText("Notification")
+        self.notify.placeRelative(stickDown=True, changeY=-25, fixWidth=100, fixHeight=25, fixX=100)
+
+        self.filterEnchantments = tk.Checkbutton(self, SG).setSelected()
+        self.filterEnchantments.setText("Filter Enchantments")
+        self.filterEnchantments.placeRelative(stickDown=True, changeY=-25, fixWidth=100, fixHeight=25, fixX=200)
