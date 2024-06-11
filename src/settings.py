@@ -29,6 +29,12 @@ class Config:
     SETTINGS_CONFIG.setDefault({
         "player_name":"",
         "api_key":"",
+        "notifications":{
+            "tracker_manipulation":False,
+            "tracker_custom":False,
+            "tracker_crash":False,
+            "tracker_flip":False,
+        },
         "constants":{
             "bazaar_tax":1.25,
             "hypixel_bazaar_config_path":"",
@@ -106,10 +112,12 @@ class SettingsGUI(tk.Dialog):
 
         self.notebook = tk.Notebook(self, SG)
         self.generalTab = self.notebook.createNewTab("General", SG)
+        self.notifyTab = self.notebook.createNewTab("Notifications", SG)
         self.constTab = self.notebook.createNewTab("Constants", SG)
         self.notebook.placeRelative()
 
         self.createGeneralTab(self.generalTab)
+        self.createNotificationsTab(self.notifyTab)
         self.createConstantsTab(self.constTab)
 
         self.show()
@@ -174,6 +182,30 @@ class SettingsGUI(tk.Dialog):
         self.autoRequests.place(205, 125, 205, 125)
 
         self.updateItemAPIWidgets()
+    def createNotificationsTab(self, tab):
+        def change(e):
+            Config.SETTINGS_CONFIG["notifications"][e.getArgs(0)] = (e.getValue() == "ON")
+            Config.SETTINGS_CONFIG.save()
+            self.master.mainMenuPage.getToolFromClassName("ItemPriceTrackerPage").updateNotificationFromSettings()
+
+        for i, key in enumerate(Config.SETTINGS_CONFIG["notifications"].keys()):
+            frame = tk.Frame(tab, SG)
+            tk.Label(frame, SG).setText(key).placeRelative(fixWidth=200, changeHeight=-5)
+            radio = tk.Radiobutton(frame, SG)
+            radio.onSelectEvent(change, args=[key])
+            offBtn = radio.createNewRadioButton(SG)
+            onBtn = radio.createNewRadioButton(SG)
+            onBtn.setText("ON")
+            offBtn.setText("OFF")
+            offBtn.placeRelative(changeHeight=-5, fixX=200, fixWidth=100)
+            onBtn.placeRelative(changeHeight=-5, fixX=300, fixWidth=100)
+            frame.placeRelative(fixY=25*i, fixHeight=25, changeWidth=-5)
+            radio.setState(int(Config.SETTINGS_CONFIG["notifications"][key]))
+
+
+
+
+
     def writeAutoAPISettings(self):
         state = self.isAutoReq.getState()
         interval = self.reqInterval.getValue()

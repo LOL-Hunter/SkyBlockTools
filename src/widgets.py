@@ -1,6 +1,14 @@
 from constants import STYLE_GROUP as SG, AUCT_INFO_LABEL_GROUP as AILG, BAZAAR_INFO_LABEL_GROUP as BILG
 from pysettings import tk
+from analyzer import getPlotData
+from constants import Constants, ConfigFile
+from skyMath import getMedianFromList
+from hyPI.skyCoflnetAPI import SkyConflnetAPI
+from hyPI.APIError import APIConnectionError, NoAPIKeySetException
+from pysettings.text import TextColor
+from traceback import format_exc
 from images import IconLoader
+from threading import Thread
 
 class SettingValue(tk.Frame):
     CONFIG = None
@@ -243,10 +251,11 @@ class CompleterEntry(tk.Entry):
         self["alive"] = True
         return self
 class TrackerWidget(tk.LabelFrame):
-    def __init__(self, master, title):
+    def __init__(self, master, window, title):
         super().__init__(master, SG)
-
+        self.master = window
         self.setText(title)
+        self._hook = None
 
         self.treeView = tk.TreeView(self, SG)
         self.treeView.setTableHeaders(
@@ -256,6 +265,7 @@ class TrackerWidget(tk.LabelFrame):
             "Profit-Per-Item",
             "Time",
         )
+        self.treeView.bind(self.onItemInfo, tk.EventType.DOUBBLE_LEFT)
         self.treeView.placeRelative(changeWidth=-3, changeHeight=-50)
 
         self.showType = tk.DropdownMenu(self, SG, [
@@ -272,3 +282,47 @@ class TrackerWidget(tk.LabelFrame):
         self.filterEnchantments = tk.Checkbutton(self, SG).setSelected()
         self.filterEnchantments.setText("Filter Enchantments")
         self.filterEnchantments.placeRelative(stickDown=True, changeY=-25, fixWidth=100, fixHeight=25, fixX=200)
+
+        self.rMenu = tk.ContextMenu(self.treeView, SG)
+        tk.Button(self.rMenu).setText("Request Average Price...").setCommand(self.requestAverage)
+        self.rMenu.create()
+
+    def onItemInfo(self):
+        sel = self.treeView.getSelectedItems()
+        if sel is None: return
+        self.master.showItemInfo(self, sel[0]["Item"])
+    def saveAverage(self):
+        ConfigFile.AVERAGE_PRICE.saveConfig()
+    def setUpdateHook(self, h):
+        self._hook=h
+    def requestAverage(self):
+        def request():
+            try:
+                self.currentHistoryData = getPlotData(id_, SkyConflnetAPI.getBazaarHistoryWeek)
+            except APIConnectionError as e:
+                TextColor.print(format_exc(), "red")
+                tk.SimpleDialog.askError(self.master, e.getMessage(), "SkyBlockTools")
+                Constants.WAITING_FOR_API_REQUEST = False
+                return None
+            except NoAPIKeySetException as e:
+                TextColor.print(format_exc(), "red")
+                tk.SimpleDialog.askError(self.master, e.getMessage(), "SkyBlockTools")
+                Constants.WAITING_FOR_API_REQUEST = False
+                return None
+            Constants.WAITING_FOR_API_REQUEST = False
+
+            ConfigFile.AVERAGE_PRICE[id_] = getMedianFromList(self.currentHistoryData["past_raw_buy_prices"])
+            if self._hook is not None: self.master.runTask(self._hook).start()
+            self.master.runTask(self.saveAverage).start()
+
+        if not Constants.WAITING_FOR_API_REQUEST:
+            selected = self.treeView.getSelectedItems()
+            if selected is None: return
+            id_ = selected[0]["Item"]
+
+            Constants.WAITING_FOR_API_REQUEST = True
+            Thread(target=request).start()
+
+
+
+

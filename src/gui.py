@@ -478,6 +478,11 @@ class ItemInfoPage(CustomPage):
         bv = latestBazaarHistObj.getBuyVolume()
         sv = latestBazaarHistObj.getSellVolume()
 
+        bp = bp if bp is not None else 0
+        sp = sp if sp is not None else 0
+        bv = bv if bv is not None else 0
+        sv = sv if sv is not None else 0
+
         # if the manipulation filter is active that values are used
         if self.filterManipulation.getValue():
             bpm = getMedianFromList(self.currentHistoryData['past_flatten_buy_prices'])
@@ -1279,9 +1284,6 @@ class BazaarFlipProfitPage(CustomPage):
 
         Thread(target=_test).start()
         print("return")
-
-
-
 
     def requestAverage(self):
         def request():
@@ -2961,19 +2963,20 @@ class PestProfitPage(CustomPage):
 
         self.pestsActive = tk.Checkbutton(self.contentFrame, SG)
         self.pestsActive.setText("Bonus-Farming-Fortune")
-        self.pestsActive.onSelectEvent(self.updateTreeView)
+        self.pestsActive.onSelectEvent(self.onSelect)
         self.pestsActive.placeRelative(fixHeight=25, stickDown=True, fixWidth=200, fixX=600)
 
         self.noneSelected = tk.Label(self.frame, SG)
         self.noneSelected.setText("No Pest Selected!")
     def onSelect(self):
         sel = self.treeView.getSelectedItems()
-        if sel is None: return
-        pestName = sel[0]["Pest-Name"]
-        self.selectedPest = pestName
+        if sel is not None:
+            self.selectedPest = sel[0]["Pest-Name"]
+        elif self.selectedPest is None:
+                return
         self.updateTreeView()
-        sorter = self.pestNameMetaSorter[pestName]
-        self.pestName.setText(pestName)
+        sorter = self.pestNameMetaSorter[self.selectedPest]
+        self.pestName.setText(self.selectedPest)
 
         self.commonList.clear()
         self.rareList.clear()
@@ -3273,17 +3276,30 @@ class ItemPriceTrackerPage(CustomPage):
     def __init__(self, master):
         super().__init__(master, pageTitle="Price Tracker", buttonText="Price Tracker")
 
-        self.customTrackers = TrackerWidget(self.contentFrame, "Custom-Tracker")
-        self.flipTrackers = TrackerWidget(self.contentFrame, "Flip-Tracker")
-        self.crashTrackers = TrackerWidget(self.contentFrame, "Crash-Tracker")
-        self.manipulationTrackers = TrackerWidget(self.contentFrame, "Manipulation-Tracker")
+        self.customTrackers = TrackerWidget(self.contentFrame, master, "Custom-Tracker")
+        self.flipTrackers = TrackerWidget(self.contentFrame, master, "Flip-Tracker")
+        self.crashTrackers = TrackerWidget(self.contentFrame, master, "Crash-Tracker")
+        self.manipulationTrackers = TrackerWidget(self.contentFrame, master, "Manipulation-Tracker")
+
+        self.customTrackers.setUpdateHook(self.onUpdate)
+        self.flipTrackers.setUpdateHook(self.onUpdate)
+        self.crashTrackers.setUpdateHook(self.onUpdate)
+        self.manipulationTrackers.setUpdateHook(self.onUpdate)
 
         self.customTrackers.placeRelative(xOffsetRight=50, yOffsetDown=50)
         self.crashTrackers.placeRelative(xOffsetLeft=50, yOffsetDown=50)
         self.flipTrackers.placeRelative(xOffsetRight=50, yOffsetUp=50)
         self.manipulationTrackers.placeRelative(xOffsetLeft=50, yOffsetUp=50)
-
+        self.updateNotificationFromSettings()
         self.customTrackers.showType.placeForget()
+    def updateNotificationFromSettings(self):
+        self.customTrackers.notify.setState(Config.SETTINGS_CONFIG["notifications"]["tracker_custom"])
+        self.crashTrackers.notify.setState(Config.SETTINGS_CONFIG["notifications"]["tracker_crash"])
+        self.flipTrackers.notify.setState(Config.SETTINGS_CONFIG["notifications"]["tracker_flip"])
+        self.manipulationTrackers.notify.setState(Config.SETTINGS_CONFIG["notifications"]["tracker_manipulation"])
+    def onUpdate(self):
+        updateBazaarAnalyzer()
+        self.updateTreeView()
 
     def addNewCustomItem(self):
         pass
@@ -3311,8 +3327,6 @@ class ItemPriceTrackerPage(CustomPage):
         self.manipulationTrackers.treeView.setBgColorByTag("new", "green")
         if self.manipulationTrackers.notify.getState():
             if containsNew: notify = True
-
-
 
         containsNew = False
         self.crashTrackers.treeView.clear()
@@ -3531,7 +3545,7 @@ class LoadingPage(CustomPage):
                     if os.path.exists(bazaarConfPath):
                         path = bazaarConfPath
 
-                API.SKYBLOCK_BAZAAR_API_PARSER = requestBazaarHypixelAPI(self.master, Config, path=path)
+                API.SKYBLOCK_BAZAAR_API_PARSER = requestBazaarHypixelAPI(self.master, Config, path=path, saveTo=bazaarConfPath)
 
                 if API.SKYBLOCK_BAZAAR_API_PARSER is not None: bazaarAPISuccessful = True
 
