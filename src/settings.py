@@ -17,10 +17,27 @@ IMAGES = os.path.join(os.path.split(__file__)[0], "images")
 CONFIG = os.path.join(os.path.split(__file__)[0], "config")
 API_URL = "https://developer.hypixel.net/"
 
-
 if not os.path.exists(APP_DATA_SETTINGS):
     os.mkdir(APP_DATA_SETTINGS)
     MsgText.warning("Settings Folder missing! Creating at: "+APP_DATA_SETTINGS)
+def checkConfigForUpdates():
+    for key in Config.SETTINGS_CONFIG.getDefault().keys():
+        if key not in Config.SETTINGS_CONFIG.keys():
+            MsgText.warning(f"Key '{key}' in settings config missing! Adding default...")
+            if hasattr(Config.SETTINGS_CONFIG.getDefault()[key], "copy"):
+                Config.SETTINGS_CONFIG[key] = Config.SETTINGS_CONFIG.getDefault()[key].copy()
+            else:
+                Config.SETTINGS_CONFIG[key] = Config.SETTINGS_CONFIG.getDefault()[key]
+
+        if isinstance(Config.SETTINGS_CONFIG[key], dict):
+            for key2 in Config.SETTINGS_CONFIG.getDefault()[key].keys():
+                if key2 not in Config.SETTINGS_CONFIG[key].keys():
+                    MsgText.warning(f"Key '{key}:{key2}' in settings config missing! Adding default...")
+                    if hasattr(Config.SETTINGS_CONFIG.getDefault()[key][key2], "copy"):
+                        Config.SETTINGS_CONFIG[key][key2] = Config.SETTINGS_CONFIG.getDefault()[key][key2].copy()
+                    else:
+                        Config.SETTINGS_CONFIG[key][key2] = Config.SETTINGS_CONFIG.getDefault()[key][key2]
+    Config.SETTINGS_CONFIG.save()
 
 class Config:
     AdvancedJsonConfig.setConfigFolderPath(APP_DATA_SETTINGS)
@@ -72,17 +89,6 @@ class Config:
     SETTINGS_CONFIG.load("settings.json")
     SettingValue.CONFIG = SETTINGS_CONFIG
     Constants.BAZAAR_TAX = SETTINGS_CONFIG["constants"]["bazaar_tax"]
-
-def checkConfigForUpdates():
-    for key in Config.SETTINGS_CONFIG.getDefault().keys():
-        if key not in Config.SETTINGS_CONFIG.keys():
-            MsgText.warning(f"Key '{key}' in settings config missing! Adding default...")
-            if hasattr(Config.SETTINGS_CONFIG.getDefault()[key], "copy"):
-                Config.SETTINGS_CONFIG[key] = Config.SETTINGS_CONFIG.getDefault()[key].copy()
-            else:
-                Config.SETTINGS_CONFIG[key] = Config.SETTINGS_CONFIG.getDefault()[key]
-    Config.SETTINGS_CONFIG.save()
-
 class ComposterSettings(tk.Frame):
     def __init__(self, master, onScrollHook=None):
         super().__init__(master)
@@ -102,13 +108,14 @@ class ComposterSettings(tk.Frame):
         Config.SETTINGS_CONFIG["composter"][e.getArgs(0)] = int(value)
         Config.SETTINGS_CONFIG.save()
         if self.onScrollHook is not None: self.onScrollHook()
-
 class SettingsGUI(tk.Dialog):
     def __init__(self, master):
         super().__init__(master, SG, False)
         self.master = master
         self.setTitle("SkyBlockTools-Settings")
         self.setMinSize(410, 410)
+
+        self.bind(self.close, tk.EventType.ESC)
 
         self.notebook = tk.Notebook(self, SG)
         self.generalTab = self.notebook.createNewTab("General", SG)
@@ -202,10 +209,6 @@ class SettingsGUI(tk.Dialog):
             frame.placeRelative(fixY=25*i, fixHeight=25, changeWidth=-5)
             radio.setState(int(Config.SETTINGS_CONFIG["notifications"][key]))
 
-
-
-
-
     def writeAutoAPISettings(self):
         state = self.isAutoReq.getState()
         interval = self.reqInterval.getValue()
@@ -257,10 +260,10 @@ class SettingsGUI(tk.Dialog):
         self.valueLf = tk.LabelFrame(tab, SG)
         self.valueLf.setText("Constants:")
         tk.Text(tab, SG).setText("Ony change the Values if you\nreally know what you are doing!").setFg("red").place(0, 0, 305, 50).setFont(15).setDisabled()
-        height = [0]
-        SettingValue(self.valueLf, name="Bazaar-Tax:", x=0, y=height, key="bazaar_tax")
-        SettingValue(self.valueLf, name="UseBazaarConfigAt:", x=0, y=height, key="hypixel_bazaar_config_path")
-        SettingValue(self.valueLf, name="UseAuctionConfigAt:", x=0, y=height, key="hypixel_auction_config_path")
+        y = tk.Placer(ySpace=25)
+        SettingValue(self.valueLf, name="Bazaar-Tax:", x=0, y=y.get(), key="bazaar_tax")
+        SettingValue(self.valueLf, name="UseBazaarConfigAt:", x=0, y=y.get(), key="hypixel_bazaar_config_path")
+        SettingValue(self.valueLf, name="UseAuctionConfigAt:", x=0, y=y.get(), key="hypixel_auction_config_path")
 
         self.valueLf.place(0, 50, 305, 300)
     def _requestItemAPI(self):
@@ -349,6 +352,7 @@ class SettingsGUI(tk.Dialog):
         master.show()
     @staticmethod
     def openSettings(master):
+        if not master.loadingPage.loadingComplete: return
         SettingsGUI(master)
     @staticmethod
     def isAPIKeySet()->bool:

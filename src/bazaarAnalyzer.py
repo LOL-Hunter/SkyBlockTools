@@ -112,9 +112,6 @@ def updateBazaarAnalyzer():
         elif itemID in BazaarAnalyzer.MANIPULATED_PRODUCTS.keys():
             BazaarAnalyzer.MANIPULATED_PRODUCTS.pop(itemID)
 
-
-
-
 class BazaarAnalyzer:
     CRASHED_PRODUCTS = {}
     MANIPULATED_PRODUCTS = {}
@@ -127,8 +124,6 @@ class BazaarAnalyzer:
     @staticmethod
     def getCrashedItems()->List[Tuple[Sorter, float]]:
         return list(BazaarAnalyzer.CRASHED_PRODUCTS.values())
-
-
 
     @staticmethod
     def _verifyProduct(prod):

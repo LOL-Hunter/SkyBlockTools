@@ -23,15 +23,6 @@ class SettingValue(tk.Frame):
 
         tk.Button(self, SG).setText("Reset").setCommand(self._reset).place(250, 0, 50, 30)
 
-        if type(x) == list:
-            x_ = x[0]
-            x[0] += 30
-            x = x_
-        if type(y) == list:
-            y_ = y[0]
-            y[0] += 30
-            y = y_
-
         self.place(x, y, 300, 30)
     def _reset(self):
         SettingValue.CONFIG["constants"][self._key] = SettingValue.CONFIG._std["constants"][self._key]
@@ -265,7 +256,7 @@ class TrackerWidget(tk.LabelFrame):
             "Profit-Per-Item",
             "Time",
         )
-        self.treeView.bind(self.onItemInfo, tk.EventType.DOUBBLE_LEFT)
+        self.treeView.bind(self._onItemInfo, tk.EventType.DOUBBLE_LEFT)
         self.treeView.placeRelative(changeWidth=-3, changeHeight=-50)
 
         self.showType = tk.DropdownMenu(self, SG, [
@@ -280,22 +271,25 @@ class TrackerWidget(tk.LabelFrame):
         self.notify.placeRelative(stickDown=True, changeY=-25, fixWidth=100, fixHeight=25, fixX=100)
 
         self.filterEnchantments = tk.Checkbutton(self, SG).setSelected()
+        self.filterEnchantments.onSelectEvent(self._runHook)
         self.filterEnchantments.setText("Filter Enchantments")
         self.filterEnchantments.placeRelative(stickDown=True, changeY=-25, fixWidth=100, fixHeight=25, fixX=200)
 
         self.rMenu = tk.ContextMenu(self.treeView, SG)
-        tk.Button(self.rMenu).setText("Request Average Price...").setCommand(self.requestAverage)
+        tk.Button(self.rMenu).setText("Request Average Price...").setCommand(self._requestAverage)
         self.rMenu.create()
-
-    def onItemInfo(self):
+    def _runHook(self):
+        if self._hook is not None:
+            self._hook()
+    def _onItemInfo(self):
         sel = self.treeView.getSelectedItems()
         if sel is None: return
         self.master.showItemInfo(self, sel[0]["Item"])
-    def saveAverage(self):
+    def _saveAverage(self):
         ConfigFile.AVERAGE_PRICE.saveConfig()
     def setUpdateHook(self, h):
-        self._hook=h
-    def requestAverage(self):
+        self._hook = h
+    def _requestAverage(self):
         def request():
             try:
                 self.currentHistoryData = getPlotData(id_, SkyConflnetAPI.getBazaarHistoryWeek)
@@ -313,7 +307,7 @@ class TrackerWidget(tk.LabelFrame):
 
             ConfigFile.AVERAGE_PRICE[id_] = getMedianFromList(self.currentHistoryData["past_raw_buy_prices"])
             if self._hook is not None: self.master.runTask(self._hook).start()
-            self.master.runTask(self.saveAverage).start()
+            self.master.runTask(self._saveAverage).start()
 
         if not Constants.WAITING_FOR_API_REQUEST:
             selected = self.treeView.getSelectedItems()

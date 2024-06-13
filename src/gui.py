@@ -21,7 +21,11 @@ from matplotlib.figure import Figure
 from pyperclip import copy as copyStr
 from pytz import timezone
 
+from widgets import CompleterEntry, CustomPage, CustomMenuPage, TrackerWidget
+from bazaarAnalyzer import updateBazaarAnalyzer, BazaarAnalyzer
 from analyzer import getPlotData, getCheapestEnchantmentData
+from images import IconLoader
+from settings import SettingsGUI, Config, checkConfigForUpdates
 from constants import (
     RARITY_COLOR_CODE,
     LOAD_STYLE,
@@ -36,8 +40,6 @@ from constants import (
     ALL_ENCHANTMENT_IDS,
     ConfigFile
 )
-from images import IconLoader
-from settings import SettingsGUI, Config, checkConfigForUpdates
 from skyMath import (
     getPlotTicksFromInterval,
     parsePrizeList,
@@ -67,14 +69,10 @@ from skyMisc import (
     addPetsToAuctionHouse,
     playNotificationSound
 )
-from widgets import CompleterEntry, CustomPage, CustomMenuPage, TrackerWidget
-from bazaarAnalyzer import updateBazaarAnalyzer, BazaarAnalyzer
 
 APP_DATA = os.path.join(os.path.expanduser("~"), "AppData", "Roaming")
 IMAGES = os.path.join(os.path.split(__file__)[0], "images")
 CONFIG = os.path.join(os.path.split(__file__)[0], "config")
-
-
 
 class APIRequest:
     """
@@ -3290,6 +3288,12 @@ class ItemPriceTrackerPage(CustomPage):
         self.crashTrackers.placeRelative(xOffsetLeft=50, yOffsetDown=50)
         self.flipTrackers.placeRelative(xOffsetRight=50, yOffsetUp=50)
         self.manipulationTrackers.placeRelative(xOffsetLeft=50, yOffsetUp=50)
+
+        self.customTrackers.notify.onSelectEvent(self.updateNotificationFromCheck)
+        self.crashTrackers.notify.onSelectEvent(self.updateNotificationFromCheck)
+        self.manipulationTrackers.notify.onSelectEvent(self.updateNotificationFromCheck)
+        self.flipTrackers.notify.onSelectEvent(self.updateNotificationFromCheck)
+
         self.updateNotificationFromSettings()
         self.customTrackers.showType.placeForget()
     def updateNotificationFromSettings(self):
@@ -3297,13 +3301,18 @@ class ItemPriceTrackerPage(CustomPage):
         self.crashTrackers.notify.setState(Config.SETTINGS_CONFIG["notifications"]["tracker_crash"])
         self.flipTrackers.notify.setState(Config.SETTINGS_CONFIG["notifications"]["tracker_flip"])
         self.manipulationTrackers.notify.setState(Config.SETTINGS_CONFIG["notifications"]["tracker_manipulation"])
+    def updateNotificationFromCheck(self):
+        Config.SETTINGS_CONFIG["notifications"]["tracker_custom"] = self.customTrackers.notify.getValue()
+        Config.SETTINGS_CONFIG["notifications"]["tracker_crash"] = self.crashTrackers.notify.getValue()
+        Config.SETTINGS_CONFIG["notifications"]["tracker_flip"] = self.flipTrackers.notify.getValue()
+        Config.SETTINGS_CONFIG["notifications"]["tracker_manipulation"] = self.manipulationTrackers.notify.getValue()
+        Config.SETTINGS_CONFIG.save()
+
     def onUpdate(self):
         updateBazaarAnalyzer()
         self.updateTreeView()
-
     def addNewCustomItem(self):
         pass
-
     def updateTreeView(self):
         notify = False
         self.manipulationTrackers.treeView.clear()
@@ -3323,7 +3332,8 @@ class ItemPriceTrackerPage(CustomPage):
             )
             if sorter["manipulatedState"] == "new":
                 containsNew = True
-        self.manipulationTrackers.treeView.setBgColorByTag("old", Color.COLOR_GRAY)
+        self.manipulationTrackers.setText(f"Manipulation-Tracker [{self.manipulationTrackers.treeView.getSize()}]")
+        self.manipulationTrackers.treeView.setBgColorByTag("old", Color.COLOR_DARK)
         self.manipulationTrackers.treeView.setBgColorByTag("new", "green")
         if self.manipulationTrackers.notify.getState():
             if containsNew: notify = True
@@ -3344,24 +3354,24 @@ class ItemPriceTrackerPage(CustomPage):
 
                 tag=sorter["crashedState"]
             )
-            if self.crashTrackers.notify.getState():
-                if containsNew: notify = True
-        self.crashTrackers.treeView.setBgColorByTag("old", Color.COLOR_GRAY)
+            if sorter["crashedState"] == "new":
+                containsNew = True
+        self.crashTrackers.setText(f"Crash-Tracker [{self.crashTrackers.treeView.getSize()}]")
+        if self.crashTrackers.notify.getState():
+            if containsNew: notify = True
+        self.crashTrackers.treeView.setBgColorByTag("old", Color.COLOR_DARK)
         self.crashTrackers.treeView.setBgColorByTag("new", "green")
 
         if notify: # TODO and from settings
             playNotificationSound()
-
     def onAPIUpdate(self):
         self.updateTreeView()
-
     def onShow(self, **kwargs):
         self.master.updateCurrentPageHook = None # hook to update tv on new API-Data available
         self.placeRelative()
         self.updateTreeView()
         self.placeContentFrame()
         if not Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"]: tk.SimpleDialog.askWarning(self.master, "This feature requires 'auto_api_requests' feature to be active!\nTurn on In Settings or in the opper left corner in MainMenu!")
-
 
 # Menu Pages
 class MainMenuPage(CustomMenuPage):
@@ -3695,12 +3705,13 @@ class Window(tk.Tk):
         Thread(target=self.loadingPage.load).start()
         self.configureWindows()
     def _autoRequestAPI(self):
+        started = False
         timer = time()
         while True:
             sleep(.1)
-            if self.loadingPage.loadingComplete:
+            if self.loadingPage.loadingComplete and not started:
+                started = True
                 sleep(5)
-                self.loadingPage.loadingComplete = False
             if Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"]:
                 if time()-timer >= Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_interval"]:
                     print("request")
@@ -3821,7 +3832,7 @@ class Window(tk.Tk):
         self.runTask(self.mainMenuPage.getToolFromClassName("ItemPriceTrackerPage").onAPIUpdate).start()
 
     def showItemInfo(self, page:CustomPage, itemID:str):
-        self.infoPage.onShow(itemName=itemID, selectMode="day", ignoreHook=True)
+        self.infoPage.onShow(itemName=itemID, selectMode="hour", ignoreHook=True)
         self.infoTopLevel.show()
 
 
