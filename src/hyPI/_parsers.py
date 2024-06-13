@@ -10,7 +10,7 @@ def getHypTimezone(tz)->dt:
     unixTime = tz/1000
     time_zone = timezone(Config.TARGET_TIME_ZONE)
     time = dt.fromtimestamp(unixTime)
-    return time_zone.localize(time)# + timedelta(hours=1)
+    return time_zone.localize(time) + timedelta(hours=2)
 
 def getTimezone(tz:str)->dt | None:
     if tz is None: return None
@@ -19,9 +19,8 @@ def getTimezone(tz:str)->dt | None:
     if len(tz.split(".")[-1]) < 3: tz = tz+"0"
     if tz.endswith("Z"): # Z -> Zero
         tz = tz[:-1] + ".000"
-
     time = dt.fromisoformat(tz)
-    return time_zone.localize(time)# + timedelta(hours=1)
+    return time_zone.localize(time) + timedelta(hours=2)
 def convertAuctionNameToID(data:dict, itemParser, auctionIDs:[str])->dict:
     displayName = name = data["item_name"]
     category = data["category"]
