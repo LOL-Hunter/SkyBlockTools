@@ -5,7 +5,7 @@ from datetime import datetime
 from hyPI.APIError import *
 from hyPI._parsers import ProductWithOrders, BINAuctionProduct, NORAuctionProduct, convertAuctionNameToID, Item
 from traceback import format_exc
-
+from time import time
 
 def getTimezone(tz)->datetime:
     unixTime = tz/1000

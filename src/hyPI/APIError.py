@@ -33,7 +33,8 @@ class APIOnCooldownException(_BaseException):
 
 class APIConnectionError(_BaseException):
     def __init__(self, url):
-        super().__init__(f"Could not request API.\n Check your internet connection.\nURL: {url}")
+        url = url.value if hasattr(url, "value") else url
+        super().__init__(f"Could not request API.\nCheck your internet connection.\nURL: {url}")
 
 
 
