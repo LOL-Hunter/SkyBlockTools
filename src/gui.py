@@ -1,5 +1,5 @@
 # -*- coding: iso-8859-15 -*-
-from hyPI.APIError import APIConnectionError, NoAPIKeySetException
+from hyPI.APIError import APIConnectionError, NoAPIKeySetException, APITimeoutException
 from hyPI._parsers import MayorData, BazaarHistoryProduct, BaseAuctionProduct, BINAuctionProduct, NORAuctionProduct
 from hyPI.hypixelAPI.loader import HypixelBazaarParser
 from hyPI.recipeAPI import RecipeAPI
@@ -65,13 +65,14 @@ from skyMisc import (
     checkWindows,
     updateItemLists,
     addPetsToAuctionHouse,
-    playNotificationSound
+    playNotificationSound,
+    throwNoAPIKeyException,
+    throwAPIConnectionException,
+    throwAPITimeoutException
 )
 
 
 #Todo: last click -> cannot scroll in menu
-#try request if auction folder is missing
-#implement: requests.exceptions.ReadTimeout
 
 APP_DATA = os.path.join(os.path.expanduser("~"), "AppData", "Roaming")
 IMAGES = os.path.join(os.path.split(__file__)[0], "images")
@@ -360,14 +361,25 @@ class MayorInfoPage(CustomPage):
         try:
             self.mayorHist = SkyConflnetAPI.getMayorData()
         except APIConnectionError as e:
-            #TextColor.print(format_exc(), "red")
-            MsgText.error("Mayor API request failed! No internet connection.")
-            tk.SimpleDialog.askError(self.master, e.getMessage(), "SkyBlockTools")
+            throwAPIConnectionException(
+                source="Mayor",
+                master=self.master,
+                event=e
+            )
             return None
         except NoAPIKeySetException as e:
-            #TextColor.print(format_exc(), "red")
-            MsgText.error("Mayor API request failed! No API-key set.")
-            tk.SimpleDialog.askError(self.master, e.getMessage(), "SkyBlockTools")
+            throwNoAPIKeyException(
+                source="Mayor",
+                master=self.master,
+                event=e
+            )
+            return None
+        except APITimeoutException as e:
+            throwAPITimeoutException(
+                source="Mayor",
+                master=self.master,
+                event=e
+            )
             return None
         self.currentMayor = self.mayorHist.getCurrentMayor()
         self.configureContentFrame()
@@ -522,14 +534,25 @@ class ItemInfoPage(CustomPage):
         try:
             self.currentHistoryData = getPlotData(self.selectedItem, modeToBazaarAPIFunc(self.selectedMode))
         except APIConnectionError as e:
-            #TextColor.print(format_exc(), "red")
-            MsgText.error("SkyCoflnet API request failed! No internet connection.")
-            tk.SimpleDialog.askError(self.master, e.getMessage(), "SkyBlockTools")
+            throwAPIConnectionException(
+                source="SkyCoflnet",
+                master=self.master,
+                event=e
+            )
             return None
         except NoAPIKeySetException as e:
-            #TextColor.print(format_exc(), "red")
-            MsgText.error("SkyCoflnet API request failed! No API-key set.")
-            tk.SimpleDialog.askError(self.master, e.getMessage(), "SkyBlockTools")
+            throwNoAPIKeyException(
+                source="SkyCoflnet",
+                master=self.master,
+                event=e
+            )
+            return None
+        except APITimeoutException as e:
+            throwAPITimeoutException(
+                source="SkyCoflnet",
+                master=self.master,
+                event=e
+            )
             return None
 
         #flatten prices
@@ -1272,16 +1295,25 @@ class BazaarFlipProfitPage(CustomPage):
             try:
                 self.currentHistoryData = getPlotData(id_, SkyConflnetAPI.getBazaarHistoryWeek)
             except APIConnectionError as e:
-                #TextColor.print(format_exc(), "red")
-                MsgText.error("SkyCoflnet API request failed! No internet connection.")
-                tk.SimpleDialog.askError(self.master, e.getMessage(), "SkyBlockTools")
-                Constants.WAITING_FOR_API_REQUEST = False
+                throwAPIConnectionException(
+                    source="SkyCoflnet",
+                    master=self.master,
+                    event=e
+                )
                 return None
             except NoAPIKeySetException as e:
-                #TextColor.print(format_exc(), "red")
-                MsgText.error("SkyCoflnet API request failed! No API-key set.")
-                tk.SimpleDialog.askError(self.master, e.getMessage(), "SkyBlockTools")
-                Constants.WAITING_FOR_API_REQUEST = False
+                throwNoAPIKeyException(
+                    source="SkyCoflnet",
+                    master=self.master,
+                    event=e
+                )
+                return None
+            except APITimeoutException as e:
+                throwAPITimeoutException(
+                    source="SkyCoflnet",
+                    master=self.master,
+                    event=e
+                )
                 return None
             Constants.WAITING_FOR_API_REQUEST = False
 
@@ -1305,18 +1337,26 @@ class BazaarFlipProfitPage(CustomPage):
             try:
                 self.currentHistoryData = getPlotData(id_, SkyConflnetAPI.getBazaarHistoryWeek)
             except APIConnectionError as e:
-                #TextColor.print(format_exc(), "red")
-                MsgText.error("SkyCoflnet API request failed! No internet connection.")
-                tk.SimpleDialog.askError(self.master, e.getMessage(), "SkyBlockTools")
-                Constants.WAITING_FOR_API_REQUEST = False
+                throwAPIConnectionException(
+                    source="SkyCoflnet",
+                    master=self.master,
+                    event=e
+                )
                 return None
             except NoAPIKeySetException as e:
-                #TextColor.print(format_exc(), "red")
-                MsgText.error("SkyCoflnet API request failed! No API-key set.")
-                tk.SimpleDialog.askError(self.master, e.getMessage(), "SkyBlockTools")
-                Constants.WAITING_FOR_API_REQUEST = False
+                throwNoAPIKeyException(
+                    source="SkyCoflnet",
+                    master=self.master,
+                    event=e
+                )
                 return None
-            Constants.WAITING_FOR_API_REQUEST = False
+            except APITimeoutException as e:
+                throwAPITimeoutException(
+                    source="SkyCoflnet",
+                    master=self.master,
+                    event=e
+                )
+                return None
 
             ConfigFile.AVERAGE_PRICE[id_] = getMedianFromList(self.currentHistoryData["past_raw_buy_prices"])
             self.master.runTask(self.updateTreeView).start()
@@ -1942,18 +1982,26 @@ class LongTimeFlip(tk.Frame):
             try:
                 self.currentHistoryData = getPlotData(id_, SkyConflnetAPI.getBazaarHistoryWeek)
             except APIConnectionError as e:
-                #TextColor.print(format_exc(), "red")
-                MsgText.error("SkyCoflnet API request failed! No internet connection.")
-                tk.SimpleDialog.askError(self.master, e.getMessage(), "SkyBlockTools")
-                Constants.WAITING_FOR_API_REQUEST = False
+                throwAPIConnectionException(
+                    source="SkyCoflnet",
+                    master=self.window,
+                    event=e
+                )
                 return None
             except NoAPIKeySetException as e:
-                #TextColor.print(format_exc(), "red")
-                MsgText.error("SkyCoflnet API request failed! No API-key set.")
-                tk.SimpleDialog.askError(self.master, e.getMessage(), "SkyBlockTools")
-                Constants.WAITING_FOR_API_REQUEST = False
+                throwNoAPIKeyException(
+                    source="SkyCoflnet",
+                    master=self.window,
+                    event=e
+                )
                 return None
-            Constants.WAITING_FOR_API_REQUEST = False
+            except APITimeoutException as e:
+                throwAPITimeoutException(
+                    source="SkyCoflnet",
+                    master=self.window,
+                    event=e
+                )
+                return None
 
             ConfigFile.AVERAGE_PRICE[id_] = getMedianFromList(self.currentHistoryData['past_raw_buy_prices'])
             self.window.runTask(self.updateWidget).start()
@@ -3300,6 +3348,7 @@ class MagicFindCalculatorPage(CustomPage):
 class ItemPriceTrackerPage(CustomPage):
     def __init__(self, master):
         super().__init__(master, pageTitle="Price Tracker", buttonText="Price Tracker")
+        self._notificationsDisabled = False
 
         self.customTrackers = TrackerWidget(self.contentFrame, master, "Custom-Tracker")
         self.flipTrackers = TrackerWidget(self.contentFrame, master, "Flip-Tracker")
@@ -3334,8 +3383,11 @@ class ItemPriceTrackerPage(CustomPage):
         Config.SETTINGS_CONFIG["notifications"]["tracker_flip"] = self.flipTrackers.notify.getValue()
         Config.SETTINGS_CONFIG["notifications"]["tracker_manipulation"] = self.manipulationTrackers.notify.getValue()
         Config.SETTINGS_CONFIG.save()
-
     def onUpdate(self):
+        """
+        Triggers update after new Average request!
+        @return:
+        """
         updateBazaarAnalyzer()
         self.updateTreeView()
     def addNewCustomItem(self):
@@ -3364,8 +3416,9 @@ class ItemPriceTrackerPage(CustomPage):
         self.manipulationTrackers.treeView.setBgColorByTag("new", "green")
         if self.manipulationTrackers.notify.getState():
             if containsNew: notify = True
-
         containsNew = False
+
+
         self.crashTrackers.treeView.clear()
         crashed = BazaarAnalyzer.getCrashedItems()
         crashed.sort()
@@ -3378,7 +3431,6 @@ class ItemPriceTrackerPage(CustomPage):
                 prizeToStr(sorter["sellOrderPrice"], True),
                 prizeToStr(sorter["priceDifference"], True) + ("" if sorter["priceDifferenceChance"] == 0 else f" ({prizeToStr(sorter['priceDifferenceChance'], True, True)})"),
                 parseTimeFromSec(time() - _time),
-
                 tag=sorter["crashedState"]
             )
             if sorter["crashedState"] == "new":
@@ -3389,13 +3441,18 @@ class ItemPriceTrackerPage(CustomPage):
         self.crashTrackers.treeView.setBgColorByTag("old", Color.COLOR_DARK)
         self.crashTrackers.treeView.setBgColorByTag("new", "green")
 
-        if notify: # TODO and from settings
+        if notify and not self._notificationsDisabled:
             playNotificationSound()
+        self._notificationsDisabled = False
+    def disableNotifications(self):
+        self._notificationsDisabled = True
+        return self
     def onAPIUpdate(self):
         self.updateTreeView()
     def onShow(self, **kwargs):
         self.master.updateCurrentPageHook = None # hook to update tv on new API-Data available
         self.placeRelative()
+        self.disableNotifications()
         self.updateTreeView()
         self.placeContentFrame()
         if not Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"]: tk.SimpleDialog.askWarning(self.master, "This feature requires 'auto_api_requests' feature to be active!\nTurn on In Settings or in the opper left corner in MainMenu!")
@@ -3621,7 +3678,7 @@ class LoadingPage(CustomPage):
                 MsgText.info(f"Building ItemList took {round(time()-t, 2)} Seconds!")
 
                 self.master.runTask(updateBazaarAnalyzer).start()
-                self.master.runTask(self.master.mainMenuPage.getToolFromClassName("ItemPriceTrackerPage").onAPIUpdate).start()
+                self.master.runTask(self.master.mainMenuPage.getToolFromClassName("ItemPriceTrackerPage").disableNotifications().onAPIUpdate).start()
 
                 self.processBar.setValues(len(msgs))
                 self.processBar.setNormalMode()
@@ -3672,8 +3729,6 @@ class LoadingPage(CustomPage):
         self.placeForget()
         self.master.mainMenuPage.openMenuPage()
         self.loadingComplete = True
-    def requestAPIHook(self):
-        pass
     def onShow(self, **kwargs):
         self.placeRelative()
         #self.api.startAPIRequest()
@@ -3755,8 +3810,7 @@ class Window(tk.Tk):
                     tk.SimpleDialog.askError("Request interval cannot be smaller than 20s!")
                     return
                 if time()-timer >= Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_interval"]:
-                    print("request")
-                    #self.refreshAPIRequest("bazaar")
+                    self.refreshAPIRequest("bazaar")
                     timer = time()
                     if API.SKYBLOCK_BAZAAR_API_PARSER is None: # if request fails -> auto request disabled
                         Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"] = False

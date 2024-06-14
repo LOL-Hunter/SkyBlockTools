@@ -1,6 +1,6 @@
 # -*- coding: iso-8859-15 -*-
 import os as _os
-from hyPI.APIError import APIConnectionError, NoAPIKeySetException
+from hyPI.APIError import APIConnectionError, NoAPIKeySetException, APITimeoutException
 from hyPI.hypixelAPI import HypixelAPIURL, APILoader, fileLoader
 from hyPI.hypixelAPI.loader import HypixelBazaarParser, HypixelAuctionParser, HypixelItemParser
 from hyPI.skyCoflnetAPI import SkyConflnetAPI
@@ -16,6 +16,7 @@ from typing import List, Dict
 from platform import system
 from winsound import Beep
 from time import time
+from constants import Constants
 
 def requestBazaarHypixelAPI(master, config, path=None, saveTo=None)->HypixelBazaarParser | None:
     """
@@ -44,14 +45,25 @@ def requestBazaarHypixelAPI(master, config, path=None, saveTo=None)->HypixelBaza
 
         parser = HypixelBazaarParser(data)
     except APIConnectionError as e:
-        #TextColor.print(format_exc(), "red")
-        MsgText.error("Bazaar API request failed! No internet connection.")
-        tk.SimpleDialog.askError(master, e.getMessage(), "SkyBlockTools")
+        throwAPIConnectionException(
+            source="Hypixel Bazaar API",
+            master=master,
+            event=e
+        )
         return None
     except NoAPIKeySetException as e:
-        #TextColor.print(format_exc(), "red")
-        MsgText.error("Bazaar API request failed! No API-key set.")
-        tk.SimpleDialog.askError(master, e.getMessage(), "SkyBlockTools")
+        throwNoAPIKeyException(
+            source="Hypixel Bazaar API",
+            master=master,
+            event=e
+        )
+        return None
+    except APITimeoutException as e:
+        throwAPITimeoutException(
+            source="Hypixel Bazaar API",
+            master=master,
+            event=e
+        )
         return None
     return parser
 def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=None, infoLabel:tk.Label=None, saveTo:str=None)->HypixelAuctionParser | None:
@@ -105,6 +117,7 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
             pages = parser.getPages()
             if progBar is not None: progBar.setValues(pages)
             for page in range(1, pages):
+                Constants.WAITING_FOR_API_REQUEST = True
                 TextColor.printStrf(f"§INFO§cRequesting 'AUCTION_DATA' from Hypixel-API [{page+1}]")
                 data = APILoader(HypixelAPIURL.AUCTION_URL,
                                  config.SETTINGS_CONFIG["api_key"],
@@ -118,14 +131,25 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
                 if progBar is not None: progBar.setValue(page+1)
                 parser.addPage(data)
     except APIConnectionError as e:
-        #TextColor.print(format_exc(), "red")
-        MsgText.error("Auction API request failed! No internet connection.")
-        tk.SimpleDialog.askError(master, e.getMessage(), "SkyBlockTools")
+        throwAPIConnectionException(
+            source="Hypixel Auction API",
+            master=master,
+            event=e
+        )
         return None
     except NoAPIKeySetException as e:
-        #TextColor.print(format_exc(), "red")
-        MsgText.error("Auction API request failed! No API-key set.")
-        tk.SimpleDialog.askError(master, e.getMessage(), "SkyBlockTools")
+        throwNoAPIKeyException(
+            source="Hypixel Auction API",
+            master=master,
+            event=e
+        )
+        return None
+    except APITimeoutException as e:
+        throwAPITimeoutException(
+            source="Hypixel Auction API",
+            master=master,
+            event=e
+        )
         return None
     return parser
 def requestItemHypixelAPI(master, config, path=None, saveTo=None)->HypixelItemParser | None:
@@ -156,16 +180,41 @@ def requestItemHypixelAPI(master, config, path=None, saveTo=None)->HypixelItemPa
 
         parser = HypixelItemParser(data)
     except APIConnectionError as e:
-        #TextColor.print(format_exc(), "red")
-        MsgText.error("Bazaar API request failed! No internet connection.")
-        tk.SimpleDialog.askError(master, e.getMessage(), "SkyBlockTools")
+        throwAPIConnectionException(
+            source="Hypixel Item API",
+            master=master,
+            event=e
+        )
         return None
     except NoAPIKeySetException as e:
-        #TextColor.print(format_exc(), "red")
-        MsgText.error("Bazaar API request failed! No API-key set.")
-        tk.SimpleDialog.askError(master, e.getMessage(), "SkyBlockTools")
+        throwNoAPIKeyException(
+            source="Hypixel Item API",
+            master=master,
+            event=e
+        )
+        return None
+    except APITimeoutException as e:
+        throwAPITimeoutException(
+            source="Hypixel Item API",
+            master=master,
+            event=e
+        )
         return None
     return parser
+
+def throwAPIConnectionException(source:str, master:tk.Tk, event:APIConnectionError):
+    MsgText.error(f"{source} request failed! No API-key set.")
+    Constants.WAITING_FOR_API_REQUEST = False
+    tk.SimpleDialog.askError(master, event.getMessage(), "SkyBlockTools")
+def throwNoAPIKeyException(source:str, master:tk.Tk, event:NoAPIKeySetException):
+    MsgText.error(f"{source} request failed! No API-key set.")
+    Constants.WAITING_FOR_API_REQUEST = False
+    tk.SimpleDialog.askError(master, event.getMessage(), "SkyBlockTools")
+def throwAPITimeoutException(source:str, master:tk.Tk, event:APITimeoutException):
+    MsgText.error(f"{source} request failed! Timeout Exception.")
+    Constants.WAITING_FOR_API_REQUEST = False
+    tk.SimpleDialog.askError(master, event.getMessage(), "SkyBlockTools")
+
 
 def updateBazaarInfoLabel(api:HypixelBazaarParser | None, loaded=False):
     if api is not None:
