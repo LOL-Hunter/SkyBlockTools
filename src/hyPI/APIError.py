@@ -16,6 +16,10 @@ class NoAPIKeySetException(_BaseException):
     def __init__(self):
         super().__init__(f"Wrong API-Key check the settings.")
 
+class APITimeoutException(_BaseException):
+    def __init__(self):
+        super().__init__(f"Request timeout!")
+
 
 class CouldNotReadDataPackageException(_BaseException):
     def __init__(self, data, success=True):

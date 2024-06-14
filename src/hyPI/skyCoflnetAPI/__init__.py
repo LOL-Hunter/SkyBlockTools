@@ -1,6 +1,6 @@
 from requests import get as getReq
-from requests.exceptions import ConnectionError
-from hyPI.APIError import APIConnectionError
+from requests.exceptions import ConnectionError, ReadTimeout
+from hyPI.APIError import APIConnectionError, APITimeoutException
 
 from hyPI.constants import SkyCoflnetAPIURL, Error
 from hyPI._parsers import BazaarHistory, BazaarProduct, AuctionHistory, AuctionProduct, Recipe, MayorHistory
@@ -10,6 +10,8 @@ def _request(url) ->dict | str | Error:
         return getReq(url).json()
     except ConnectionError:
         raise APIConnectionError(url)
+    except ReadTimeout:
+        raise APITimeoutException(url)
 
 
 class SkyConflnetAPI:
