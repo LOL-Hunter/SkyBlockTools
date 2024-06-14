@@ -15,6 +15,7 @@ from skyMath import parseTimeDelta
 from typing import List, Dict
 from platform import system
 from winsound import Beep
+from time import time
 
 def requestBazaarHypixelAPI(master, config, path=None, saveTo=None)->HypixelBazaarParser | None:
     """
@@ -36,18 +37,20 @@ def requestBazaarHypixelAPI(master, config, path=None, saveTo=None)->HypixelBaza
             TextColor.printStrf("§INFO§cRequesting 'BAZAAR_DATA' from Hypixel-API")
             data = APILoader(HypixelAPIURL.BAZAAR_URL, config.SETTINGS_CONFIG["api_key"], config.SETTINGS_CONFIG["player_name"])
 
-            if saveTo is not None:
+            if saveTo is not None and data is not None:
                 conf = JsonConfig.loadConfig(saveTo, create=True)
                 conf.setData(data)
                 conf.save()
 
         parser = HypixelBazaarParser(data)
     except APIConnectionError as e:
-        TextColor.print(format_exc(), "red")
+        #TextColor.print(format_exc(), "red")
+        MsgText.error("Bazaar API request failed! No internet connection.")
         tk.SimpleDialog.askError(master, e.getMessage(), "SkyBlockTools")
         return None
     except NoAPIKeySetException as e:
-        TextColor.print(format_exc(), "red")
+        #TextColor.print(format_exc(), "red")
+        MsgText.error("Bazaar API request failed! No API-key set.")
         tk.SimpleDialog.askError(master, e.getMessage(), "SkyBlockTools")
         return None
     return parser
@@ -115,11 +118,13 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
                 if progBar is not None: progBar.setValue(page+1)
                 parser.addPage(data)
     except APIConnectionError as e:
-        TextColor.print(format_exc(), "red")
+        #TextColor.print(format_exc(), "red")
+        MsgText.error("Auction API request failed! No internet connection.")
         tk.SimpleDialog.askError(master, e.getMessage(), "SkyBlockTools")
         return None
     except NoAPIKeySetException as e:
-        TextColor.print(format_exc(), "red")
+        #TextColor.print(format_exc(), "red")
+        MsgText.error("Auction API request failed! No API-key set.")
         tk.SimpleDialog.askError(master, e.getMessage(), "SkyBlockTools")
         return None
     return parser
@@ -151,11 +156,13 @@ def requestItemHypixelAPI(master, config, path=None, saveTo=None)->HypixelItemPa
 
         parser = HypixelItemParser(data)
     except APIConnectionError as e:
-        TextColor.print(format_exc(), "red")
+        #TextColor.print(format_exc(), "red")
+        MsgText.error("Bazaar API request failed! No internet connection.")
         tk.SimpleDialog.askError(master, e.getMessage(), "SkyBlockTools")
         return None
     except NoAPIKeySetException as e:
-        TextColor.print(format_exc(), "red")
+        #TextColor.print(format_exc(), "red")
+        MsgText.error("Bazaar API request failed! No API-key set.")
         tk.SimpleDialog.askError(master, e.getMessage(), "SkyBlockTools")
         return None
     return parser
@@ -328,13 +335,16 @@ def updateItemLists():
         AuctionItemID.append(id_)
 
 def addPetsToAuctionHouse():
+    i = 0
     for item in [*API.SKYBLOCK_AUCTION_API_PARSER.getAuctions(), *API.SKYBLOCK_AUCTION_API_PARSER.getBinAuctions()]:
         id_ = item.getID()
         if id_ is None: continue
         if id_.startswith("PET_") and id_ not in AuctionItemID:
+            i += 1
             AuctionItemID.append(id_)
     ALL_ENCHANTMENT_IDS.clear()
     ALL_ENCHANTMENT_IDS.extend([i for i in BazaarItemID if i.startswith("enchantment".upper())])
+    return i
 
 class Sorter:
     def __init__(self, sort=None, sortKey=None, **kwargs):

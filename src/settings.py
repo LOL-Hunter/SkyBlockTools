@@ -74,6 +74,7 @@ class Config:
         },
         "wisdom":0,
         "auto_api_requests":{
+            "bazaar_auto_request_off_on_load":True,
             "bazaar_auto_request":False,
             "bazaar_auto_request_interval": 60
         },
@@ -174,6 +175,11 @@ class SettingsGUI(tk.Dialog):
         self.isAutoReq.setState(Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"])
         self.isAutoReq.setText("Bazaar-API-Auto-Request")
         self.isAutoReq.placeRelative(fixHeight=25, changeWidth=-5)
+        self.isAutoReqOff = tk.Checkbutton(self.autoRequests, SG)
+        self.isAutoReqOff.onSelectEvent(self.writeAutoAPISettings)
+        self.isAutoReqOff.setText("Disable-Auto-Requests-Startup")
+        self.isAutoReqOff.setState(Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_off_on_load"])
+        self.isAutoReqOff.placeRelative(fixHeight=25, changeWidth=-5, fixY=50)
         self.reqInterval = tk.DropdownMenu(self.autoRequests, SG)
 
         options = {
@@ -211,6 +217,7 @@ class SettingsGUI(tk.Dialog):
 
     def writeAutoAPISettings(self):
         state = self.isAutoReq.getState()
+        stateStartup = self.isAutoReqOff.getState()
         interval = self.reqInterval.getValue()
         transl = {
             "slow":300,
@@ -222,8 +229,10 @@ class SettingsGUI(tk.Dialog):
                 interval = transl[type_]
                 break
         Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"] = state
+        Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_off_on_load"] = stateStartup
         Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_interval"] = interval
         Config.SETTINGS_CONFIG.save()
+        self.master.mainMenuPage.updateAutoRequestButton()
 
     def deleteSelectedPlayer(self):
         sel = self.players.getSelectedItem()
@@ -249,11 +258,12 @@ class SettingsGUI(tk.Dialog):
             amount = API.SKYBLOCK_ITEM_API_PARSER.getItemAmount()
             ts: datetime = API.SKYBLOCK_ITEM_API_PARSER.getLastUpdated()
             diff = parseTimeDelta(datetime.now() - ts)
+            self.lastUpd.setText(f"Last-Updated: {parseTimeToStr(diff)} ago")
         else:
             amount = 0
             diff = "-1"
+            self.lastUpd.setText(f"Error: could not request!")
 
-        self.lastUpd.setText(f"Last-Updated: {parseTimeToStr(diff)} ago")
         self.regItems.setText(f"Registered-Items: {amount}")
     def createConstantsTab(self, tab):
 
@@ -270,10 +280,8 @@ class SettingsGUI(tk.Dialog):
         Constants.WAITING_FOR_API_REQUEST = True
 
         API.SKYBLOCK_ITEM_API_PARSER = requestItemHypixelAPI(self, Config, saveTo=os.path.join(CONFIG, "hypixel_item_config.json"))
-
         if API.SKYBLOCK_AUCTION_API_PARSER is not None:
             API.SKYBLOCK_AUCTION_API_PARSER.changeItemParser(API.SKYBLOCK_ITEM_API_PARSER)
-
         Constants.WAITING_FOR_API_REQUEST = False
         self.uptBtn.setEnabled()
         self.updateItemAPIWidgets()

@@ -11,6 +11,7 @@ from typing import List, Tuple
 updates the Bazaar analyzer after new data is available from the api.
 """
 def updateBazaarAnalyzer():
+    if API.SKYBLOCK_BAZAAR_API_PARSER is None: return
     for itemID in BazaarItemID:
         itemClass = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(itemID)
 
