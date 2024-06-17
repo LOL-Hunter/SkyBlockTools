@@ -25,6 +25,7 @@ from analyzer import getPlotData, getCheapestEnchantmentData
 from images import IconLoader
 from settings import SettingsGUI, Config, checkConfigForUpdates
 from constants import (
+    VERSION,
     RARITY_COLOR_CODE,
     LOAD_STYLE,
     STYLE_GROUP as SG,
@@ -71,8 +72,6 @@ from skyMisc import (
     throwAPITimeoutException
 )
 
-
-#Todo: last click -> cannot scroll in menu
 
 APP_DATA = os.path.join(os.path.expanduser("~"), "AppData", "Roaming")
 IMAGES = os.path.join(os.path.split(__file__)[0], "images")
@@ -3556,20 +3555,16 @@ class MainMenuPage(CustomMenuPage):
         x, y, width, height = e.getValue()
         self.scrollBarFrame.place(x+width+3, y, 20, height)
     def onScroll(self, e:tk.Event):
-        #print(self.isActive())
         if not self.isActive(): return # if this page is not visible
-        if self.buttonFrame.getHeight() < self.scrollFrame.getHeight():
-            return
+        if self.buttonFrame.getHeight() < self.scrollFrame.getHeight(): return
         speed = 10
         delta = e.getScrollDelta()
-        if delta < 0: #down
-            if self.scrollFrame.getHeight() >= self.buttonFrame.getHeight()-abs(self.scrollFramePosY):
-                return
-            self.scrollFramePosY -= speed
-        else: #up
-            if self.buttonFrame.getPosition().getY() >= 0:
-                return
-            self.scrollFramePosY += speed
+        if delta < 0: # down
+            if not self.scrollFrame.getHeight() >= self.buttonFrame.getHeight()-abs(self.scrollFramePosY):
+                self.scrollFramePosY -= speed
+        else: # up
+            if not self.buttonFrame.getPosition().getY() >= 0:
+                self.scrollFramePosY += speed
 
         scrollYRange = self.scrollFrame.getHeight() - 50 - 4
 
@@ -3594,6 +3589,7 @@ class MainMenuPage(CustomMenuPage):
                 tools.append(tool)
         self.placeButtons(tools)
     def onShow(self):
+        self.scrollFramePosY = 0 # reset scroll position
         self.placeRelative()
         self.clearSearch()
         self.search.setFocus()
@@ -3815,10 +3811,9 @@ class Window(tk.Tk):
                     if API.SKYBLOCK_BAZAAR_API_PARSER is None: # if request fails -> auto request disabled
                         Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"] = False
                         self.mainMenuPage.updateAutoRequestButton()
-
     def configureWindow(self):
         self.setMinSize(600, 600)
-        self.setTitle("SkyBlockTools")
+        self.setTitle("SkyBlockTools "+VERSION)
         self.setIcon(IconLoader.ICONS["icon"])
         self.bind(self.onKeyPress, tk.EventType.SHIFT_LEFT_DOWN, args=["isShiftPressed", True])
         self.bind(self.onKeyPress, tk.EventType.SHIFT_LEFT_UP, args=["isShiftPressed", False])

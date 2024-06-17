@@ -203,7 +203,7 @@ def requestItemHypixelAPI(master, config, path=None, saveTo=None)->HypixelItemPa
     return parser
 
 def throwAPIConnectionException(source:str, master:tk.Tk, event:APIConnectionError):
-    MsgText.error(f"{source} request failed! No API-key set.")
+    MsgText.error(f"{source} request failed! Check your internet connection!")
     Constants.WAITING_FOR_API_REQUEST = False
     tk.SimpleDialog.askError(master, event.getMessage(), "SkyBlockTools")
 def throwNoAPIKeyException(source:str, master:tk.Tk, event:NoAPIKeySetException):

@@ -4,6 +4,7 @@ from tkinter import ttk
 from hyPI.hypixelAPI.loader import HypixelBazaarParser, HypixelAuctionParser, HypixelItemParser
 import os
 
+VERSION = "v2.2.4"
 CONFIG = os.path.join(os.path.split(__file__)[0], "config")
 
 class Color:
