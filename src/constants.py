@@ -16,10 +16,6 @@ class ConfigFile:
     MAYOR_DATA = JsonConfig.loadConfig(os.path.join(CONFIG, "mayor.json"))
     AVERAGE_PRICE = JsonConfig.loadConfig(os.path.join(CONFIG, "skyblock_save", "average_price_save.json"), create=True)
 
-
-
-
-
 class API:
     SKYBLOCK_BAZAAR_API_PARSER: HypixelBazaarParser = None
     SKYBLOCK_AUCTION_API_PARSER: HypixelAuctionParser = None

@@ -72,7 +72,6 @@ from skyMisc import (
     throwAPITimeoutException
 )
 
-
 APP_DATA = os.path.join(os.path.expanduser("~"), "AppData", "Roaming")
 IMAGES = os.path.join(os.path.split(__file__)[0], "images")
 CONFIG = os.path.join(os.path.split(__file__)[0], "config")
@@ -1426,8 +1425,12 @@ class BazaarFlipProfitPage(CustomPage):
         validItems = search([BazaarItemID], self.searchE.getValue(), printable=False)
 
         itemList = []
+        filterManip = self.filterManip.getState()
+        manipulatedItemIDs = [i[0]["ID"] for i in BazaarAnalyzer.getManipulatedItems()]
         #print("=======================================================================================")
         for itemID in BazaarItemID:
+
+            if itemID in manipulatedItemIDs and filterManip: continue
 
             if self.searchE.getValue() != "" and itemID not in validItems: continue
 
@@ -1922,6 +1925,8 @@ class BazaarToAuctionHouseFlipProfitPage(CustomPage):
             )
     def onShow(self, **kwargs):
         self.master.updateCurrentPageHook = self.updateTreeView # hook to update tv on new API-Data available
+        self.validRecipes = self._getValidRecipes()
+        self.validBzItems = [i.getID() for i in self.validRecipes]
         self.placeRelative()
         self.updateTreeView()
         self.placeContentFrame()
@@ -2637,7 +2642,17 @@ class AuctionHousePage(CustomPage):
             auction: BaseAuctionProduct = sorter["auctClass"]
             lvl = auction.getPetLevel()
             pet_lvl_set[lvl] = sorter
-        out = list(pet_lvl_set.values())
+        sorted_ = list(pet_lvl_set.values())
+        sorted_.sort()
+        sorted_.reverse()
+        currentLvl = 0
+        out = []
+        for sorter in sorted_:
+            auction: BaseAuctionProduct = sorter["auctClass"]
+            lvl = auction.getPetLevel()
+            if lvl > currentLvl:
+                out.append(sorter)
+                currentLvl = lvl
         out.sort()
         return out
     def _filterRarities(self, auctions:List[Sorter])->List[Sorter]:
@@ -3742,8 +3757,10 @@ class Window(tk.Tk):
 
         if not os.path.exists(os.path.join(CONFIG, "skyblock_save")):
             os.mkdir(os.path.join(CONFIG, "skyblock_save"))
+            MsgText.warning("Folder does not exist! Creating folder: "+os.path.join(CONFIG, "skyblock_save"))
         if not os.path.exists(os.path.join(CONFIG, "skyblock_save", "auctionhouse")):
             os.mkdir(os.path.join(CONFIG, "skyblock_save", "auctionhouse"))
+            MsgText.warning("Folder does not exist! Creating folder: " + os.path.join(CONFIG, "skyblock_save", "auctionhouse"))
         LOAD_STYLE() # load DarkMode!
         IconLoader.loadIcons()
         self.isShiftPressed = False
@@ -3778,7 +3795,8 @@ class Window(tk.Tk):
         ])
 
         self.infoTopLevel = tk.Toplevel(self, SG)
-        self.infoTopLevel.setWindowSize(600, 600)
+        self.infoTopLevel.setTitle("Price Graph")
+        self.infoTopLevel.setWindowSize(600, 600, True)
         self.infoPage = ItemInfoPage(self, self.infoTopLevel)
         def _onclose(e):
             e.setCanceled(True)
