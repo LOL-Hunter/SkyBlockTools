@@ -6,10 +6,13 @@ The software provides numerous features in connection with the Minecraft game mo
 View [features](/FEATURES.md) here.
 
 ## Installation:
-(compiled exe file will follow.)
+(exe file will follow.)
 1. Download Repos
 2. Have python 3.10+ installed
 3. run ``pip install -r requirements.txt`` to install required packages.
+
+## Changelog
+View [changelog](/CHANGELOG.md) here.
 
 ## Credit:
  - [hypixel API](https://api.hypixel.net/)
