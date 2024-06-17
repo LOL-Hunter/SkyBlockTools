@@ -62,7 +62,7 @@ Calculate the profit from crafted items sold to the Auction House.
 ### 6. Auction House
 
 ---
-View all active auctions. \
+View all active auctions. 
 
 #### Features
 * filter BIN or Auction
@@ -78,7 +78,7 @@ View all active auctions. \
 
 ---
 Note: This feature does not work correct currently due a wrong formular from the WIKI. \
-Used to calculate how many kills / actions have to be done to drop an item / pet. \
+Used to calculate how many kills / actions have to be done to drop an item / pet.
 
 ![image](src/images/reference/magic_find.png) 
 
