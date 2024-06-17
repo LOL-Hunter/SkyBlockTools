@@ -10,6 +10,7 @@ View [features](/FEATURES.md) here.
 1. Download Repos
 2. Have python 3.10+ installed
 3. run ``pip install -r requirements.txt`` to install required packages.
+4. run main.py
 
 ## Changelog
 View [changelog](/CHANGELOG.md) here.
