@@ -160,6 +160,9 @@ def convertAuctionNameToID(data:dict, itemParser, auctionIDs:[str])->dict:
 class BazaarHistoryProduct:
     def __init__(self, data):
         self._data = data
+        if not isinstance(data, dict):
+            print(ascii(data))
+            self._data = {}
 
     def getMaxBuyPrice(self): return self._data.get("maxBuy", None)
     def getMinBuyPrice(self): return self._data.get("minBuy", None)
@@ -519,7 +522,7 @@ class BaseAuctionProduct:
     def isPet(self)->bool:
         return self._itemData["pet_level"] != 0
     def getPetLevel(self)->int:
-        return self._itemData["pet_level"]
+        return int(self._itemData["pet_level"])
     def isWoodenSingUsed(self)->bool:
         return self._itemData["wooden_singularity_used"]
     def isShiny(self)->bool:
