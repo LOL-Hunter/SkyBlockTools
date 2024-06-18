@@ -2345,7 +2345,7 @@ class NewFlipWindow(tk.Dialog):
             amount = dat["amount"]
             price = dat["price"]
             self.treeView.addEntry(prizeToStr(amount, True), prizeToStr(price), prizeToStr(amount*price))
-class LongTimeFlipHelperPage(CustomPage):
+class ActiveFlipHelperPage(CustomPage):
     def __init__(self, master):
         super().__init__(master,
                          pageTitle="Active-Flips",
@@ -2401,15 +2401,13 @@ class LongTimeFlipHelperPage(CustomPage):
         self.totalValueL.setFont(16)
         self.totalValueL.placeRelative(changeWidth=-5, fixHeight=25, fixY=25)
 
-
-
         self.infoLf.placeRelative(fixHeight=self.flipHeight, fixWidth=self.flipWidth, stickDown=True, stickRight=True, changeY=-30)
 
         self._decode()
     def _decode(self):
-        path = os.path.join(CONFIG, "long_time_flip_config.json")
+        path = os.path.join(APP_DATA, ".SkyBlockTools", "active_flip_config.json")
         if not os.path.exists(path):
-            tk.SimpleDialog.askWarning(self.master, "long_time_flip_config.json dosent exist. Creating blank at:\n"+path)
+            tk.SimpleDialog.askWarning(self.master, "active_flip_config.json dosent exist. Creating blank at:\n"+path)
             file = open(path, "w")
             file.write("[]")
             file.close()
@@ -2476,7 +2474,7 @@ class LongTimeFlipHelperPage(CustomPage):
         self.updateView()
     def saveToFile(self):
         if self.js is None:
-            tk.SimpleDialog.askError(self.master, "Could not save Data! 'long_time_flip_config.json' does not exist or not readable!")
+            tk.SimpleDialog.askError(self.master, "Could not save Data! 'active_flip_config.json' does not exist or not readable!")
             return
         self.js.setData([i.toData() for i in self.flips])
         self.js.saveConfig()
@@ -3778,7 +3776,7 @@ class Window(tk.Tk):
 
         ## REGISTER FEATURES ##
         self.mainMenuPage = MainMenuPage(self, [
-                LongTimeFlipHelperPage(self),
+                ActiveFlipHelperPage(self),
                 ItemPriceTrackerPage(self),
                 MayorInfoPage(self),
                 BazaarFlipProfitPage(self),
