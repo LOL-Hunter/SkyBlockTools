@@ -9,14 +9,12 @@ View [features](/FEATURES.md) here.
 (exe file will follow.)
 1. Download Repos
 2. Have python 3.10+ installed
-3. run ``pip install -r requirements.txt`` to install required packages.
-4. run main.py
+3. pysettings library is required!  [Download Here](https://github.com/LOL-Hunter/pysettings)
+4. run ``pip install -r requirements.txt`` to install required packages.
+5. run main.py
 
 ## Changelog
 View [changelog](/CHANGELOG.md) here.
-
-## Intern API Documentation
-View [hyPI-Documentation](src/hyPI/README.md) here.
 
 ## Credit:
  - [hypixel API](https://api.hypixel.net/)
