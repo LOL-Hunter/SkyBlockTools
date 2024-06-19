@@ -15,6 +15,9 @@ View [features](/FEATURES.md) here.
 ## Changelog
 View [changelog](/CHANGELOG.md) here.
 
+## Intern API Documentation
+View [hyPI-Documentation](src/hyPI/README.md) here.
+
 ## Credit:
  - [hypixel API](https://api.hypixel.net/)
  - [skycoflnet API](https://sky.coflnet.com/api/index.html)
