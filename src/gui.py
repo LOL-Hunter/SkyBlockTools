@@ -2971,7 +2971,7 @@ class AuctionHousePage(CustomPage):
             self.itemContextM.open(e)
     def onDoubleClick(self, e):
         sel = e.getValue()
-        if self is None: return
+        if sel is None: return
         if len(sel) == 1:
             if self.selectedItem is None and not self.showOwnAuctions:
                 self.selectedItem = (sel[0]["Name"] if "(" not in sel[0]["Name"] else sel[0]["Name"].split("(")[0]).strip()
@@ -3650,7 +3650,7 @@ class LoadingPage(CustomPage):
                         path = bazaarConfPath
                 t = time()
                 API.SKYBLOCK_BAZAAR_API_PARSER = requestBazaarHypixelAPI(self.master, Config, path=path, saveTo=bazaarConfPath)
-                MsgText.info(f"Loaging HypixelBazaarConfig too {round(time()-t, 2)} Seconds!")
+                MsgText.info(f"Loading HypixelBazaarConfig took {round(time()-t, 2)} Seconds!")
                 if API.SKYBLOCK_BAZAAR_API_PARSER is not None: bazaarAPISuccessful = True
 
                 updateBazaarInfoLabel(API.SKYBLOCK_BAZAAR_API_PARSER, path is not None)
