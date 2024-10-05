@@ -5,7 +5,6 @@
 ---
 ### New Features:
 * added new Page: Accessoires Buy Helper
-* added version string to window title
 ### Fixes:
 
 
