@@ -9,6 +9,7 @@ UNICODE = {
 
 }
 
+
 SPECIAL_MODIFIER = {
     "GREATER_SPOOK":("BOO_STONE", "GREAT_SPOOK")
 }
