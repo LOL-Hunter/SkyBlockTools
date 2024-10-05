@@ -1,5 +1,15 @@
 
 
+## Version 2.3.1 Beta 1.0
+
+---
+### New Features:
+* added new Page: Accessoires Buy Helper
+* added version string to window title
+### Fixes:
+
+
+
 ## Version 2.2.5 Alpha 1.0
 
 ---
@@ -20,4 +30,3 @@
 * Release: Beta 1.0
 ### Fixes:
 * fixed scroll bug in menu when returning to menu after scrolled all the way down.
-
