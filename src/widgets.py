@@ -1,5 +1,5 @@
 from constants import STYLE_GROUP as SG, AUCT_INFO_LABEL_GROUP as AILG, BAZAAR_INFO_LABEL_GROUP as BILG
-from pysettings import tk
+import tksimple as tk
 from analyzer import getPlotData
 from constants import Constants, ConfigFile
 from skyMath import getMedianFromList
@@ -282,7 +282,7 @@ class TrackerWidget(tk.LabelFrame):
         if self._hook is not None:
             self._hook()
     def _onItemInfo(self):
-        sel = self.treeView.getSelectedItems()
+        sel = self.treeView.getSelectedItem()
         if sel is None: return
         self.master.showItemInfo(self, sel[0]["Item"])
     def _saveAverage(self):
@@ -310,7 +310,7 @@ class TrackerWidget(tk.LabelFrame):
             self.master.runTask(self._saveAverage).start()
 
         if not Constants.WAITING_FOR_API_REQUEST:
-            selected = self.treeView.getSelectedItems()
+            selected = self.treeView.getSelectedItem()
             if selected is None: return
             id_ = selected[0]["Item"]
 

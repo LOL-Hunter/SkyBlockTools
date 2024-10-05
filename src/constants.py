@@ -1,4 +1,4 @@
-from pysettings import tk
+import tksimple as tk
 from pysettings.jsonConfig import JsonConfig
 from tkinter import ttk
 from hyPI.hypixelAPI.loader import HypixelBazaarParser, HypixelAuctionParser, HypixelItemParser
@@ -25,6 +25,17 @@ BazaarItemID: [str] = [] # creation on runtime
 AuctionItemID: [str] = [] # creation on runtime
 
 ALL_ENCHANTMENT_IDS = []
+
+MAGIC_POWDER = {
+    "COMMON": 3,
+    "UNCOMMON": 5,
+    "RARE": 8,
+    "EPIC": 12,
+    "LEGENDARY": 16,
+    "MYTHIC": 22,
+    "SPECIAL": 3,
+    "VERY_SPECIAL": 5,
+}
 
 RARITY_COLOR_CODE = {
     "COMMON":"white",
@@ -56,7 +67,7 @@ AUCT_INFO_LABEL_GROUP = tk.WidgetGroup(instantiate=STYLE_GROUP)
 
 def LOAD_STYLE():
     style = ttk.Style()
-    style.theme_create("yummy", parent="alt", settings={
+    style.theme_create("custom_theme", parent="alt", settings={
         "TNotebook":{
             "configure":{
                 "tabmargins":[2, 5, 2, 0],
@@ -113,7 +124,7 @@ def LOAD_STYLE():
         }
     }
                        )
-    style.theme_use("yummy")
+    style.theme_use("custom_theme")
 
 
 def CONFIGURE_NOTEBOOK_STYLE(style):

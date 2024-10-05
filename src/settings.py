@@ -1,4 +1,4 @@
-from pysettings import tk
+import tksimple as tk
 from pysettings.jsonConfig import AdvancedJsonConfig
 from pysettings import iterDict
 from pysettings.text import MsgText
@@ -85,7 +85,8 @@ class Config:
             "matter_cap":1,
             "cost_reduction":1
         },
-        "auction_creator_uuids":{}
+        "auction_creator_uuids":{},
+        "accessories":{}
     })
     SETTINGS_CONFIG.load("settings.json")
     SettingValue.CONFIG = SETTINGS_CONFIG

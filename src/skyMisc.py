@@ -5,17 +5,15 @@ from hyPI.hypixelAPI import HypixelAPIURL, APILoader, fileLoader
 from hyPI.hypixelAPI.loader import HypixelBazaarParser, HypixelAuctionParser, HypixelItemParser
 from hyPI.skyCoflnetAPI import SkyConflnetAPI
 from hyPI import getEnchantmentIDLvl
-from pysettings import tk
+import tksimple as tk
 from pysettings.jsonConfig import JsonConfig
 from pysettings.text import TextColor, MsgText
-from traceback import format_exc
 from datetime import datetime
 from constants import BAZAAR_INFO_LABEL_GROUP as BILG, AUCT_INFO_LABEL_GROUP as AILG, API, ALL_ENCHANTMENT_IDS, AuctionItemID, BazaarItemID
 from skyMath import parseTimeDelta
 from typing import List, Dict
 from platform import system
 from winsound import Beep
-from time import time
 from constants import Constants
 
 def requestBazaarHypixelAPI(master, config, path=None, saveTo=None)->HypixelBazaarParser | None:
@@ -274,6 +272,19 @@ def parseTimeToStr(d)->str:
             out += f"{t}{i} "
             av = True
     return out
+
+def parsePrice(raw:str)-> float | None:
+    if raw == "" or raw.count(".") > 1:
+        return None # type: ignore
+    raw = raw.replace(" ", "")
+    if raw[-1].isdigit():
+        return float(raw)
+    allKeys = {"k":3,"m":6,"b":9,"t":12,"q":15}
+    if (not raw[-1].lower() in allKeys.keys())or not raw[:-1].replace(".","").isdigit() or raw[0].lower() in allKeys.keys():
+        return None # type: ignore
+    return 10**allKeys[raw[-1].lower()]*float(raw[:-1])
+
+
 def prizeToStr(inputPrize:int | float | None, hideCoins=False, forceSign=False)->str | None:
     if inputPrize is None: return None
     exponent = 0
@@ -401,12 +412,17 @@ class Sorter:
         self._data = kwargs
 
     def __lt__(self, other):
+        if self._sort is None: return False
+        if other._sort is None: return True
         if type(self._sort) == str: return False
         if type(other._sort) == str: return True
         return self._sort > other._sort
 
     def __getitem__(self, item):
         return self._data[item]
+
+    def __setitem__(self, key, value):
+        self._data[key] = value
 
     def get(self):
         return self._sort
