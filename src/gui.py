@@ -4070,7 +4070,6 @@ class MedalTransferProfitPage(CustomPage):
 
             itemPrice = API.SKYBLOCK_AUCTION_API_PARSER.getBINAuctionByID(itemID)
             itemPrice.sort()
-            print(itemID, [i.getPrice() for i in itemPrice])
             itemPrice = itemPrice[-1].getPrice() if len(itemPrice) > 0 else None
 
 
