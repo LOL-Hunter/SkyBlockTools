@@ -4170,7 +4170,7 @@ class LoadingPage(CustomPage):
         self.loadingComplete = False
         self.master:Window = master
         self.image = tk.PILImage.loadImage(os.path.join(IMAGES, "logo.png"))
-        self.image.resize(.9)
+        self.image.resize(.89)
         self.image.preRender()
         self.title = tk.Label(self, SG).setImage(self.image).placeRelative(centerX=True, fixHeight=self.image.getHeight(), fixWidth=self.image.getWidth(), fixY=50)
 
