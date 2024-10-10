@@ -2184,8 +2184,7 @@ class NewFlipWindow(tk.Dialog):
         self.priceE.setValue(str(price))
     def onChange(self):
         selectedIndex = self.treeView.getSelectedIndex()
-        if not len(selectedIndex): return
-        selectedIndex = selectedIndex[0]
+        if selectedIndex is None: return
         if selectedIndex == -1: return
         add = self.addAmountE.getValue()
         amount = self.setAmountE.getValue()
@@ -2211,15 +2210,15 @@ class NewFlipWindow(tk.Dialog):
         self.addAmountE.clear()
         self.setAmountE.setValue(str(amount))
 
-        data = self.data["data"][self.treeView.getSelectedIndex()[0]]
+        data = self.data["data"][self.treeView.getSelectedIndex()]
         data["price"] = price
         data["amount"] = amount
 
         self.treeView.setEntry(prizeToStr(amount, True), prizeToStr(price), prizeToStr(amount*price), index=selectedIndex)
     def onSelect(self):
         self.enableWidgets()
-        if not len(self.treeView.getSelectedIndex()): return
-        data = self.data["data"][self.treeView.getSelectedIndex()[0]]
+        if self.treeView.getSelectedIndex() is None: return
+        data = self.data["data"][self.treeView.getSelectedIndex()]
         self.priceE.setValue(data["price"])
         self.setAmountE.setValue(data["amount"])
         self.addAmountE.setValue("")
@@ -2345,9 +2344,9 @@ class LongTimeFlipHelperPage(CustomPage):
 
         self._decode()
     def _decode(self):
-        path = os.path.join(CONFIG, "long_time_flip_config.json")
+        path = os.path.join(APP_DATA, "active_flip_config.json")
         if not os.path.exists(path):
-            tk.SimpleDialog.askWarning(self.master, "long_time_flip_config.json dosent exist. Creating blank at:\n"+path)
+            tk.SimpleDialog.askWarning(self.master, "active_flip_config.json dosent exist. Creating blank at:\n"+path)
             file = open(path, "w")
             file.write("[]")
             file.close()
@@ -2414,7 +2413,7 @@ class LongTimeFlipHelperPage(CustomPage):
         self.updateView()
     def saveToFile(self):
         if self.js is None:
-            tk.SimpleDialog.askError(self.master, "Could not save Data! 'long_time_flip_config.json' does not exist or not readable!")
+            tk.SimpleDialog.askError(self.master, "Could not save Data! 'active_flip_config.json' does not exist or not readable!")
             return
         self.js.setData([i.toData() for i in self.flips])
         self.js.saveConfig()
