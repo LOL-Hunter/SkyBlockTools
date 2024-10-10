@@ -1,0 +1,114 @@
+{
+    "HOE_OF_GREAT_TILLING": {
+      "tickets": 5,
+      "medal": {
+        "type": "BRONZE",
+        "amount": 1
+      }
+    },
+    "MELON_DICER": {
+        "tickets":32,
+        "medal":{
+            "type":"GOLD",
+            "amount":1
+        }
+
+    },
+    "PUMPKIN_DICER": {
+        "tickets":32,
+        "medal":{
+            "type":"GOLD",
+            "amount":1
+        }
+
+    },
+    "COCO_CHOPPER": {
+        "tickets":32,
+        "medal":{
+            "type":"GOLD",
+            "amount":1
+        }
+
+    },
+    "CACTUS_KNIFE": {
+        "tickets":32,
+        "medal":{
+            "type":"GOLD",
+            "amount":1
+        }
+
+    },
+    "FUNGI_CUTTER": {
+        "tickets":32,
+        "medal":{
+            "type":"GOLD",
+            "amount":1
+        }
+
+    },
+    "THEORETICAL_HOE": {
+        "tickets":32,
+        "medal":{
+            "type":"GOLD",
+            "amount":1
+        }
+    },
+    "ANITA_TALISMAN": {
+        "tickets":32,
+        "medal":{
+            "type":"BRONZE",
+            "amount":2
+        }
+    },
+    "ANITA_RING": {
+        "tickets":96,
+        "medal": [
+            {
+                "type": "BRONZE",
+                "amount": 2
+            },
+            {
+                "type": "SILVER",
+                "amount": 2
+            }
+            ]
+    },
+    "ANITA_ARTIFACT": {
+        "tickets":196,
+        "medal": [
+            {
+                "type": "BRONZE",
+                "amount": 2
+            },
+            {
+                "type": "SILVER",
+                "amount": 2
+            },
+            {
+                "type": "GOLD",
+                "amount": 2
+            }
+            ]
+    },
+    "ENCHANTMENT_DELICATE_5": {
+        "tickets":32,
+        "medal":{
+            "type":"SILVER",
+            "amount":2
+        }
+    },
+    "HOE_OF_GREATEST_TILLING": {
+        "tickets":20,
+        "medal":{
+            "type":"SILVER",
+            "amount":2
+        }
+    },
+    "HOE_OF_GREATER_TILLING": {
+        "tickets":10,
+        "medal":{
+            "type":"SILVER",
+            "amount":1
+        }
+    }
+  }
