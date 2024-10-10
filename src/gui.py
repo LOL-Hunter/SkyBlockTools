@@ -1924,6 +1924,7 @@ class LongTimeFlip(tk.Frame):
         def request():
             try:
                 self.currentHistoryData = getPlotData(id_, SkyConflnetAPI.getBazaarHistoryWeek)
+                Constants.WAITING_FOR_API_REQUEST = False
             except APIConnectionError as e:
                 throwAPIConnectionException(
                     source="SkyCoflnet",
@@ -3939,21 +3940,84 @@ class MedalTransferProfitPage(CustomPage):
 
         self.medalConfig = JsonConfig.loadConfig(os.path.join(CONFIG, "garden_medal_cost.json"))
 
-
-        tk.Label(self.contentFrame, SG).setText("Jacobs Ticket Price:").setFont(15).setFg("green").placeRelative(fixWidth=200, fixHeight=50).setTextOrientation()
+        tk.Label(self.contentFrame, SG).setText("Jacobs Ticket Price:").setFont(16).placeRelative(fixWidth=200, fixHeight=25).setTextOrientation()
         self.ticketLabel = tk.Label(self.contentFrame, SG).setTextOrientation()
-        self.ticketLabel.setFont(15)
+        self.ticketLabel.setFont(16)
         self.ticketLabel.setFg("green")
-        self.ticketLabel.placeRelative(fixWidth=200, fixHeight=50, fixY=50)
+        self.ticketLabel.placeRelative(fixWidth=200, fixHeight=25, fixY=25)
+
+        tk.Label(self.contentFrame, SG).setText("Average Price (7d):").setFont(16).placeRelative(fixWidth=200, fixHeight=25, fixY=50).setTextOrientation()
+        self.ticketAvgLabel = tk.Label(self.contentFrame, SG).setTextOrientation()
+        self.ticketAvgLabel.setFont(16)
+        if "JACOBS_TICKET" in ConfigFile.AVERAGE_PRICE.keys():
+            self.ticketAvgLabel.setText(prizeToStr(ConfigFile.AVERAGE_PRICE["JACOBS_TICKET"]))
+        else:
+            self.ticketAvgLabel.setText("None")
+        self.ticketAvgLabel.placeRelative(fixWidth=200, fixHeight=25, fixY=75)
 
         self.openGraph = tk.Button(self.contentFrame, SG)
         self.openGraph.setCommand(self.openGraphGUI)
         self.openGraph.setText("Open Jacobs Ticket Graph")
-        self.openGraph.placeRelative(fixWidth=200, fixHeight=50, fixY=100)
+        self.openGraph.placeRelative(fixWidth=200, fixHeight=25, fixY=125)
+
+        self.updateAverage = tk.Button(self.contentFrame, SG)
+        self.updateAverage.setCommand(self.requestAverage)
+        self.updateAverage.setText("Update Jacobs Ticket Avg")
+        self.updateAverage.placeRelative(fixWidth=200, fixHeight=25, fixY=100)
+
+    def saveAverage(self):
+        ConfigFile.AVERAGE_PRICE.saveConfig()
+
+    def requestAverage(self):
+        def request():
+            try:
+                self.currentHistoryData = getPlotData("JACOBS_TICKET", SkyConflnetAPI.getBazaarHistoryWeek)
+                Constants.WAITING_FOR_API_REQUEST = False
+            except APIConnectionError as e:
+                throwAPIConnectionException(
+                    source="SkyCoflnet",
+                    master=self.master,
+                    event=e
+                )
+                return None
+            except NoAPIKeySetException as e:
+                throwNoAPIKeyException(
+                    source="SkyCoflnet",
+                    master=self.master,
+                    event=e
+                )
+                return None
+            except APITimeoutException as e:
+                throwAPITimeoutException(
+                    source="SkyCoflnet",
+                    master=self.master,
+                    event=e
+                )
+                return None
+
+            ConfigFile.AVERAGE_PRICE["JACOBS_TICKET"] = getMedianFromList(self.currentHistoryData['past_raw_buy_prices'])
+            self.master.runTask(self.updatePrice).start()
+            self.master.runTask(self.saveAverage).start()
+            self.updateAverage.setText("Update Jacobs Ticket Avg")
+            self.updateAverage.setEnabled()
+
+        if not Constants.WAITING_FOR_API_REQUEST:
+            self.updateAverage.setText("Updating ...")
+            self.updateAverage.setDisabled()
+            Constants.WAITING_FOR_API_REQUEST = True
+            Thread(target=request).start()
+        else:
+            tk.SimpleDialog.askError(self.master, "Another API-Request is still running!")
+
+    def updatePrice(self):
+        if "JACOBS_TICKET" in ConfigFile.AVERAGE_PRICE.keys():
+            self.ticketAvgLabel.setText(prizeToStr(ConfigFile.AVERAGE_PRICE["JACOBS_TICKET"]))
+        else:
+            self.ticketAvgLabel.setText("None")
+        self.updateTreeView()
 
     def openGraphGUI(self):
         self.master.showItemInfo(self, "JACOBS_TICKET")
-
     def updateTreeView(self):
         self.treeView.clear()
 
@@ -3964,6 +4028,12 @@ class MedalTransferProfitPage(CustomPage):
             return
         ticketPrice = ticket.getInstaSellPrice() + .1
         self.ticketLabel.setText(prizeToStr(ticketPrice))
+        if "JACOBS_TICKET" in ConfigFile.AVERAGE_PRICE.keys():
+            if ConfigFile.AVERAGE_PRICE["JACOBS_TICKET"] > ticketPrice:
+                self.ticketLabel.setFg("green")
+            else:
+                self.ticketLabel.setFg("red")
+
         sorters = []
         for itemID, itemData in self.medalConfig.data.items():
             ticketAmount = itemData["tickets"]
@@ -4018,14 +4088,11 @@ class MedalTransferProfitPage(CustomPage):
         sorters.sort()
         for sorter in sorters:
             self.treeView.addEntry(sorter["id"], sorter["strPrice"], prizeToStr(sorter["profit"]), prizeToStr(sorter["profitPerMedal"]), prizeToStr(sorter["lbPrice"]))
-
-
     def onShow(self, **kwargs):
         self.placeRelative()
         self.placeContentFrame()
-        self.updateTreeView()
+        self.updatePrice() # and Treeview
         self.master.updateCurrentPageHook = self.updateTreeView
-
 
 # Menu Pages
 class MainMenuPage(CustomMenuPage):
