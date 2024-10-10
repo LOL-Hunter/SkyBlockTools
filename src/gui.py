@@ -2925,8 +2925,8 @@ class PestProfitPage(CustomPage):
         self.selectedPest = None
         self.pestNameMetaSorter = {}
 
-        self.rarePestChances = JsonConfig.loadConfig(os.path.join(CONFIG, "pest_chances_rare.json"))
-        self.commonPestChances = JsonConfig.loadConfig(os.path.join(CONFIG, "pest_chances_common.json"))
+        self.rarePestChances = JsonConfig.loadConfig(os.path.join(CONFIG, "garden_pest_chances_rare.json"))
+        self.commonPestChances = JsonConfig.loadConfig(os.path.join(CONFIG, "garden_pest_chances_common.json"))
 
         self.treeView = tk.TreeView(self.contentFrame, SG)
         self.treeView.onSingleSelectEvent(self.onSelect)
