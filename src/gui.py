@@ -3765,7 +3765,8 @@ class AccessoryBuyHelperPage(CustomPage):
         for acc in notOwned:
             if isPiggyPreset and acc["id"] in piggies: continue
             price = API.SKYBLOCK_AUCTION_API_PARSER.getBINAuctionByID(acc["id"])
-            price = price[0].getPrice() if len(price) > 0 else None
+            price.sort()
+            price = price[-1].getPrice() if len(price) > 0 else None
             rarity = acc["rarity"].upper()
             powder = MAGIC_POWDER[rarity]
             pricePerMP = None if price is None else (price/powder)
@@ -3824,7 +3825,8 @@ class AccessoryBuyHelperPage(CustomPage):
         for acc in data["accessories"]:
 
             price = API.SKYBLOCK_AUCTION_API_PARSER.getBINAuctionByID(acc["id"])
-            price = price[0].getPrice() if len(price) > 0 else None
+            price.sort()
+            price = price[-1].getPrice() if len(price) > 0 else None
             rarity = acc["rarity"].upper()
             powder = MAGIC_POWDER[rarity]
 
@@ -3869,7 +3871,8 @@ class AccessoryBuyHelperPage(CustomPage):
                         diff = self.getMagicPoderDiff(rarity, rarityNew)
 
                         upgradedPrice = API.SKYBLOCK_AUCTION_API_PARSER.getBINAuctionByID(upgradedacc)
-                        upgradedPrice = upgradedPrice[0].getPrice() if len(upgradedPrice) > 0 else None
+                        upgradedPrice.sort()
+                        upgradedPrice = upgradedPrice[-1].getPrice() if len(upgradedPrice) > 0 else None
 
                         if upgradedPrice is None: continue
                         if price is None: continue
@@ -4066,7 +4069,10 @@ class MedalTransferProfitPage(CustomPage):
             ticketPriceFull = ticketPrice*ticketAmount
 
             itemPrice = API.SKYBLOCK_AUCTION_API_PARSER.getBINAuctionByID(itemID)
-            itemPrice = itemPrice[0].getPrice() if len(itemPrice) > 0 else None
+            itemPrice.sort()
+            print(itemID, [i.getPrice() for i in itemPrice])
+            itemPrice = itemPrice[-1].getPrice() if len(itemPrice) > 0 else None
+
 
             if itemPrice is None: # try Bazaar
                 item = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(itemID)
