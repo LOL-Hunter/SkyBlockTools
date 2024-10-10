@@ -5,6 +5,7 @@ from hyPI.hypixelAPI.loader import HypixelBazaarParser, HypixelAuctionParser, Hy
 import os
 
 VERSION = "v2.2.5"
+APP_DATA = os.path.join(os.path.expanduser("~"), "AppData", "Roaming")
 CONFIG = os.path.join(os.path.split(__file__)[0], "config")
 
 class Color:
@@ -14,7 +15,7 @@ class Color:
 
 class ConfigFile:
     MAYOR_DATA = JsonConfig.loadConfig(os.path.join(CONFIG, "mayor.json"))
-    AVERAGE_PRICE = JsonConfig.loadConfig(os.path.join(CONFIG, "skyblock_save", "average_price_save.json"), create=True)
+    AVERAGE_PRICE = JsonConfig.loadConfig(os.path.join(APP_DATA, ".SkyBlockTools", "skyblock_save", "average_price_save.json"), create=True)
 
 class API:
     SKYBLOCK_BAZAAR_API_PARSER: HypixelBazaarParser = None

@@ -77,7 +77,7 @@ from skyMisc import (
     throwAPITimeoutException
 )
 
-APP_DATA = os.path.join(os.path.expanduser("~"), "AppData", "Roaming")
+APP_DATA = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", ".SkyBlockTools")
 IMAGES = os.path.join(os.path.split(__file__)[0], "images")
 CONFIG = os.path.join(os.path.split(__file__)[0], "config")
 
@@ -4250,22 +4250,16 @@ class LoadingPage(CustomPage):
         itemAPISuccessful = False
         bazaarAPISuccessful = False
         actionAPISuccessful = False
-        msgs = ["Loading Config...", "Applying Settings...", "Fetching Hypixel Bazaar API...", "Checking Hypixel Item API...", "Creating Dynamic Item lists...", "Fetching Hypixel Auction API...", "Finishing Up..."]
+        msgs = ["Applying Settings...", "Fetching Hypixel Bazaar API...", "Checking Hypixel Item API...", "Creating Dynamic Item lists...", "Fetching Hypixel Auction API...", "Finishing Up..."]
         self.processBar.setValues(len(msgs))
         for i, msg in enumerate(msgs):
             self.processBar.addValue()
-            if i == 0: # loading config
-                self.info.setText(msg)
-                #sleep(.2)
-                configList = os.listdir(os.path.join(CONFIG))
-                for j, file in enumerate(configList):
-                    self.info.setText(msg+f"  ({file.split('.')[0]}) [{j+1}/{len(configList)}]")
-            elif i == 2: # fetch Bazaar API
+            if i == 0: # fetch Bazaar API
                 self.info.setText(msg)
                 self.processBar.setAutomaticMode()
 
                 path = Config.SETTINGS_CONFIG["constants"]["hypixel_bazaar_config_path"]
-                bazaarConfPath = os.path.join(CONFIG, "skyblock_save", "bazaar.json")
+                bazaarConfPath = os.path.join(APP_DATA, "skyblock_save", "bazaar.json")
 
                 if not os.path.exists(path) and path != "":
                     tk.SimpleDialog.askWarning(self.master, "Could not read data from API-Config.\nConfig does not exist!\nSending request to Hypixel-API...")
@@ -4285,10 +4279,10 @@ class LoadingPage(CustomPage):
 
                 self.processBar.setNormalMode()
                 self.processBar.setValue(i+1)
-            elif i == 3: # check/fetch Item API
+            elif i == 1: # check/fetch Item API
                 self.info.setText(msg)
 
-                path = os.path.join(CONFIG, "hypixel_item_config.json")
+                path = os.path.join(APP_DATA, "skyblock_save", "hypixel_item_config.json")
 
                 if not SettingsGUI.checkItemConfigExist():
                     tk.SimpleDialog.askWarning(self.master, "Could not read data from Item-API-Config.\nConfig does not exist!\nCreating new...")
@@ -4303,7 +4297,7 @@ class LoadingPage(CustomPage):
                 self.processBar.setValues(len(msgs))
                 self.processBar.setNormalMode()
                 self.processBar.setValue(i + 1)
-            elif i == 4: # build item lists
+            elif i == 2: # build item lists
                 if not itemAPISuccessful or not bazaarAPISuccessful:
                     MsgText.error("Could not parse Items!")
                     continue
@@ -4318,11 +4312,11 @@ class LoadingPage(CustomPage):
                 self.processBar.setValues(len(msgs))
                 self.processBar.setNormalMode()
                 self.processBar.setValue(i + 1)
-            elif i == 5: # fetch Auction API
+            elif i == 3: # fetch Auction API
                 self.info.setText(msg)
 
                 path = Config.SETTINGS_CONFIG["constants"]["hypixel_auction_config_path"]
-                auctConfPath = os.path.join(CONFIG, "skyblock_save", "auctionhouse")
+                auctConfPath = os.path.join(APP_DATA, "skyblock_save", "auctionhouse")
 
                 if not os.path.exists(path) and path != "":
                     tk.SimpleDialog.askWarning(self.master,"Could not read data from API-Config.\nConfig does not exist!\nSending request to Hypixel-API...")
@@ -4337,8 +4331,8 @@ class LoadingPage(CustomPage):
                                                                            path=path,
                                                                            progBar=self.processBar,
                                                                            infoLabel=self.info,
-                                                                           saveTo=os.path.join(CONFIG, "skyblock_save", "auctionhouse"))
-                pages = len(os.listdir(os.path.join(CONFIG, "skyblock_save", "auctionhouse")))
+                                                                           saveTo=os.path.join(APP_DATA, "skyblock_save", "auctionhouse"))
+                pages = len(os.listdir(os.path.join(APP_DATA, "skyblock_save", "auctionhouse")))
                 MsgText.info(f"Loading {pages} Auction-Pages took {round(time()-t, 2)} Seconds!")
                 if API.SKYBLOCK_AUCTION_API_PARSER is not None: actionAPISuccessful = True
                 updateAuctionInfoLabel(API.SKYBLOCK_AUCTION_API_PARSER, path is not None)
@@ -4347,7 +4341,7 @@ class LoadingPage(CustomPage):
                 self.processBar.setValues(len(msgs))
                 self.processBar.setNormalMode()
                 self.processBar.setValue(i + 1)
-            elif i == 6:
+            elif i == 4:
                 self.info.setText(msg)
                 if actionAPISuccessful:
                     t = time()
@@ -4379,12 +4373,12 @@ class Window(tk.Tk):
         super().__init__(group=SG)
         MsgText.info("Loading Style...")
 
-        if not os.path.exists(os.path.join(CONFIG, "skyblock_save")):
-            os.mkdir(os.path.join(CONFIG, "skyblock_save"))
-            MsgText.warning("Folder does not exist! Creating folder: "+os.path.join(CONFIG, "skyblock_save"))
-        if not os.path.exists(os.path.join(CONFIG, "skyblock_save", "auctionhouse")):
-            os.mkdir(os.path.join(CONFIG, "skyblock_save", "auctionhouse"))
-            MsgText.warning("Folder does not exist! Creating folder: " + os.path.join(CONFIG, "skyblock_save", "auctionhouse"))
+        if not os.path.exists(os.path.join(APP_DATA, "skyblock_save")):
+            os.mkdir(os.path.join(APP_DATA, "skyblock_save"))
+            MsgText.warning("Folder does not exist! Creating folder: "+os.path.join(APP_DATA, "skyblock_save"))
+        if not os.path.exists(os.path.join(APP_DATA, "skyblock_save", "auctionhouse")):
+            os.mkdir(os.path.join(APP_DATA, "skyblock_save", "auctionhouse"))
+            MsgText.warning("Folder does not exist! Creating folder: " + os.path.join(APP_DATA, "skyblock_save", "auctionhouse"))
         LOAD_STYLE() # load DarkMode!
         IconLoader.loadIcons()
         self.isShiftPressed = False
@@ -4533,7 +4527,7 @@ class Window(tk.Tk):
         if type(data) == str:
             tk.SimpleDialog.askError(self, data)
             return
-        conf = JsonConfig.loadConfig(os.path.join(CONFIG, "skyblock_save", "bazaar.json"), create=True)
+        conf = JsonConfig.loadConfig(os.path.join(APP_DATA, "skyblock_save", "bazaar.json"), create=True)
         conf.setData(data)
         conf.save()
         API.SKYBLOCK_BAZAAR_API_PARSER = HypixelBazaarParser(data.getData())
@@ -4556,7 +4550,7 @@ class Window(tk.Tk):
             BILG.setText("Requesting Hypixel-API...")
             API.SKYBLOCK_BAZAAR_API_PARSER = requestBazaarHypixelAPI(self,
                                                                      Config,
-                                                                     saveTo=os.path.join(CONFIG, "skyblock_save", "bazaar.json"))
+                                                                     saveTo=os.path.join(APP_DATA, "skyblock_save", "bazaar.json"))
             updateBazaarInfoLabel(API.SKYBLOCK_BAZAAR_API_PARSER, self.isConfigLoadedFromFile)
         if e == "all" or e == "auction":
             AILG.setFg("white")
@@ -4564,7 +4558,7 @@ class Window(tk.Tk):
             API.SKYBLOCK_AUCTION_API_PARSER = requestAuctionHypixelAPI(self,
                                                                        Config,
                                                                        infoLabel=AILG,
-                                                                       saveTo=os.path.join(CONFIG, "skyblock_save", "auctionhouse"))
+                                                                       saveTo=os.path.join(APP_DATA, "skyblock_save", "auctionhouse"))
             updateAuctionInfoLabel(API.SKYBLOCK_AUCTION_API_PARSER, self.isConfigLoadedFromFile)
         updateBazaarAnalyzer()
         Constants.WAITING_FOR_API_REQUEST = False

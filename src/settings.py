@@ -280,7 +280,7 @@ class SettingsGUI(tk.Dialog):
     def _requestItemAPI(self):
         Constants.WAITING_FOR_API_REQUEST = True
 
-        API.SKYBLOCK_ITEM_API_PARSER = requestItemHypixelAPI(self, Config, saveTo=os.path.join(CONFIG, "hypixel_item_config.json"))
+        API.SKYBLOCK_ITEM_API_PARSER = requestItemHypixelAPI(self, Config, saveTo=os.path.join(APP_DATA_SETTINGS, "skyblock_save", "hypixel_item_config.json"))
         if API.SKYBLOCK_AUCTION_API_PARSER is not None:
             API.SKYBLOCK_AUCTION_API_PARSER.changeItemParser(API.SKYBLOCK_ITEM_API_PARSER)
         Constants.WAITING_FOR_API_REQUEST = False
@@ -368,7 +368,7 @@ class SettingsGUI(tk.Dialog):
         return Config.SETTINGS_CONFIG["api_key"] != ""
     @staticmethod
     def checkItemConfigExist()->bool:
-        path = os.path.join(CONFIG, "hypixel_item_config.json")
+        path = os.path.join(APP_DATA_SETTINGS, "skyblock_save", "hypixel_item_config.json")
         if not os.path.exists(path):
             file = open(path, "w")
             file.write("{}")
