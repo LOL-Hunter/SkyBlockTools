@@ -10,7 +10,7 @@ def getHypTimezone(tz)->dt:
     unixTime = tz/1000
     time_zone = timezone(Config.TARGET_TIME_ZONE)
     time = dt.fromtimestamp(unixTime)
-    return time_zone.localize(time)# + timedelta(hours=1)
+    return time_zone.localize(time) + timedelta(hours=2)
 
 def getTimezone(tz:str)->dt | None:
     if tz is None: return None
@@ -19,9 +19,8 @@ def getTimezone(tz:str)->dt | None:
     if len(tz.split(".")[-1]) < 3: tz = tz+"0"
     if tz.endswith("Z"): # Z -> Zero
         tz = tz[:-1] + ".000"
-
     time = dt.fromisoformat(tz)
-    return time_zone.localize(time)# + timedelta(hours=1)
+    return time_zone.localize(time) + timedelta(hours=2)
 def convertAuctionNameToID(data:dict, itemParser, auctionIDs:[str])->dict:
     displayName = name = data["item_name"]
     category = data["category"]
@@ -161,6 +160,9 @@ def convertAuctionNameToID(data:dict, itemParser, auctionIDs:[str])->dict:
 class BazaarHistoryProduct:
     def __init__(self, data):
         self._data = data
+        if not isinstance(data, dict):
+            print(ascii(data))
+            self._data = {}
 
     def getMaxBuyPrice(self): return self._data.get("maxBuy", None)
     def getMinBuyPrice(self): return self._data.get("minBuy", None)
@@ -520,7 +522,7 @@ class BaseAuctionProduct:
     def isPet(self)->bool:
         return self._itemData["pet_level"] != 0
     def getPetLevel(self)->int:
-        return self._itemData["pet_level"]
+        return int(self._itemData["pet_level"])
     def isWoodenSingUsed(self)->bool:
         return self._itemData["wooden_singularity_used"]
     def isShiny(self)->bool:

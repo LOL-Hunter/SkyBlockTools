@@ -1,6 +1,14 @@
 from constants import STYLE_GROUP as SG, AUCT_INFO_LABEL_GROUP as AILG, BAZAAR_INFO_LABEL_GROUP as BILG
-from pysettings import tk
+import tksimple as tk
+from analyzer import getPlotData
+from constants import Constants, ConfigFile
+from skyMath import getMedianFromList
+from hyPI.skyCoflnetAPI import SkyConflnetAPI
+from hyPI.APIError import APIConnectionError, NoAPIKeySetException
+from pysettings.text import TextColor
+from traceback import format_exc
 from images import IconLoader
+from threading import Thread
 
 class SettingValue(tk.Frame):
     CONFIG = None
@@ -14,15 +22,6 @@ class SettingValue(tk.Frame):
         self._e.place(0, 0, 250, 30)
 
         tk.Button(self, SG).setText("Reset").setCommand(self._reset).place(250, 0, 50, 30)
-
-        if type(x) == list:
-            x_ = x[0]
-            x[0] += 30
-            x = x_
-        if type(y) == list:
-            y_ = y[0]
-            y[0] += 30
-            y = y_
 
         self.place(x, y, 300, 30)
     def _reset(self):
@@ -242,3 +241,82 @@ class CompleterEntry(tk.Entry):
         self["widget"].place(x=x, y=y, width=width, height=height, anchor=anchor)
         self["alive"] = True
         return self
+class TrackerWidget(tk.LabelFrame):
+    def __init__(self, master, window, title):
+        super().__init__(master, SG)
+        self.master = window
+        self.setText(title)
+        self._hook = None
+
+        self.treeView = tk.TreeView(self, SG)
+        self.treeView.setTableHeaders(
+            "Item",
+            "Buy-Price",
+            "Sell-Price",
+            "Profit-Per-Item",
+            "Time",
+        )
+        self.treeView.bind(self._onItemInfo, tk.EventType.DOUBBLE_LEFT)
+        self.treeView.placeRelative(changeWidth=-3, changeHeight=-50)
+
+        self.showType = tk.DropdownMenu(self, SG, [
+            "All",
+            "New",
+        ])
+        self.showType.setText("All")
+        self.showType.placeRelative(stickDown=True, changeY=-25, fixWidth=100, fixHeight=25)
+
+        self.notify = tk.Checkbutton(self, SG)
+        self.notify.setText("Notification")
+        self.notify.placeRelative(stickDown=True, changeY=-25, fixWidth=100, fixHeight=25, fixX=100)
+
+        self.filterEnchantments = tk.Checkbutton(self, SG).setSelected()
+        self.filterEnchantments.onSelectEvent(self._runHook)
+        self.filterEnchantments.setText("Filter Enchantments")
+        self.filterEnchantments.placeRelative(stickDown=True, changeY=-25, fixWidth=100, fixHeight=25, fixX=200)
+
+        self.rMenu = tk.ContextMenu(self.treeView, SG)
+        tk.Button(self.rMenu).setText("Request Average Price...").setCommand(self._requestAverage)
+        self.rMenu.create()
+    def _runHook(self):
+        if self._hook is not None:
+            self._hook()
+    def _onItemInfo(self):
+        sel = self.treeView.getSelectedItem()
+        if sel is None: return
+        self.master.showItemInfo(self, sel[0]["Item"])
+    def _saveAverage(self):
+        ConfigFile.AVERAGE_PRICE.saveConfig()
+    def setUpdateHook(self, h):
+        self._hook = h
+    def _requestAverage(self):
+        def request():
+            try:
+                self.currentHistoryData = getPlotData(id_, SkyConflnetAPI.getBazaarHistoryWeek)
+            except APIConnectionError as e:
+                TextColor.print(format_exc(), "red")
+                tk.SimpleDialog.askError(self.master, e.getMessage(), "SkyBlockTools")
+                Constants.WAITING_FOR_API_REQUEST = False
+                return None
+            except NoAPIKeySetException as e:
+                TextColor.print(format_exc(), "red")
+                tk.SimpleDialog.askError(self.master, e.getMessage(), "SkyBlockTools")
+                Constants.WAITING_FOR_API_REQUEST = False
+                return None
+            Constants.WAITING_FOR_API_REQUEST = False
+
+            ConfigFile.AVERAGE_PRICE[id_] = getMedianFromList(self.currentHistoryData["past_raw_buy_prices"])
+            if self._hook is not None: self.master.runTask(self._hook).start()
+            self.master.runTask(self._saveAverage).start()
+
+        if not Constants.WAITING_FOR_API_REQUEST:
+            selected = self.treeView.getSelectedItem()
+            if selected is None: return
+            id_ = selected[0]["Item"]
+
+            Constants.WAITING_FOR_API_REQUEST = True
+            Thread(target=request).start()
+
+
+
+

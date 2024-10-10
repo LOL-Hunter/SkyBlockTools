@@ -1,0 +1,8 @@
+Pillow
+pyfiglet
+termcolor
+colorama
+tkcalendar
+matplotlib
+pyperclip
+pytz

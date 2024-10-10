@@ -1,4 +1,4 @@
-from pysettings import tk
+import tksimple as tk
 from pysettings.jsonConfig import AdvancedJsonConfig
 from pysettings import iterDict
 from pysettings.text import MsgText
@@ -17,10 +17,27 @@ IMAGES = os.path.join(os.path.split(__file__)[0], "images")
 CONFIG = os.path.join(os.path.split(__file__)[0], "config")
 API_URL = "https://developer.hypixel.net/"
 
-
 if not os.path.exists(APP_DATA_SETTINGS):
     os.mkdir(APP_DATA_SETTINGS)
     MsgText.warning("Settings Folder missing! Creating at: "+APP_DATA_SETTINGS)
+def checkConfigForUpdates():
+    for key in Config.SETTINGS_CONFIG.getDefault().keys():
+        if key not in Config.SETTINGS_CONFIG.keys():
+            MsgText.warning(f"Key '{key}' in settings config missing! Adding default...")
+            if hasattr(Config.SETTINGS_CONFIG.getDefault()[key], "copy"):
+                Config.SETTINGS_CONFIG[key] = Config.SETTINGS_CONFIG.getDefault()[key].copy()
+            else:
+                Config.SETTINGS_CONFIG[key] = Config.SETTINGS_CONFIG.getDefault()[key]
+
+        if isinstance(Config.SETTINGS_CONFIG[key], dict):
+            for key2 in Config.SETTINGS_CONFIG.getDefault()[key].keys():
+                if key2 not in Config.SETTINGS_CONFIG[key].keys():
+                    MsgText.warning(f"Key '{key}:{key2}' in settings config missing! Adding default...")
+                    if hasattr(Config.SETTINGS_CONFIG.getDefault()[key][key2], "copy"):
+                        Config.SETTINGS_CONFIG[key][key2] = Config.SETTINGS_CONFIG.getDefault()[key][key2].copy()
+                    else:
+                        Config.SETTINGS_CONFIG[key][key2] = Config.SETTINGS_CONFIG.getDefault()[key][key2]
+    Config.SETTINGS_CONFIG.save()
 
 class Config:
     AdvancedJsonConfig.setConfigFolderPath(APP_DATA_SETTINGS)
@@ -29,6 +46,12 @@ class Config:
     SETTINGS_CONFIG.setDefault({
         "player_name":"",
         "api_key":"",
+        "notifications":{
+            "tracker_manipulation":False,
+            "tracker_custom":False,
+            "tracker_crash":False,
+            "tracker_flip":False,
+        },
         "constants":{
             "bazaar_tax":1.25,
             "hypixel_bazaar_config_path":"",
@@ -39,10 +62,19 @@ class Config:
             "farming_fortune":0,
             "crop_fortune":0,
             "pet_luck":0,
-
+        },
+        "magic_find":{
+            "base_chance":1,
+            "pet_luck":0,
+            "magic_find":0,
+            "magic_find_bestiary":0,
+            "looting_lvl":0,
+            "luck_lvl":0,
+            "item_type":0
         },
         "wisdom":0,
         "auto_api_requests":{
+            "bazaar_auto_request_off_on_load":True,
             "bazaar_auto_request":False,
             "bazaar_auto_request_interval": 60
         },
@@ -53,22 +85,12 @@ class Config:
             "matter_cap":1,
             "cost_reduction":1
         },
-        "auction_creator_uuids":{}
+        "auction_creator_uuids":{},
+        "accessories":{}
     })
     SETTINGS_CONFIG.load("settings.json")
     SettingValue.CONFIG = SETTINGS_CONFIG
     Constants.BAZAAR_TAX = SETTINGS_CONFIG["constants"]["bazaar_tax"]
-
-def checkConfigForUpdates():
-    for key in Config.SETTINGS_CONFIG.getDefault().keys():
-        if key not in Config.SETTINGS_CONFIG.keys():
-            MsgText.warning(f"Key '{key}' in settings config missing! Adding default...")
-            if hasattr(Config.SETTINGS_CONFIG.getDefault()[key], "copy"):
-                Config.SETTINGS_CONFIG[key] = Config.SETTINGS_CONFIG.getDefault()[key].copy()
-            else:
-                Config.SETTINGS_CONFIG[key] = Config.SETTINGS_CONFIG.getDefault()[key]
-    Config.SETTINGS_CONFIG.save()
-
 class ComposterSettings(tk.Frame):
     def __init__(self, master, onScrollHook=None):
         super().__init__(master)
@@ -88,7 +110,6 @@ class ComposterSettings(tk.Frame):
         Config.SETTINGS_CONFIG["composter"][e.getArgs(0)] = int(value)
         Config.SETTINGS_CONFIG.save()
         if self.onScrollHook is not None: self.onScrollHook()
-
 class SettingsGUI(tk.Dialog):
     def __init__(self, master):
         super().__init__(master, SG, False)
@@ -96,12 +117,16 @@ class SettingsGUI(tk.Dialog):
         self.setTitle("SkyBlockTools-Settings")
         self.setMinSize(410, 410)
 
+        self.bind(self.close, tk.EventType.ESC)
+
         self.notebook = tk.Notebook(self, SG)
         self.generalTab = self.notebook.createNewTab("General", SG)
+        self.notifyTab = self.notebook.createNewTab("Notifications", SG)
         self.constTab = self.notebook.createNewTab("Constants", SG)
         self.notebook.placeRelative()
 
         self.createGeneralTab(self.generalTab)
+        self.createNotificationsTab(self.notifyTab)
         self.createConstantsTab(self.constTab)
 
         self.show()
@@ -112,13 +137,13 @@ class SettingsGUI(tk.Dialog):
         self.apiUsernameTextE = tk.TextEntry(self.keyLf, SG)
         self.apiUsernameTextE.setValue(Config.SETTINGS_CONFIG["player_name"])
         self.apiUsernameTextE.setText("Username:")
-        self.apiUsernameTextE.getEntry().disable()
         self.apiUsernameTextE.place(0, 0, 200, 25)
+        self.apiUsernameTextE.getEntry().disable()
         self.apiKeyTextE = tk.TextEntry(self.keyLf, SG)
         self.apiKeyTextE.setValue("*" * 16 if Config.SETTINGS_CONFIG["api_key"] != "" else "No api key set!")
         self.apiKeyTextE.setText("API-Key:")
-        self.apiKeyTextE.getEntry().disable()
         self.apiKeyTextE.place(0, 25, 200, 25)
+        self.apiKeyTextE.getEntry().disable()
         tk.Button(self.keyLf, SG).setText("Change...").setCommand(self._openChangeWindow).placeRelative(changeWidth=-5,  fixY=50, fixHeight=25)
         self.urlL = tk.Label(self.keyLf, SG).setText("Click to generate API-Key.").placeRelative(changeWidth=-5, fixY=75, fixHeight=25)
         self.urlL.bind(self._enter, tk.EventType.ENTER)
@@ -151,6 +176,11 @@ class SettingsGUI(tk.Dialog):
         self.isAutoReq.setState(Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"])
         self.isAutoReq.setText("Bazaar-API-Auto-Request")
         self.isAutoReq.placeRelative(fixHeight=25, changeWidth=-5)
+        self.isAutoReqOff = tk.Checkbutton(self.autoRequests, SG)
+        self.isAutoReqOff.onSelectEvent(self.writeAutoAPISettings)
+        self.isAutoReqOff.setText("Disable-Auto-Requests-Startup")
+        self.isAutoReqOff.setState(Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_off_on_load"])
+        self.isAutoReqOff.placeRelative(fixHeight=25, changeWidth=-5, fixY=50)
         self.reqInterval = tk.DropdownMenu(self.autoRequests, SG)
 
         options = {
@@ -166,8 +196,29 @@ class SettingsGUI(tk.Dialog):
         self.autoRequests.place(205, 125, 205, 125)
 
         self.updateItemAPIWidgets()
+    def createNotificationsTab(self, tab):
+        def change(e):
+            Config.SETTINGS_CONFIG["notifications"][e.getArgs(0)] = (e.getValue() == "ON")
+            Config.SETTINGS_CONFIG.save()
+            self.master.mainMenuPage.getToolFromClassName("ItemPriceTrackerPage").updateNotificationFromSettings()
+
+        for i, key in enumerate(Config.SETTINGS_CONFIG["notifications"].keys()):
+            frame = tk.Frame(tab, SG)
+            tk.Label(frame, SG).setText(key).placeRelative(fixWidth=200, changeHeight=-5)
+            radio = tk.Radiobutton(frame, SG)
+            radio.onSelectEvent(change, args=[key])
+            offBtn = radio.createNewRadioButton(SG)
+            onBtn = radio.createNewRadioButton(SG)
+            onBtn.setText("ON")
+            offBtn.setText("OFF")
+            offBtn.placeRelative(changeHeight=-5, fixX=200, fixWidth=100)
+            onBtn.placeRelative(changeHeight=-5, fixX=300, fixWidth=100)
+            frame.placeRelative(fixY=25*i, fixHeight=25, changeWidth=-5)
+            radio.setState(int(Config.SETTINGS_CONFIG["notifications"][key]))
+
     def writeAutoAPISettings(self):
         state = self.isAutoReq.getState()
+        stateStartup = self.isAutoReqOff.getState()
         interval = self.reqInterval.getValue()
         transl = {
             "slow":300,
@@ -179,8 +230,10 @@ class SettingsGUI(tk.Dialog):
                 interval = transl[type_]
                 break
         Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"] = state
+        Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_off_on_load"] = stateStartup
         Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_interval"] = interval
         Config.SETTINGS_CONFIG.save()
+        self.master.mainMenuPage.updateAutoRequestButton()
 
     def deleteSelectedPlayer(self):
         sel = self.players.getSelectedItem()
@@ -206,31 +259,30 @@ class SettingsGUI(tk.Dialog):
             amount = API.SKYBLOCK_ITEM_API_PARSER.getItemAmount()
             ts: datetime = API.SKYBLOCK_ITEM_API_PARSER.getLastUpdated()
             diff = parseTimeDelta(datetime.now() - ts)
+            self.lastUpd.setText(f"Last-Updated: {parseTimeToStr(diff)} ago")
         else:
             amount = 0
             diff = "-1"
+            self.lastUpd.setText(f"Error: could not request!")
 
-        self.lastUpd.setText(f"Last-Updated: {parseTimeToStr(diff)} ago")
         self.regItems.setText(f"Registered-Items: {amount}")
     def createConstantsTab(self, tab):
 
         self.valueLf = tk.LabelFrame(tab, SG)
         self.valueLf.setText("Constants:")
         tk.Text(tab, SG).setText("Ony change the Values if you\nreally know what you are doing!").setFg("red").place(0, 0, 305, 50).setFont(15).setDisabled()
-        height = [0]
-        SettingValue(self.valueLf, name="Bazaar-Tax:", x=0, y=height, key="bazaar_tax")
-        SettingValue(self.valueLf, name="UseBazaarConfigAt:", x=0, y=height, key="hypixel_bazaar_config_path")
-        SettingValue(self.valueLf, name="UseAuctionConfigAt:", x=0, y=height, key="hypixel_auction_config_path")
+        y = tk.Placer(ySpace=25)
+        SettingValue(self.valueLf, name="Bazaar-Tax:", x=0, y=y.get(), key="bazaar_tax")
+        SettingValue(self.valueLf, name="UseBazaarConfigAt:", x=0, y=y.get(), key="hypixel_bazaar_config_path")
+        SettingValue(self.valueLf, name="UseAuctionConfigAt:", x=0, y=y.get(), key="hypixel_auction_config_path")
 
         self.valueLf.place(0, 50, 305, 300)
     def _requestItemAPI(self):
         Constants.WAITING_FOR_API_REQUEST = True
 
         API.SKYBLOCK_ITEM_API_PARSER = requestItemHypixelAPI(self, Config, saveTo=os.path.join(CONFIG, "hypixel_item_config.json"))
-
         if API.SKYBLOCK_AUCTION_API_PARSER is not None:
             API.SKYBLOCK_AUCTION_API_PARSER.changeItemParser(API.SKYBLOCK_ITEM_API_PARSER)
-
         Constants.WAITING_FOR_API_REQUEST = False
         self.uptBtn.setEnabled()
         self.updateItemAPIWidgets()
@@ -309,6 +361,7 @@ class SettingsGUI(tk.Dialog):
         master.show()
     @staticmethod
     def openSettings(master):
+        if not master.loadingPage.loadingComplete: return
         SettingsGUI(master)
     @staticmethod
     def isAPIKeySet()->bool:
