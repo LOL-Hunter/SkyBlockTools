@@ -3940,7 +3940,7 @@ class MedalTransferProfitPage(CustomPage):
         self.medalConfig = JsonConfig.loadConfig(os.path.join(CONFIG, "garden_medal_cost.json"))
 
 
-        tk.Label(self.contentFrame, SG).setText("Jacobs Ticket Price:").setFg("green").placeRelative(fixWidth=200, fixHeight=50).setTextOrientation()
+        tk.Label(self.contentFrame, SG).setText("Jacobs Ticket Price:").setFont(15).setFg("green").placeRelative(fixWidth=200, fixHeight=50).setTextOrientation()
         self.ticketLabel = tk.Label(self.contentFrame, SG).setTextOrientation()
         self.ticketLabel.setFont(15)
         self.ticketLabel.setFg("green")
