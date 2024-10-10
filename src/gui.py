@@ -10,7 +10,7 @@ from requests.exceptions import ConnectionError, ReadTimeout
 from pysettings import iterDict
 from pysettings.geometry import _map
 from pysettings.jsonConfig import JsonConfig
-from pysettings.text import MsgText, TextColor
+from pysettings.text import MsgText
 import os
 from datetime import datetime, timedelta
 from ctypes import windll
@@ -22,7 +22,7 @@ from matplotlib.figure import Figure
 from pyperclip import copy as copyStr
 from pytz import timezone
 
-from widgets import CompleterEntry, CustomPage, CustomMenuPage, TrackerWidget
+from widgets import CompleterEntry, CustomPage, CustomMenuPage, TrackerWidget, APIRequest
 from bazaarAnalyzer import updateBazaarAnalyzer, BazaarAnalyzer
 from analyzer import getPlotData, getCheapestEnchantmentData
 from images import IconLoader
@@ -81,73 +81,7 @@ APP_DATA = os.path.join(os.path.expanduser("~"), "AppData", "Roaming")
 IMAGES = os.path.join(os.path.split(__file__)[0], "images")
 CONFIG = os.path.join(os.path.split(__file__)[0], "config")
 
-class APIRequest:
-    """
-    This class handles the threaded API requests.
-    Showing "Waiting for API response..." while waiting for response.
 
-    Perform API Request in API-hook-method -> set 'setRequestAPIHook'
-    start the API request by using 'startAPIRequest'
-
-    """
-    def __init__(self, page, tkMaster:tk.Tk | tk.Toplevel, showLoadingFrame=True):
-        self._tkMaster = tkMaster
-        self._page = page
-        self._showLoadingFrame = showLoadingFrame
-        self._dots = 0
-        self._dataAvailable = False
-        self._hook = None
-        self._waitingLabel = tk.Label(self._page, SG).setText("Waiting for API response").setFont(16)
-    def startAPIRequest(self):
-        """
-        starts the API request and run threaded API-hook-method.
-
-        @return:
-        """
-        assert self._hook is not None, "REQUEST HOOK IS NONE!"
-        if Constants.WAITING_FOR_API_REQUEST:
-            self._waitingLabel.placeForget()
-            self._page.placeContentFrame()
-            return
-        self._dataAvailable = False
-        self._page.hideContentFrame()
-        if self._showLoadingFrame: self._waitingLabel.placeRelative(fixY=100, centerX=True, changeHeight=-40)
-        self._waitingLabel.update()
-        Thread(target=self._updateWaitingForAPI).start()
-        Thread(target=self._requestAPI).start()
-    def setRequestAPIHook(self, hook):
-        """
-        set Function.
-        Perform API-request in bound method.
-
-        @param hook:
-        @return:
-        """
-        self._hook = hook
-    def _updateWaitingForAPI(self):
-        timer = time()
-        self._dots = 0
-        while True:
-            if self._dataAvailable: break
-            sleep(.2)
-            if time()-timer >= 1:
-                if self._dots >= 3:
-                    self._dots = 0
-                else:
-                    self._dots += 1
-                self._waitingLabel.setText("Waiting for API response"+"."*self._dots)
-            self._tkMaster.update()
-    def _requestAPI(self):
-        Constants.WAITING_FOR_API_REQUEST = True
-        self._hook() # request API
-        Constants.WAITING_FOR_API_REQUEST = False
-        self._dataAvailable = True
-        self._finishAPIRequest()
-    def _finishAPIRequest(self):
-        self._waitingLabel.placeForget()
-        self._page.placeContentFrame()
-        self._tkMaster.updateDynamicWidgets()
-        self._tkMaster.update()
 
 # Info/Content Pages
 class MayorInfoPage(CustomPage):
@@ -3725,7 +3659,6 @@ class AccessoryBuyHelperPage(CustomPage):
         self.filterNotBuyableCheck.setText("Hide 'Not Buyable' Items")
         self.filterNotBuyableCheck.place(0, 0, 192, 25)
 
-
         self.updateAccounts(None)
         self.accessories = None
     def removeAccount(self):
@@ -3990,16 +3923,112 @@ class AccessoryBuyHelperPage(CustomPage):
         self.slotsLabel.setText(f"Slots: +{slotCount} ({prizeToStr(slotPrice)})")
         self.totalLabel.setText(f"Total: {prizeToStr(costAll)}")
         self.newTotalPowderLabel.setText(f"New Total Powder: {powderAll+powderAllOld}")
-
-
-
     def onShow(self, **kwargs):
         self.master.updateCurrentPageHook = self.updateHelper  # hook to update tv on new API-Data available
         self.placeRelative()
         self.placeContentFrame()
         self.updateHelper()
+class MedalTransferProfitPage(CustomPage):
+    def __init__(self, master):
+        super().__init__(master, pageTitle="Medal Transfer Profit Page", buttonText="Medal Transfer Profit")
+        self.master: Window = master
 
-# Menu Pages 2
+        self.treeView = tk.TreeView(self.contentFrame, SG)
+        self.treeView.setTableHeaders("ID", "Medal-Price", "Profit", "ProfitPerMedal", "ItemLowestBinPrice")
+        self.treeView.placeRelative(fixX=200)
+
+        self.medalConfig = JsonConfig.loadConfig(os.path.join(CONFIG, "garden_medal_cost.json"))
+
+
+        tk.Label(self.contentFrame, SG).setText("Jacobs Ticket Price:").setFg("green").placeRelative(fixWidth=200, fixHeight=50).setTextOrientation()
+        self.ticketLabel = tk.Label(self.contentFrame, SG).setTextOrientation()
+        self.ticketLabel.setFont(15)
+        self.ticketLabel.setFg("green")
+        self.ticketLabel.placeRelative(fixWidth=200, fixHeight=50, fixY=50)
+
+        self.openGraph = tk.Button(self.contentFrame, SG)
+        self.openGraph.setCommand(self.openGraphGUI)
+        self.openGraph.setText("Open Jacobs Ticket Graph")
+        self.openGraph.placeRelative(fixWidth=200, fixHeight=50, fixY=100)
+
+    def openGraphGUI(self):
+        self.master.showItemInfo(self, "JACOBS_TICKET")
+
+    def updateTreeView(self):
+        self.treeView.clear()
+
+        ticket = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID("JACOBS_TICKET")
+        if ticket is None:
+            self.ticketLabel.setText("None")
+            tk.SimpleDialog.askError(self.master, "Could not parse Ticket Prices!")
+            return
+        ticketPrice = ticket.getInstaSellPrice() + .1
+        self.ticketLabel.setText(prizeToStr(ticketPrice))
+        sorters = []
+        for itemID, itemData in self.medalConfig.data.items():
+            ticketAmount = itemData["tickets"]
+
+            totalBronzeMedals = 0
+
+            strPrice = ""
+            if type(itemData["medal"]) is list:
+                for data in itemData["medal"]:
+                    medalType = data["type"]
+                    medalAmount = data["amount"]
+                    strPrice += f"{medalType}({medalAmount}), "
+                    if medalType == "GOLD":
+                        totalBronzeMedals += medalAmount * 8
+                    if medalType == "SILVER":
+                        totalBronzeMedals += medalAmount * 2
+                    if medalType == "BRONZE":
+                        totalBronzeMedals += medalAmount
+                strPrice = strPrice[:-2]
+            else:
+                medalType = itemData["medal"]["type"]
+                medalAmount = itemData["medal"]["amount"]
+                if medalType == "GOLD":
+                    totalBronzeMedals += medalAmount*8
+                if medalType == "SILVER":
+                    totalBronzeMedals += medalAmount*2
+                if medalType == "BRONZE":
+                    totalBronzeMedals += medalAmount
+                strPrice = f"{medalType}({medalAmount})"
+
+            ticketPriceFull = ticketPrice*ticketAmount
+
+            itemPrice = API.SKYBLOCK_AUCTION_API_PARSER.getBINAuctionByID(itemID)
+            itemPrice = itemPrice[0].getPrice() if len(itemPrice) > 0 else None
+
+            if itemPrice is None: # try Bazaar
+                item = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(itemID)
+                if item is not None:
+                    itemPrice = item.getInstaBuyPrice()
+            sorters.append(
+                Sorter(
+                    sortKey="profitPerMedal",
+                    profitPerMedal=None if itemPrice is None else (itemPrice-ticketPriceFull)/(totalBronzeMedals/8),
+                    itemSellPrice=itemPrice,
+                    ticketAmount=ticketAmount,
+                    strPrice=strPrice,
+                    lbPrice=itemPrice,
+                    id=itemID,
+                    profit=None if itemPrice is None else (itemPrice-ticketPriceFull)
+                )
+            )
+        sorters.sort()
+        for sorter in sorters:
+            self.treeView.addEntry(sorter["id"], sorter["strPrice"], prizeToStr(sorter["profit"]), prizeToStr(sorter["profitPerMedal"]), prizeToStr(sorter["lbPrice"]))
+
+
+    def onShow(self, **kwargs):
+        self.placeRelative()
+        self.placeContentFrame()
+        self.updateTreeView()
+        self.master.updateCurrentPageHook = self.updateTreeView
+
+
+
+# Menu Pages
 class MainMenuPage(CustomMenuPage):
     def __init__(self, master, tools:List[CustomMenuPage | CustomPage]):
         super().__init__(master, showBackButton=False, showTitle=False, homeScreen=True, showHomeButton=False)
@@ -4314,6 +4343,7 @@ class Window(tk.Tk):
                 BazaarCraftProfitPage(self),
                 AuctionHousePage(self),
                 AccessoryBuyHelperPage(self),
+                MedalTransferProfitPage(self),
                 MagicFindCalculatorPage(self),
                 PestProfitPage(self),
                 AlchemyXPCalculatorPage(self),
