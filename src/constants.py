@@ -15,7 +15,7 @@ class Color:
 
 class ConfigFile:
     MAYOR_DATA = JsonConfig.loadConfig(os.path.join(CONFIG, "mayor.json"))
-    AVERAGE_PRICE = JsonConfig.loadConfig(os.path.join(APP_DATA, ".SkyBlockTools", "skyblock_save", "average_price_save.json"), create=True)
+    AVERAGE_PRICE = None
 
 class API:
     SKYBLOCK_BAZAAR_API_PARSER: HypixelBazaarParser = None

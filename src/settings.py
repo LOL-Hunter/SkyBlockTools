@@ -72,7 +72,7 @@ class Config:
             "luck_lvl":0,
             "item_type":0
         },
-        "wisdom":0,
+        "alchemy_wisdom":0,
         "auto_api_requests":{
             "bazaar_auto_request_off_on_load":True,
             "bazaar_auto_request":False,

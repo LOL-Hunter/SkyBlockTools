@@ -601,7 +601,7 @@ class AlchemyXPCalculatorPage(CustomPage):
 
         self.wisdom = tk.TextEntry(self.contentFrame, SG)
         self.wisdom.setText("Wisdom: ")
-        self.wisdom.setValue(Config.SETTINGS_CONFIG["wisdom"])
+        self.wisdom.setValue(Config.SETTINGS_CONFIG["alchemy_wisdom"])
         self.wisdom.getEntry().onUserInputEvent(self.updateTreeView)
         self.wisdom.placeRelative(fixHeight=25, stickDown=True, fixWidth=100, fixX=250)
 
@@ -638,7 +638,7 @@ class AlchemyXPCalculatorPage(CustomPage):
         wisdom = self.wisdom.getValue()
         if wisdom.isnumeric():
             wisdomFactor = int(wisdom)
-            Config.SETTINGS_CONFIG["wisdom"] = wisdomFactor
+            Config.SETTINGS_CONFIG["alchemy_wisdom"] = wisdomFactor
             Config.SETTINGS_CONFIG.save()
             wisdomFactor = 1+(wisdomFactor/100)
         else:
@@ -2346,7 +2346,7 @@ class LongTimeFlipHelperPage(CustomPage):
     def _decode(self):
         path = os.path.join(APP_DATA, "active_flip_config.json")
         if not os.path.exists(path):
-            tk.SimpleDialog.askWarning(self.master, "active_flip_config.json dosent exist. Creating blank at:\n"+path)
+            MsgText.warning("active_flip_config.json dosent exist. Creating blank at: "+path)
             file = open(path, "w")
             file.write("[]")
             file.close()
@@ -2413,7 +2413,7 @@ class LongTimeFlipHelperPage(CustomPage):
         self.updateView()
     def saveToFile(self):
         if self.js is None:
-            tk.SimpleDialog.askError(self.master, "Could not save Data! 'active_flip_config.json' does not exist or not readable!")
+            MsgText.warning("Could not save Data! 'active_flip_config.json' does not exist or not readable!")
             return
         self.js.setData([i.toData() for i in self.flips])
         self.js.saveConfig()
@@ -4269,7 +4269,7 @@ class LoadingPage(CustomPage):
                         path = bazaarConfPath
                 t = time()
                 API.SKYBLOCK_BAZAAR_API_PARSER = requestBazaarHypixelAPI(self.master, Config, path=path, saveTo=bazaarConfPath)
-                MsgText.info(f"Loaging HypixelBazaarConfig too {round(time()-t, 2)} Seconds!")
+                MsgText.info(f"Loading HypixelBazaarConfig too {round(time()-t, 2)} Seconds!")
                 if API.SKYBLOCK_BAZAAR_API_PARSER is not None: bazaarAPISuccessful = True
 
                 updateBazaarInfoLabel(API.SKYBLOCK_BAZAAR_API_PARSER, path is not None)
@@ -4371,13 +4371,17 @@ class Window(tk.Tk):
         MsgText.info("Creating GUI...")
         super().__init__(group=SG)
         MsgText.info("Loading Style...")
-
+        if not os.path.exists(os.path.join(APP_DATA)):
+            os.mkdir(APP_DATA)
+            MsgText.warning("Folder does not exist! Creating folder: " + os.path.join(APP_DATA))
         if not os.path.exists(os.path.join(APP_DATA, "skyblock_save")):
             os.mkdir(os.path.join(APP_DATA, "skyblock_save"))
             MsgText.warning("Folder does not exist! Creating folder: "+os.path.join(APP_DATA, "skyblock_save"))
         if not os.path.exists(os.path.join(APP_DATA, "skyblock_save", "auctionhouse")):
             os.mkdir(os.path.join(APP_DATA, "skyblock_save", "auctionhouse"))
             MsgText.warning("Folder does not exist! Creating folder: " + os.path.join(APP_DATA, "skyblock_save", "auctionhouse"))
+        # load average_price_save.json
+        ConfigFile.AVERAGE_PRICE = JsonConfig.loadConfig(os.path.join(APP_DATA, "skyblock_save", "average_price_save.json"), create=True)
         LOAD_STYLE() # load DarkMode!
         IconLoader.loadIcons()
         self.isShiftPressed = False
