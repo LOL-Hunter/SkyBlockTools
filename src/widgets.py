@@ -9,6 +9,7 @@ from pysettings.text import TextColor
 from traceback import format_exc
 from images import IconLoader
 from threading import Thread
+from time import time, sleep
 
 class SettingValue(tk.Frame):
     CONFIG = None
@@ -316,7 +317,73 @@ class TrackerWidget(tk.LabelFrame):
 
             Constants.WAITING_FOR_API_REQUEST = True
             Thread(target=request).start()
+class APIRequest:
+    """
+    This class handles the threaded API requests.
+    Showing "Waiting for API response..." while waiting for response.
 
+    Perform API Request in API-hook-method -> set 'setRequestAPIHook'
+    start the API request by using 'startAPIRequest'
+
+    """
+    def __init__(self, page, tkMaster:tk.Tk | tk.Toplevel, showLoadingFrame=True):
+        self._tkMaster = tkMaster
+        self._page = page
+        self._showLoadingFrame = showLoadingFrame
+        self._dots = 0
+        self._dataAvailable = False
+        self._hook = None
+        self._waitingLabel = tk.Label(self._page, SG).setText("Waiting for API response").setFont(16)
+    def startAPIRequest(self):
+        """
+        starts the API request and run threaded API-hook-method.
+
+        @return:
+        """
+        assert self._hook is not None, "REQUEST HOOK IS NONE!"
+        if Constants.WAITING_FOR_API_REQUEST:
+            self._waitingLabel.placeForget()
+            self._page.placeContentFrame()
+            return
+        self._dataAvailable = False
+        self._page.hideContentFrame()
+        if self._showLoadingFrame: self._waitingLabel.placeRelative(fixY=100, centerX=True, changeHeight=-40)
+        self._waitingLabel.update()
+        Thread(target=self._updateWaitingForAPI).start()
+        Thread(target=self._requestAPI).start()
+    def setRequestAPIHook(self, hook):
+        """
+        set Function.
+        Perform API-request in bound method.
+
+        @param hook:
+        @return:
+        """
+        self._hook = hook
+    def _updateWaitingForAPI(self):
+        timer = time()
+        self._dots = 0
+        while True:
+            if self._dataAvailable: break
+            sleep(.2)
+            if time()-timer >= 1:
+                if self._dots >= 3:
+                    self._dots = 0
+                else:
+                    self._dots += 1
+                self._waitingLabel.setText("Waiting for API response"+"."*self._dots)
+            self._tkMaster.update()
+    def _requestAPI(self):
+        Constants.WAITING_FOR_API_REQUEST = True
+        self._hook() # request API
+        Constants.WAITING_FOR_API_REQUEST = False
+        self._dataAvailable = True
+        self._finishAPIRequest()
+    def _finishAPIRequest(self):
+        self._waitingLabel.placeForget()
+        self._page.placeContentFrame()
+        self._tkMaster.updateDynamicWidgets()
+        self._tkMaster.update()
 
 
 
