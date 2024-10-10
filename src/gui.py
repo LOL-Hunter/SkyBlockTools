@@ -748,9 +748,9 @@ class EnchantingBookBazaarProfitPage(CustomPage):
 
         # only these enchantments are shown
         self.whiteList = None
-        path = os.path.join(CONFIG, "enchantmentProfitWhitelist.json")
+        path = os.path.join(CONFIG, "enchantment_profit_whitelist.json")
         if not os.path.exists(path):
-            tk.SimpleDialog.askError(master, "enchantmentProfitWhitelist.json Path does not exist!")
+            tk.SimpleDialog.askError(master, "enchantment_profit_whitelist.json Path does not exist!")
         else:
             js = JsonConfig.loadConfig(path, ignoreErrors=True)
             if type(js) == str:
