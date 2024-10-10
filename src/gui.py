@@ -4027,7 +4027,6 @@ class MedalTransferProfitPage(CustomPage):
         self.master.updateCurrentPageHook = self.updateTreeView
 
 
-
 # Menu Pages
 class MainMenuPage(CustomMenuPage):
     def __init__(self, master, tools:List[CustomMenuPage | CustomPage]):
@@ -4037,7 +4036,7 @@ class MainMenuPage(CustomMenuPage):
         self.scrollFramePosY = 0
         self.activeButtons = []
         self.image = tk.PILImage.loadImage(os.path.join(IMAGES, "logo.png"))
-        self.image.resize(.20)
+        self.image.resize(.55)
         self.image.preRender()
         self.title = tk.Label(self, SG).setImage(self.image).placeRelative(centerX=True, fixHeight=self.image.getHeight(), fixWidth=self.image.getWidth(), fixY=50)
 
@@ -4171,7 +4170,7 @@ class LoadingPage(CustomPage):
         self.loadingComplete = False
         self.master:Window = master
         self.image = tk.PILImage.loadImage(os.path.join(IMAGES, "logo.png"))
-        self.image.resize(.25)
+        self.image.resize(.9)
         self.image.preRender()
         self.title = tk.Label(self, SG).setImage(self.image).placeRelative(centerX=True, fixHeight=self.image.getHeight(), fixWidth=self.image.getWidth(), fixY=50)
 
