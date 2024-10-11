@@ -81,7 +81,7 @@ APP_DATA = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", ".SkyBloc
 IMAGES = os.path.join(os.path.split(__file__)[0], "images")
 CONFIG = os.path.join(os.path.split(__file__)[0], "config")
 
-
+# test
 
 # Info/Content Pages
 class MayorInfoPage(CustomPage):
