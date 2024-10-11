@@ -4250,6 +4250,9 @@ class LoadingPage(CustomPage):
 
         self.info = tk.Label(self, SG).setFont(16)
         self.info.placeRelative(fixHeight=25, fixY=340, changeX=+50, changeWidth=-100)
+    def preLoad(self):
+        if SettingsGUI.checkAPIKeySet(self.master, self.load): return
+        self.load()
     def load(self):
         itemAPISuccessful = False
         bazaarAPISuccessful = False
@@ -4437,7 +4440,7 @@ class Window(tk.Tk):
         self.loadingPage.openMenuPage()
         Thread(target=self._autoRequestAPI).start()
         Thread(target=self._updateInfoLabel).start()
-        Thread(target=self.loadingPage.load).start()
+        Thread(target=self.loadingPage.preLoad).start()
         self.configureWindows()
     def _autoRequestAPI(self):
         started = False

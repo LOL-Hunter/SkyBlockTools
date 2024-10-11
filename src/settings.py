@@ -111,13 +111,15 @@ class ComposterSettings(tk.Frame):
         Config.SETTINGS_CONFIG.save()
         if self.onScrollHook is not None: self.onScrollHook()
 class SettingsGUI(tk.Dialog):
-    def __init__(self, master):
+    def __init__(self, master, hook=None):
         super().__init__(master, SG, False)
         self.master = master
+        self.hook = None
         self.setTitle("SkyBlockTools-Settings")
         self.setMinSize(410, 410)
 
         self.bind(self.close, tk.EventType.ESC)
+        self.onCloseEvent(self.close)
 
         self.notebook = tk.Notebook(self, SG)
         self.generalTab = self.notebook.createNewTab("General", SG)
@@ -131,6 +133,10 @@ class SettingsGUI(tk.Dialog):
 
         self.show()
         self.lift()
+    def close(self):
+        super().close()
+        if self.hook is not None:
+            self.hook()
     def createGeneralTab(self, tab):
         self.keyLf = tk.LabelFrame(tab, SG)
         self.keyLf.setText("API-Authentication")
@@ -360,9 +366,9 @@ class SettingsGUI(tk.Dialog):
         apiUsernameTextE.getEntry().setFocus()
         master.show()
     @staticmethod
-    def openSettings(master):
+    def openSettings(master, hook=None):
         if not master.loadingPage.loadingComplete: return
-        SettingsGUI(master)
+        SettingsGUI(master, hook)
     @staticmethod
     def isAPIKeySet()->bool:
         return Config.SETTINGS_CONFIG["api_key"] != ""
@@ -375,4 +381,15 @@ class SettingsGUI(tk.Dialog):
             file.close()
             return False
         return True
+
+    @staticmethod
+    def checkAPIKeySet(master, hook):
+        if Config.SETTINGS_CONFIG["api_key"] == "":
+            tk.SimpleDialog.askInfo(master, "Hypixel-API-Key not set yet.\nSet API-Key in Settings to continue.")
+            SettingsGUI.openSettings(master, hook)
+            return True
+        return False
+
+
+
 

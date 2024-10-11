@@ -169,7 +169,8 @@ def requestItemHypixelAPI(master, config, path=None, saveTo=None)->HypixelItemPa
         else:
             TextColor.printStrf("§INFO§cRequesting 'ITEM_DATA' from Hypixel-API")
             data = APILoader(HypixelAPIURL.ITEM_URL, config.SETTINGS_CONFIG["api_key"], config.SETTINGS_CONFIG["player_name"])
-
+        if not data:
+            return
         if saveTo is not None:
             conf = JsonConfig.loadConfig(saveTo)
             conf.setData(data)
