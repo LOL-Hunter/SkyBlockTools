@@ -1,5 +1,5 @@
 import os
-from pysettings import tk
+import tksimple as tk
 from pysettings.text import MsgText
 
 PATH = os.path.split(os.path.realpath(__file__))[0]

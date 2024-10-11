@@ -16,6 +16,10 @@ class NoAPIKeySetException(_BaseException):
     def __init__(self):
         super().__init__(f"Wrong API-Key check the settings.")
 
+class APITimeoutException(_BaseException):
+    def __init__(self):
+        super().__init__(f"Request timeout!")
+
 
 class CouldNotReadDataPackageException(_BaseException):
     def __init__(self, data, success=True):
@@ -33,7 +37,8 @@ class APIOnCooldownException(_BaseException):
 
 class APIConnectionError(_BaseException):
     def __init__(self, url):
-        super().__init__(f"Could not request API.\n Check your internet connection.\nURL: {url}")
+        url = url.value if hasattr(url, "value") else url
+        super().__init__(f"Could not request API.\nCheck your internet connection.\nURL: {url}")
 
 
 

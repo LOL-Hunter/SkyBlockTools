@@ -1,22 +1,41 @@
-from pysettings import tk
+import tksimple as tk
+from pysettings.jsonConfig import JsonConfig
 from tkinter import ttk
 from hyPI.hypixelAPI.loader import HypixelBazaarParser, HypixelAuctionParser, HypixelItemParser
+import os
+
+VERSION = "v2.2.5"
+CONFIG = os.path.join(os.path.split(__file__)[0], "config")
 
 class Color:
     COLOR_WHITE = tk.Color.rgb(255, 255, 255)
     COLOR_DARK = tk.Color.rgb(50, 50, 50)
     COLOR_GRAY = tk.Color.rgb(160, 160, 160)
 
+class ConfigFile:
+    MAYOR_DATA = JsonConfig.loadConfig(os.path.join(CONFIG, "mayor.json"))
+    AVERAGE_PRICE = JsonConfig.loadConfig(os.path.join(CONFIG, "skyblock_save", "average_price_save.json"), create=True)
 
 class API:
     SKYBLOCK_BAZAAR_API_PARSER: HypixelBazaarParser = None
     SKYBLOCK_AUCTION_API_PARSER: HypixelAuctionParser = None
     SKYBLOCK_ITEM_API_PARSER: HypixelItemParser = None
 
-BazaarItemID = [] # creation on runtime
-AuctionItemID = [] # creation on runtime
+BazaarItemID: [str] = [] # creation on runtime
+AuctionItemID: [str] = [] # creation on runtime
 
 ALL_ENCHANTMENT_IDS = []
+
+MAGIC_POWDER = {
+    "COMMON": 3,
+    "UNCOMMON": 5,
+    "RARE": 8,
+    "EPIC": 12,
+    "LEGENDARY": 16,
+    "MYTHIC": 22,
+    "SPECIAL": 3,
+    "VERY_SPECIAL": 5,
+}
 
 RARITY_COLOR_CODE = {
     "COMMON":"white",
@@ -48,7 +67,7 @@ AUCT_INFO_LABEL_GROUP = tk.WidgetGroup(instantiate=STYLE_GROUP)
 
 def LOAD_STYLE():
     style = ttk.Style()
-    style.theme_create("yummy", parent="alt", settings={
+    style.theme_create("custom_theme", parent="alt", settings={
         "TNotebook":{
             "configure":{
                 "tabmargins":[2, 5, 2, 0],
@@ -105,7 +124,7 @@ def LOAD_STYLE():
         }
     }
                        )
-    style.theme_use("yummy")
+    style.theme_use("custom_theme")
 
 
 def CONFIGURE_NOTEBOOK_STYLE(style):

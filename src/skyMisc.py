@@ -1,19 +1,20 @@
 # -*- coding: iso-8859-15 -*-
 import os as _os
-from hyPI.APIError import APIConnectionError, NoAPIKeySetException
+from hyPI.APIError import APIConnectionError, NoAPIKeySetException, APITimeoutException
 from hyPI.hypixelAPI import HypixelAPIURL, APILoader, fileLoader
 from hyPI.hypixelAPI.loader import HypixelBazaarParser, HypixelAuctionParser, HypixelItemParser
 from hyPI.skyCoflnetAPI import SkyConflnetAPI
 from hyPI import getEnchantmentIDLvl
-from pysettings import tk
+import tksimple as tk
 from pysettings.jsonConfig import JsonConfig
 from pysettings.text import TextColor, MsgText
-from traceback import format_exc
 from datetime import datetime
 from constants import BAZAAR_INFO_LABEL_GROUP as BILG, AUCT_INFO_LABEL_GROUP as AILG, API, ALL_ENCHANTMENT_IDS, AuctionItemID, BazaarItemID
 from skyMath import parseTimeDelta
 from typing import List, Dict
 from platform import system
+from winsound import Beep
+from constants import Constants
 
 def requestBazaarHypixelAPI(master, config, path=None, saveTo=None)->HypixelBazaarParser | None:
     """
@@ -35,19 +36,32 @@ def requestBazaarHypixelAPI(master, config, path=None, saveTo=None)->HypixelBaza
             TextColor.printStrf("§INFO§cRequesting 'BAZAAR_DATA' from Hypixel-API")
             data = APILoader(HypixelAPIURL.BAZAAR_URL, config.SETTINGS_CONFIG["api_key"], config.SETTINGS_CONFIG["player_name"])
 
-            if saveTo is not None:
+            if saveTo is not None and data is not None:
                 conf = JsonConfig.loadConfig(saveTo, create=True)
                 conf.setData(data)
                 conf.save()
 
         parser = HypixelBazaarParser(data)
     except APIConnectionError as e:
-        TextColor.print(format_exc(), "red")
-        tk.SimpleDialog.askError(master, e.getMessage(), "SkyBlockTools")
+        throwAPIConnectionException(
+            source="Hypixel Bazaar API",
+            master=master,
+            event=e
+        )
         return None
     except NoAPIKeySetException as e:
-        TextColor.print(format_exc(), "red")
-        tk.SimpleDialog.askError(master, e.getMessage(), "SkyBlockTools")
+        throwNoAPIKeyException(
+            source="Hypixel Bazaar API",
+            master=master,
+            event=e
+        )
+        return None
+    except APITimeoutException as e:
+        throwAPITimeoutException(
+            source="Hypixel Bazaar API",
+            master=master,
+            event=e
+        )
         return None
     return parser
 def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=None, infoLabel:tk.Label=None, saveTo:str=None)->HypixelAuctionParser | None:
@@ -101,6 +115,7 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
             pages = parser.getPages()
             if progBar is not None: progBar.setValues(pages)
             for page in range(1, pages):
+                Constants.WAITING_FOR_API_REQUEST = True
                 TextColor.printStrf(f"§INFO§cRequesting 'AUCTION_DATA' from Hypixel-API [{page+1}]")
                 data = APILoader(HypixelAPIURL.AUCTION_URL,
                                  config.SETTINGS_CONFIG["api_key"],
@@ -114,12 +129,25 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
                 if progBar is not None: progBar.setValue(page+1)
                 parser.addPage(data)
     except APIConnectionError as e:
-        TextColor.print(format_exc(), "red")
-        tk.SimpleDialog.askError(master, e.getMessage(), "SkyBlockTools")
+        throwAPIConnectionException(
+            source="Hypixel Auction API",
+            master=master,
+            event=e
+        )
         return None
     except NoAPIKeySetException as e:
-        TextColor.print(format_exc(), "red")
-        tk.SimpleDialog.askError(master, e.getMessage(), "SkyBlockTools")
+        throwNoAPIKeyException(
+            source="Hypixel Auction API",
+            master=master,
+            event=e
+        )
+        return None
+    except APITimeoutException as e:
+        throwAPITimeoutException(
+            source="Hypixel Auction API",
+            master=master,
+            event=e
+        )
         return None
     return parser
 def requestItemHypixelAPI(master, config, path=None, saveTo=None)->HypixelItemParser | None:
@@ -150,14 +178,41 @@ def requestItemHypixelAPI(master, config, path=None, saveTo=None)->HypixelItemPa
 
         parser = HypixelItemParser(data)
     except APIConnectionError as e:
-        TextColor.print(format_exc(), "red")
-        tk.SimpleDialog.askError(master, e.getMessage(), "SkyBlockTools")
+        throwAPIConnectionException(
+            source="Hypixel Item API",
+            master=master,
+            event=e
+        )
         return None
     except NoAPIKeySetException as e:
-        TextColor.print(format_exc(), "red")
-        tk.SimpleDialog.askError(master, e.getMessage(), "SkyBlockTools")
+        throwNoAPIKeyException(
+            source="Hypixel Item API",
+            master=master,
+            event=e
+        )
+        return None
+    except APITimeoutException as e:
+        throwAPITimeoutException(
+            source="Hypixel Item API",
+            master=master,
+            event=e
+        )
         return None
     return parser
+
+def throwAPIConnectionException(source:str, master:tk.Tk, event:APIConnectionError):
+    MsgText.error(f"{source} request failed! Check your internet connection!")
+    Constants.WAITING_FOR_API_REQUEST = False
+    tk.SimpleDialog.askError(master, event.getMessage(), "SkyBlockTools")
+def throwNoAPIKeyException(source:str, master:tk.Tk, event:NoAPIKeySetException):
+    MsgText.error(f"{source} request failed! No API-key set.")
+    Constants.WAITING_FOR_API_REQUEST = False
+    tk.SimpleDialog.askError(master, event.getMessage(), "SkyBlockTools")
+def throwAPITimeoutException(source:str, master:tk.Tk, event:APITimeoutException):
+    MsgText.error(f"{source} request failed! Timeout Exception.")
+    Constants.WAITING_FOR_API_REQUEST = False
+    tk.SimpleDialog.askError(master, event.getMessage(), "SkyBlockTools")
+
 
 def updateBazaarInfoLabel(api:HypixelBazaarParser | None, loaded=False):
     if api is not None:
@@ -217,7 +272,20 @@ def parseTimeToStr(d)->str:
             out += f"{t}{i} "
             av = True
     return out
-def prizeToStr(inputPrize:int | float | None, hideCoins=False)->str | None:
+
+def parsePrice(raw:str)-> float | None:
+    if raw == "" or raw.count(".") > 1:
+        return None # type: ignore
+    raw = raw.replace(" ", "")
+    if raw[-1].isdigit():
+        return float(raw)
+    allKeys = {"k":3,"m":6,"b":9,"t":12,"q":15}
+    if (not raw[-1].lower() in allKeys.keys())or not raw[:-1].replace(".","").isdigit() or raw[0].lower() in allKeys.keys():
+        return None # type: ignore
+    return 10**allKeys[raw[-1].lower()]*float(raw[:-1])
+
+
+def prizeToStr(inputPrize:int | float | None, hideCoins=False, forceSign=False)->str | None:
     if inputPrize is None: return None
     exponent = 0
     neg = inputPrize < 0
@@ -229,7 +297,7 @@ def prizeToStr(inputPrize:int | float | None, hideCoins=False)->str | None:
         exponent += 1
         if exponent > 5:
             return f"Overflow {inputPrize}"
-    return ("-" if neg else "")+str(round(inputPrize, 1)) +" "+ prefix[exponent] + ("" if hideCoins else " coins")
+    return ("-" if neg else ("+" if forceSign else ""))+str(round(inputPrize, 1)) +" "+ prefix[exponent] + ("" if hideCoins else " coins")
 def getDictEnchantmentIDToLevels()->Dict[str, List[str]]:
     """
     Returns a dictionary to access the valid enchantment levels from raw enchantmentID.
@@ -308,8 +376,11 @@ def parseTimeFromSec(sec)->str:
     out += f"{day}d " if day > 0 else ""
     out += f"{hour}h " if hour > 0 else ""
     out += f"{minutes}m " if minutes > 0 else ""
-    out += f"{sec}s"
+    out += f"{round(sec, 3)}s"
     return out.strip()
+
+def playNotificationSound():
+    Beep(800, 300)
 
 def updateItemLists():
     BazaarItemID.clear()
@@ -324,13 +395,16 @@ def updateItemLists():
         AuctionItemID.append(id_)
 
 def addPetsToAuctionHouse():
+    i = 0
     for item in [*API.SKYBLOCK_AUCTION_API_PARSER.getAuctions(), *API.SKYBLOCK_AUCTION_API_PARSER.getBinAuctions()]:
         id_ = item.getID()
         if id_ is None: continue
         if id_.startswith("PET_") and id_ not in AuctionItemID:
+            i += 1
             AuctionItemID.append(id_)
     ALL_ENCHANTMENT_IDS.clear()
     ALL_ENCHANTMENT_IDS.extend([i for i in BazaarItemID if i.startswith("enchantment".upper())])
+    return i
 
 class Sorter:
     def __init__(self, sort=None, sortKey=None, **kwargs):
@@ -338,12 +412,17 @@ class Sorter:
         self._data = kwargs
 
     def __lt__(self, other):
+        if self._sort is None: return False
+        if other._sort is None: return True
         if type(self._sort) == str: return False
         if type(other._sort) == str: return True
         return self._sort > other._sort
 
     def __getitem__(self, item):
         return self._data[item]
+
+    def __setitem__(self, key, value):
+        self._data[key] = value
 
     def get(self):
         return self._sort

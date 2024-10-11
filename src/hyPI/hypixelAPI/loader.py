@@ -5,7 +5,7 @@ from datetime import datetime
 from hyPI.APIError import *
 from hyPI._parsers import ProductWithOrders, BINAuctionProduct, NORAuctionProduct, convertAuctionNameToID, Item
 from traceback import format_exc
-
+from time import time
 
 def getTimezone(tz)->datetime:
     unixTime = tz/1000
@@ -117,7 +117,10 @@ class HypixelAuctionParser:
                     self._norByID[itemData["id"]] = [_auc]
                 self._norAucts.append(_auc)
     def addPage(self, rawData:dict):
-        self._decode(rawData["auctions"])
+        if "auctions" in rawData.keys():
+            self._decode(rawData["auctions"])
+            return
+        MsgText.warning(f"Auction House page: \"{rawData['cause']}\"")
     def getBinAuctions(self)->List[BINAuctionProduct]:
         return self._binAucts
     def getAuctions(self)->List[NORAuctionProduct]:
