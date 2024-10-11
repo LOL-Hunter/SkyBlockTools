@@ -72,7 +72,7 @@ class Config:
             "luck_lvl":0,
             "item_type":0
         },
-        "wisdom":0,
+        "alchemy_wisdom":0,
         "auto_api_requests":{
             "bazaar_auto_request_off_on_load":True,
             "bazaar_auto_request":False,
@@ -111,13 +111,15 @@ class ComposterSettings(tk.Frame):
         Config.SETTINGS_CONFIG.save()
         if self.onScrollHook is not None: self.onScrollHook()
 class SettingsGUI(tk.Dialog):
-    def __init__(self, master):
+    def __init__(self, master, hook=None):
         super().__init__(master, SG, False)
         self.master = master
+        self.hook = None
         self.setTitle("SkyBlockTools-Settings")
         self.setMinSize(410, 410)
 
         self.bind(self.close, tk.EventType.ESC)
+        self.onCloseEvent(self.close)
 
         self.notebook = tk.Notebook(self, SG)
         self.generalTab = self.notebook.createNewTab("General", SG)
@@ -131,6 +133,10 @@ class SettingsGUI(tk.Dialog):
 
         self.show()
         self.lift()
+    def close(self):
+        super().close()
+        if self.hook is not None:
+            self.hook()
     def createGeneralTab(self, tab):
         self.keyLf = tk.LabelFrame(tab, SG)
         self.keyLf.setText("API-Authentication")
@@ -280,7 +286,7 @@ class SettingsGUI(tk.Dialog):
     def _requestItemAPI(self):
         Constants.WAITING_FOR_API_REQUEST = True
 
-        API.SKYBLOCK_ITEM_API_PARSER = requestItemHypixelAPI(self, Config, saveTo=os.path.join(CONFIG, "hypixel_item_config.json"))
+        API.SKYBLOCK_ITEM_API_PARSER = requestItemHypixelAPI(self, Config, saveTo=os.path.join(APP_DATA_SETTINGS, "skyblock_save", "hypixel_item_config.json"))
         if API.SKYBLOCK_AUCTION_API_PARSER is not None:
             API.SKYBLOCK_AUCTION_API_PARSER.changeItemParser(API.SKYBLOCK_ITEM_API_PARSER)
         Constants.WAITING_FOR_API_REQUEST = False
@@ -360,19 +366,46 @@ class SettingsGUI(tk.Dialog):
         apiUsernameTextE.getEntry().setFocus()
         master.show()
     @staticmethod
-    def openSettings(master):
+    def openSettings(master, hook=None):
         if not master.loadingPage.loadingComplete: return
-        SettingsGUI(master)
+        SettingsGUI(master, hook)
     @staticmethod
     def isAPIKeySet()->bool:
         return Config.SETTINGS_CONFIG["api_key"] != ""
     @staticmethod
     def checkItemConfigExist()->bool:
-        path = os.path.join(CONFIG, "hypixel_item_config.json")
+        path = os.path.join(APP_DATA_SETTINGS, "skyblock_save", "hypixel_item_config.json")
         if not os.path.exists(path):
             file = open(path, "w")
             file.write("{}")
             file.close()
             return False
         return True
+
+    @staticmethod
+    def checkAPIKeySet(master, hook):
+
+
+
+
+
+
+        if Config.SETTINGS_CONFIG["api_key"] == "":
+            tk.SimpleDialog.askInfo(master, "Hypixel-API-Key not set yet.\nSet API-Key in Settings to continue.")
+
+            root = tk.Dialog(master, SG)
+            root.setCloseable(False)
+
+            # change api as widg
+
+            root.show()
+
+
+
+
+            return True
+        return False
+
+
+
 

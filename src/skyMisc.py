@@ -169,7 +169,8 @@ def requestItemHypixelAPI(master, config, path=None, saveTo=None)->HypixelItemPa
         else:
             TextColor.printStrf("§INFO§cRequesting 'ITEM_DATA' from Hypixel-API")
             data = APILoader(HypixelAPIURL.ITEM_URL, config.SETTINGS_CONFIG["api_key"], config.SETTINGS_CONFIG["player_name"])
-
+        if not data:
+            return
         if saveTo is not None:
             conf = JsonConfig.loadConfig(saveTo)
             conf.setData(data)
@@ -212,7 +213,6 @@ def throwAPITimeoutException(source:str, master:tk.Tk, event:APITimeoutException
     MsgText.error(f"{source} request failed! Timeout Exception.")
     Constants.WAITING_FOR_API_REQUEST = False
     tk.SimpleDialog.askError(master, event.getMessage(), "SkyBlockTools")
-
 
 def updateBazaarInfoLabel(api:HypixelBazaarParser | None, loaded=False):
     if api is not None:
@@ -272,7 +272,6 @@ def parseTimeToStr(d)->str:
             out += f"{t}{i} "
             av = True
     return out
-
 def parsePrice(raw:str)-> float | None:
     if raw == "" or raw.count(".") > 1:
         return None # type: ignore
@@ -283,8 +282,6 @@ def parsePrice(raw:str)-> float | None:
     if (not raw[-1].lower() in allKeys.keys())or not raw[:-1].replace(".","").isdigit() or raw[0].lower() in allKeys.keys():
         return None # type: ignore
     return 10**allKeys[raw[-1].lower()]*float(raw[:-1])
-
-
 def prizeToStr(inputPrize:int | float | None, hideCoins=False, forceSign=False)->str | None:
     if inputPrize is None: return None
     exponent = 0
@@ -378,10 +375,8 @@ def parseTimeFromSec(sec)->str:
     out += f"{minutes}m " if minutes > 0 else ""
     out += f"{round(sec, 3)}s"
     return out.strip()
-
 def playNotificationSound():
     Beep(800, 300)
-
 def updateItemLists():
     BazaarItemID.clear()
     AuctionItemID.clear()
@@ -393,7 +388,6 @@ def updateItemLists():
         id_ = itemID.getID()
         if id_ in BazaarItemID or id_ in AuctionItemID: continue
         AuctionItemID.append(id_)
-
 def addPetsToAuctionHouse():
     i = 0
     for item in [*API.SKYBLOCK_AUCTION_API_PARSER.getAuctions(), *API.SKYBLOCK_AUCTION_API_PARSER.getBinAuctions()]:
@@ -484,13 +478,10 @@ class RecipeResult:
     def __lt__(self, other):
         return self.getProfit() > other.getProfit()
 
-def checkSavedFiles(path):
-    pass
-
 def checkWindows():
     match (system()):
         case "Windows":
             PATH = _os.path.join(_os.path.expanduser("~"), "AppData", "Roaming")
-            checkSavedFiles(PATH)
+
         case _:
             raise NotImplementedError("This game is only implemented for Windows yet.")

@@ -10,7 +10,7 @@ from requests.exceptions import ConnectionError, ReadTimeout
 from pysettings import iterDict
 from pysettings.geometry import _map
 from pysettings.jsonConfig import JsonConfig
-from pysettings.text import MsgText, TextColor
+from pysettings.text import MsgText
 import os
 from datetime import datetime, timedelta
 from ctypes import windll
@@ -22,7 +22,7 @@ from matplotlib.figure import Figure
 from pyperclip import copy as copyStr
 from pytz import timezone
 
-from widgets import CompleterEntry, CustomPage, CustomMenuPage, TrackerWidget
+from widgets import CompleterEntry, CustomPage, CustomMenuPage, TrackerWidget, APIRequest
 from bazaarAnalyzer import updateBazaarAnalyzer, BazaarAnalyzer
 from analyzer import getPlotData, getCheapestEnchantmentData
 from images import IconLoader
@@ -77,77 +77,11 @@ from skyMisc import (
     throwAPITimeoutException
 )
 
-APP_DATA = os.path.join(os.path.expanduser("~"), "AppData", "Roaming")
+APP_DATA = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", ".SkyBlockTools")
 IMAGES = os.path.join(os.path.split(__file__)[0], "images")
 CONFIG = os.path.join(os.path.split(__file__)[0], "config")
 
-class APIRequest:
-    """
-    This class handles the threaded API requests.
-    Showing "Waiting for API response..." while waiting for response.
 
-    Perform API Request in API-hook-method -> set 'setRequestAPIHook'
-    start the API request by using 'startAPIRequest'
-
-    """
-    def __init__(self, page, tkMaster:tk.Tk | tk.Toplevel, showLoadingFrame=True):
-        self._tkMaster = tkMaster
-        self._page = page
-        self._showLoadingFrame = showLoadingFrame
-        self._dots = 0
-        self._dataAvailable = False
-        self._hook = None
-        self._waitingLabel = tk.Label(self._page, SG).setText("Waiting for API response").setFont(16)
-    def startAPIRequest(self):
-        """
-        starts the API request and run threaded API-hook-method.
-
-        @return:
-        """
-        assert self._hook is not None, "REQUEST HOOK IS NONE!"
-        if Constants.WAITING_FOR_API_REQUEST:
-            self._waitingLabel.placeForget()
-            self._page.placeContentFrame()
-            return
-        self._dataAvailable = False
-        self._page.hideContentFrame()
-        if self._showLoadingFrame: self._waitingLabel.placeRelative(fixY=100, centerX=True, changeHeight=-40)
-        self._waitingLabel.update()
-        Thread(target=self._updateWaitingForAPI).start()
-        Thread(target=self._requestAPI).start()
-    def setRequestAPIHook(self, hook):
-        """
-        set Function.
-        Perform API-request in bound method.
-
-        @param hook:
-        @return:
-        """
-        self._hook = hook
-    def _updateWaitingForAPI(self):
-        timer = time()
-        self._dots = 0
-        while True:
-            if self._dataAvailable: break
-            sleep(.2)
-            if time()-timer >= 1:
-                if self._dots >= 3:
-                    self._dots = 0
-                else:
-                    self._dots += 1
-                self._waitingLabel.setText("Waiting for API response"+"."*self._dots)
-            self._tkMaster.update()
-    def _requestAPI(self):
-        Constants.WAITING_FOR_API_REQUEST = True
-        self._hook() # request API
-        Constants.WAITING_FOR_API_REQUEST = False
-        self._dataAvailable = True
-        self._finishAPIRequest()
-    def _finishAPIRequest(self):
-        self._waitingLabel.placeForget()
-        self._page.placeContentFrame()
-        self._tkMaster.updateDynamicWidgets()
-        self._tkMaster.update()
 
 # Info/Content Pages
 class MayorInfoPage(CustomPage):
@@ -667,7 +601,7 @@ class AlchemyXPCalculatorPage(CustomPage):
 
         self.wisdom = tk.TextEntry(self.contentFrame, SG)
         self.wisdom.setText("Wisdom: ")
-        self.wisdom.setValue(Config.SETTINGS_CONFIG["wisdom"])
+        self.wisdom.setValue(Config.SETTINGS_CONFIG["alchemy_wisdom"])
         self.wisdom.getEntry().onUserInputEvent(self.updateTreeView)
         self.wisdom.placeRelative(fixHeight=25, stickDown=True, fixWidth=100, fixX=250)
 
@@ -704,7 +638,7 @@ class AlchemyXPCalculatorPage(CustomPage):
         wisdom = self.wisdom.getValue()
         if wisdom.isnumeric():
             wisdomFactor = int(wisdom)
-            Config.SETTINGS_CONFIG["wisdom"] = wisdomFactor
+            Config.SETTINGS_CONFIG["alchemy_wisdom"] = wisdomFactor
             Config.SETTINGS_CONFIG.save()
             wisdomFactor = 1+(wisdomFactor/100)
         else:
@@ -814,9 +748,9 @@ class EnchantingBookBazaarProfitPage(CustomPage):
 
         # only these enchantments are shown
         self.whiteList = None
-        path = os.path.join(CONFIG, "enchantmentProfitWhitelist.json")
+        path = os.path.join(CONFIG, "enchantment_profit_whitelist.json")
         if not os.path.exists(path):
-            tk.SimpleDialog.askError(master, "enchantmentProfitWhitelist.json Path does not exist!")
+            tk.SimpleDialog.askError(master, "enchantment_profit_whitelist.json Path does not exist!")
         else:
             js = JsonConfig.loadConfig(path, ignoreErrors=True)
             if type(js) == str:
@@ -1990,6 +1924,7 @@ class LongTimeFlip(tk.Frame):
         def request():
             try:
                 self.currentHistoryData = getPlotData(id_, SkyConflnetAPI.getBazaarHistoryWeek)
+                Constants.WAITING_FOR_API_REQUEST = False
             except APIConnectionError as e:
                 throwAPIConnectionException(
                     source="SkyCoflnet",
@@ -2249,8 +2184,7 @@ class NewFlipWindow(tk.Dialog):
         self.priceE.setValue(str(price))
     def onChange(self):
         selectedIndex = self.treeView.getSelectedIndex()
-        if not len(selectedIndex): return
-        selectedIndex = selectedIndex[0]
+        if selectedIndex is None: return
         if selectedIndex == -1: return
         add = self.addAmountE.getValue()
         amount = self.setAmountE.getValue()
@@ -2276,15 +2210,15 @@ class NewFlipWindow(tk.Dialog):
         self.addAmountE.clear()
         self.setAmountE.setValue(str(amount))
 
-        data = self.data["data"][self.treeView.getSelectedIndex()[0]]
+        data = self.data["data"][self.treeView.getSelectedIndex()]
         data["price"] = price
         data["amount"] = amount
 
         self.treeView.setEntry(prizeToStr(amount, True), prizeToStr(price), prizeToStr(amount*price), index=selectedIndex)
     def onSelect(self):
         self.enableWidgets()
-        if not len(self.treeView.getSelectedIndex()): return
-        data = self.data["data"][self.treeView.getSelectedIndex()[0]]
+        if self.treeView.getSelectedIndex() is None: return
+        data = self.data["data"][self.treeView.getSelectedIndex()]
         self.priceE.setValue(data["price"])
         self.setAmountE.setValue(data["amount"])
         self.addAmountE.setValue("")
@@ -2410,9 +2344,9 @@ class LongTimeFlipHelperPage(CustomPage):
 
         self._decode()
     def _decode(self):
-        path = os.path.join(CONFIG, "long_time_flip_config.json")
+        path = os.path.join(APP_DATA, "active_flip_config.json")
         if not os.path.exists(path):
-            tk.SimpleDialog.askWarning(self.master, "long_time_flip_config.json dosent exist. Creating blank at:\n"+path)
+            MsgText.warning("active_flip_config.json dosent exist. Creating blank at: "+path)
             file = open(path, "w")
             file.write("[]")
             file.close()
@@ -2479,7 +2413,7 @@ class LongTimeFlipHelperPage(CustomPage):
         self.updateView()
     def saveToFile(self):
         if self.js is None:
-            tk.SimpleDialog.askError(self.master, "Could not save Data! 'long_time_flip_config.json' does not exist or not readable!")
+            MsgText.warning("Could not save Data! 'active_flip_config.json' does not exist or not readable!")
             return
         self.js.setData([i.toData() for i in self.flips])
         self.js.saveConfig()
@@ -2991,8 +2925,8 @@ class PestProfitPage(CustomPage):
         self.selectedPest = None
         self.pestNameMetaSorter = {}
 
-        self.rarePestChances = JsonConfig.loadConfig(os.path.join(CONFIG, "pest_chances_rare.json"))
-        self.commonPestChances = JsonConfig.loadConfig(os.path.join(CONFIG, "pest_chances_common.json"))
+        self.rarePestChances = JsonConfig.loadConfig(os.path.join(CONFIG, "garden_pest_chances_rare.json"))
+        self.commonPestChances = JsonConfig.loadConfig(os.path.join(CONFIG, "garden_pest_chances_common.json"))
 
         self.treeView = tk.TreeView(self.contentFrame, SG)
         self.treeView.onSingleSelectEvent(self.onSelect)
@@ -3618,8 +3552,6 @@ class AccessoryBuyHelperAccount(tk.Dialog):
         slots += list(self.page.slotsConfig["community_centre"].values())[self.communityDrop.getSelectedIndex()]
         slots += self.jacobusDrop.getSelectedIndex() * 2
         return slots
-
-
 class AccessoryBuyHelperPage(CustomPage):
     def __init__(self, master):
         super().__init__(master, pageTitle="Accessory Buy Helper Page", buttonText="Accessory Buy Helper")
@@ -3727,7 +3659,6 @@ class AccessoryBuyHelperPage(CustomPage):
         self.filterNotBuyableCheck.setText("Hide 'Not Buyable' Items")
         self.filterNotBuyableCheck.place(0, 0, 192, 25)
 
-
         self.updateAccounts(None)
         self.accessories = None
     def removeAccount(self):
@@ -3834,7 +3765,8 @@ class AccessoryBuyHelperPage(CustomPage):
         for acc in notOwned:
             if isPiggyPreset and acc["id"] in piggies: continue
             price = API.SKYBLOCK_AUCTION_API_PARSER.getBINAuctionByID(acc["id"])
-            price = price[0].getPrice() if len(price) > 0 else None
+            price.sort()
+            price = price[-1].getPrice() if len(price) > 0 else None
             rarity = acc["rarity"].upper()
             powder = MAGIC_POWDER[rarity]
             pricePerMP = None if price is None else (price/powder)
@@ -3893,7 +3825,8 @@ class AccessoryBuyHelperPage(CustomPage):
         for acc in data["accessories"]:
 
             price = API.SKYBLOCK_AUCTION_API_PARSER.getBINAuctionByID(acc["id"])
-            price = price[0].getPrice() if len(price) > 0 else None
+            price.sort()
+            price = price[-1].getPrice() if len(price) > 0 else None
             rarity = acc["rarity"].upper()
             powder = MAGIC_POWDER[rarity]
 
@@ -3938,7 +3871,8 @@ class AccessoryBuyHelperPage(CustomPage):
                         diff = self.getMagicPoderDiff(rarity, rarityNew)
 
                         upgradedPrice = API.SKYBLOCK_AUCTION_API_PARSER.getBINAuctionByID(upgradedacc)
-                        upgradedPrice = upgradedPrice[0].getPrice() if len(upgradedPrice) > 0 else None
+                        upgradedPrice.sort()
+                        upgradedPrice = upgradedPrice[-1].getPrice() if len(upgradedPrice) > 0 else None
 
                         if upgradedPrice is None: continue
                         if price is None: continue
@@ -3992,14 +3926,177 @@ class AccessoryBuyHelperPage(CustomPage):
         self.slotsLabel.setText(f"Slots: +{slotCount} ({prizeToStr(slotPrice)})")
         self.totalLabel.setText(f"Total: {prizeToStr(costAll)}")
         self.newTotalPowderLabel.setText(f"New Total Powder: {powderAll+powderAllOld}")
-
-
-
     def onShow(self, **kwargs):
         self.master.updateCurrentPageHook = self.updateHelper  # hook to update tv on new API-Data available
         self.placeRelative()
         self.placeContentFrame()
         self.updateHelper()
+class MedalTransferProfitPage(CustomPage):
+    def __init__(self, master):
+        super().__init__(master, pageTitle="Medal Transfer Profit Page", buttonText="Medal Transfer Profit")
+        self.master: Window = master
+
+        self.treeView = tk.TreeView(self.contentFrame, SG)
+        self.treeView.setTableHeaders("ID", "Medal-Price", "Profit", "ProfitPerMedal", "ItemLowestBinPrice")
+        self.treeView.placeRelative(fixX=200)
+
+        self.medalConfig = JsonConfig.loadConfig(os.path.join(CONFIG, "garden_medal_cost.json"))
+
+        tk.Label(self.contentFrame, SG).setText("Jacobs Ticket Price:").setFont(16).placeRelative(fixWidth=200, fixHeight=25).setTextOrientation()
+        self.ticketLabel = tk.Label(self.contentFrame, SG).setTextOrientation()
+        self.ticketLabel.setFont(16)
+        self.ticketLabel.setFg("green")
+        self.ticketLabel.placeRelative(fixWidth=200, fixHeight=25, fixY=25)
+
+        tk.Label(self.contentFrame, SG).setText("Average Price (7d):").setFont(16).placeRelative(fixWidth=200, fixHeight=25, fixY=50).setTextOrientation()
+        self.ticketAvgLabel = tk.Label(self.contentFrame, SG).setTextOrientation()
+        self.ticketAvgLabel.setFont(16)
+        if "JACOBS_TICKET" in ConfigFile.AVERAGE_PRICE.keys():
+            self.ticketAvgLabel.setText(prizeToStr(ConfigFile.AVERAGE_PRICE["JACOBS_TICKET"]))
+        else:
+            self.ticketAvgLabel.setText("None")
+        self.ticketAvgLabel.placeRelative(fixWidth=200, fixHeight=25, fixY=75)
+
+        self.openGraph = tk.Button(self.contentFrame, SG)
+        self.openGraph.setCommand(self.openGraphGUI)
+        self.openGraph.setText("Open Jacobs Ticket Graph")
+        self.openGraph.placeRelative(fixWidth=200, fixHeight=25, fixY=125)
+
+        self.updateAverage = tk.Button(self.contentFrame, SG)
+        self.updateAverage.setCommand(self.requestAverage)
+        self.updateAverage.setText("Update Jacobs Ticket Avg")
+        self.updateAverage.placeRelative(fixWidth=200, fixHeight=25, fixY=100)
+
+    def saveAverage(self):
+        ConfigFile.AVERAGE_PRICE.saveConfig()
+
+    def requestAverage(self):
+        def request():
+            try:
+                self.currentHistoryData = getPlotData("JACOBS_TICKET", SkyConflnetAPI.getBazaarHistoryWeek)
+                Constants.WAITING_FOR_API_REQUEST = False
+            except APIConnectionError as e:
+                throwAPIConnectionException(
+                    source="SkyCoflnet",
+                    master=self.master,
+                    event=e
+                )
+                return None
+            except NoAPIKeySetException as e:
+                throwNoAPIKeyException(
+                    source="SkyCoflnet",
+                    master=self.master,
+                    event=e
+                )
+                return None
+            except APITimeoutException as e:
+                throwAPITimeoutException(
+                    source="SkyCoflnet",
+                    master=self.master,
+                    event=e
+                )
+                return None
+
+            ConfigFile.AVERAGE_PRICE["JACOBS_TICKET"] = getMedianFromList(self.currentHistoryData['past_raw_buy_prices'])
+            self.master.runTask(self.updatePrice).start()
+            self.master.runTask(self.saveAverage).start()
+            self.updateAverage.setText("Update Jacobs Ticket Avg")
+            self.updateAverage.setEnabled()
+
+        if not Constants.WAITING_FOR_API_REQUEST:
+            self.updateAverage.setText("Updating ...")
+            self.updateAverage.setDisabled()
+            Constants.WAITING_FOR_API_REQUEST = True
+            Thread(target=request).start()
+        else:
+            tk.SimpleDialog.askError(self.master, "Another API-Request is still running!")
+
+    def updatePrice(self):
+        if "JACOBS_TICKET" in ConfigFile.AVERAGE_PRICE.keys():
+            self.ticketAvgLabel.setText(prizeToStr(ConfigFile.AVERAGE_PRICE["JACOBS_TICKET"]))
+        else:
+            self.ticketAvgLabel.setText("None")
+        self.updateTreeView()
+
+    def openGraphGUI(self):
+        self.master.showItemInfo(self, "JACOBS_TICKET")
+    def updateTreeView(self):
+        self.treeView.clear()
+
+        ticket = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID("JACOBS_TICKET")
+        if ticket is None:
+            self.ticketLabel.setText("None")
+            tk.SimpleDialog.askError(self.master, "Could not parse Ticket Prices!")
+            return
+        ticketPrice = ticket.getInstaSellPrice() + .1
+        self.ticketLabel.setText(prizeToStr(ticketPrice))
+        if "JACOBS_TICKET" in ConfigFile.AVERAGE_PRICE.keys():
+            if ConfigFile.AVERAGE_PRICE["JACOBS_TICKET"] > ticketPrice:
+                self.ticketLabel.setFg("green")
+            else:
+                self.ticketLabel.setFg("red")
+
+        sorters = []
+        for itemID, itemData in self.medalConfig.data.items():
+            ticketAmount = itemData["tickets"]
+
+            totalBronzeMedals = 0
+
+            strPrice = ""
+            if type(itemData["medal"]) is list:
+                for data in itemData["medal"]:
+                    medalType = data["type"]
+                    medalAmount = data["amount"]
+                    strPrice += f"{medalType}({medalAmount}), "
+                    if medalType == "GOLD":
+                        totalBronzeMedals += medalAmount * 8
+                    if medalType == "SILVER":
+                        totalBronzeMedals += medalAmount * 2
+                    if medalType == "BRONZE":
+                        totalBronzeMedals += medalAmount
+                strPrice = strPrice[:-2]
+            else:
+                medalType = itemData["medal"]["type"]
+                medalAmount = itemData["medal"]["amount"]
+                if medalType == "GOLD":
+                    totalBronzeMedals += medalAmount*8
+                if medalType == "SILVER":
+                    totalBronzeMedals += medalAmount*2
+                if medalType == "BRONZE":
+                    totalBronzeMedals += medalAmount
+                strPrice = f"{medalType}({medalAmount})"
+
+            ticketPriceFull = ticketPrice*ticketAmount
+
+            itemPrice = API.SKYBLOCK_AUCTION_API_PARSER.getBINAuctionByID(itemID)
+            itemPrice.sort()
+            itemPrice = itemPrice[-1].getPrice() if len(itemPrice) > 0 else None
+
+
+            if itemPrice is None: # try Bazaar
+                item = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(itemID)
+                if item is not None:
+                    itemPrice = item.getInstaBuyPrice()
+            sorters.append(
+                Sorter(
+                    sortKey="profitPerMedal",
+                    profitPerMedal=None if itemPrice is None else (itemPrice-ticketPriceFull)/(totalBronzeMedals/8),
+                    itemSellPrice=itemPrice,
+                    ticketAmount=ticketAmount,
+                    strPrice=strPrice,
+                    lbPrice=itemPrice,
+                    id=itemID,
+                    profit=None if itemPrice is None else (itemPrice-ticketPriceFull)
+                )
+            )
+        sorters.sort()
+        for sorter in sorters:
+            self.treeView.addEntry(sorter["id"], sorter["strPrice"], prizeToStr(sorter["profit"]), prizeToStr(sorter["profitPerMedal"]), prizeToStr(sorter["lbPrice"]))
+    def onShow(self, **kwargs):
+        self.placeRelative()
+        self.placeContentFrame()
+        self.updatePrice() # and Treeview
+        self.master.updateCurrentPageHook = self.updateTreeView
 
 # Menu Pages
 class MainMenuPage(CustomMenuPage):
@@ -4010,7 +4107,7 @@ class MainMenuPage(CustomMenuPage):
         self.scrollFramePosY = 0
         self.activeButtons = []
         self.image = tk.PILImage.loadImage(os.path.join(IMAGES, "logo.png"))
-        self.image.resize(.20)
+        self.image.resize(.55)
         self.image.preRender()
         self.title = tk.Label(self, SG).setImage(self.image).placeRelative(centerX=True, fixHeight=self.image.getHeight(), fixWidth=self.image.getWidth(), fixY=50)
 
@@ -4144,7 +4241,7 @@ class LoadingPage(CustomPage):
         self.loadingComplete = False
         self.master:Window = master
         self.image = tk.PILImage.loadImage(os.path.join(IMAGES, "logo.png"))
-        self.image.resize(.25)
+        self.image.resize(.89)
         self.image.preRender()
         self.title = tk.Label(self, SG).setImage(self.image).placeRelative(centerX=True, fixHeight=self.image.getHeight(), fixWidth=self.image.getWidth(), fixY=50)
 
@@ -4153,26 +4250,23 @@ class LoadingPage(CustomPage):
 
         self.info = tk.Label(self, SG).setFont(16)
         self.info.placeRelative(fixHeight=25, fixY=340, changeX=+50, changeWidth=-100)
+    def preLoad(self):
+        if SettingsGUI.checkAPIKeySet(self.master, self.load): return
+        self.load()
     def load(self):
         itemAPISuccessful = False
         bazaarAPISuccessful = False
         actionAPISuccessful = False
-        msgs = ["Loading Config...", "Applying Settings...", "Fetching Hypixel Bazaar API...", "Checking Hypixel Item API...", "Creating Dynamic Item lists...", "Fetching Hypixel Auction API...", "Finishing Up..."]
+        msgs = ["Applying Settings...", "Fetching Hypixel Bazaar API...", "Checking Hypixel Item API...", "Creating Dynamic Item lists...", "Fetching Hypixel Auction API...", "Finishing Up..."]
         self.processBar.setValues(len(msgs))
         for i, msg in enumerate(msgs):
             self.processBar.addValue()
-            if i == 0: # loading config
-                self.info.setText(msg)
-                #sleep(.2)
-                configList = os.listdir(os.path.join(CONFIG))
-                for j, file in enumerate(configList):
-                    self.info.setText(msg+f"  ({file.split('.')[0]}) [{j+1}/{len(configList)}]")
-            elif i == 2: # fetch Bazaar API
+            if i == 0: # fetch Bazaar API
                 self.info.setText(msg)
                 self.processBar.setAutomaticMode()
 
                 path = Config.SETTINGS_CONFIG["constants"]["hypixel_bazaar_config_path"]
-                bazaarConfPath = os.path.join(CONFIG, "skyblock_save", "bazaar.json")
+                bazaarConfPath = os.path.join(APP_DATA, "skyblock_save", "bazaar.json")
 
                 if not os.path.exists(path) and path != "":
                     tk.SimpleDialog.askWarning(self.master, "Could not read data from API-Config.\nConfig does not exist!\nSending request to Hypixel-API...")
@@ -4183,7 +4277,7 @@ class LoadingPage(CustomPage):
                         path = bazaarConfPath
                 t = time()
                 API.SKYBLOCK_BAZAAR_API_PARSER = requestBazaarHypixelAPI(self.master, Config, path=path, saveTo=bazaarConfPath)
-                MsgText.info(f"Loaging HypixelBazaarConfig too {round(time()-t, 2)} Seconds!")
+                MsgText.info(f"Loading HypixelBazaarConfig too {round(time()-t, 2)} Seconds!")
                 if API.SKYBLOCK_BAZAAR_API_PARSER is not None: bazaarAPISuccessful = True
 
                 updateBazaarInfoLabel(API.SKYBLOCK_BAZAAR_API_PARSER, path is not None)
@@ -4192,10 +4286,10 @@ class LoadingPage(CustomPage):
 
                 self.processBar.setNormalMode()
                 self.processBar.setValue(i+1)
-            elif i == 3: # check/fetch Item API
+            elif i == 1: # check/fetch Item API
                 self.info.setText(msg)
 
-                path = os.path.join(CONFIG, "hypixel_item_config.json")
+                path = os.path.join(APP_DATA, "skyblock_save", "hypixel_item_config.json")
 
                 if not SettingsGUI.checkItemConfigExist():
                     tk.SimpleDialog.askWarning(self.master, "Could not read data from Item-API-Config.\nConfig does not exist!\nCreating new...")
@@ -4210,7 +4304,7 @@ class LoadingPage(CustomPage):
                 self.processBar.setValues(len(msgs))
                 self.processBar.setNormalMode()
                 self.processBar.setValue(i + 1)
-            elif i == 4: # build item lists
+            elif i == 2: # build item lists
                 if not itemAPISuccessful or not bazaarAPISuccessful:
                     MsgText.error("Could not parse Items!")
                     continue
@@ -4225,11 +4319,11 @@ class LoadingPage(CustomPage):
                 self.processBar.setValues(len(msgs))
                 self.processBar.setNormalMode()
                 self.processBar.setValue(i + 1)
-            elif i == 5: # fetch Auction API
+            elif i == 3: # fetch Auction API
                 self.info.setText(msg)
 
                 path = Config.SETTINGS_CONFIG["constants"]["hypixel_auction_config_path"]
-                auctConfPath = os.path.join(CONFIG, "skyblock_save", "auctionhouse")
+                auctConfPath = os.path.join(APP_DATA, "skyblock_save", "auctionhouse")
 
                 if not os.path.exists(path) and path != "":
                     tk.SimpleDialog.askWarning(self.master,"Could not read data from API-Config.\nConfig does not exist!\nSending request to Hypixel-API...")
@@ -4244,8 +4338,8 @@ class LoadingPage(CustomPage):
                                                                            path=path,
                                                                            progBar=self.processBar,
                                                                            infoLabel=self.info,
-                                                                           saveTo=os.path.join(CONFIG, "skyblock_save", "auctionhouse"))
-                pages = len(os.listdir(os.path.join(CONFIG, "skyblock_save", "auctionhouse")))
+                                                                           saveTo=os.path.join(APP_DATA, "skyblock_save", "auctionhouse"))
+                pages = len(os.listdir(os.path.join(APP_DATA, "skyblock_save", "auctionhouse")))
                 MsgText.info(f"Loading {pages} Auction-Pages took {round(time()-t, 2)} Seconds!")
                 if API.SKYBLOCK_AUCTION_API_PARSER is not None: actionAPISuccessful = True
                 updateAuctionInfoLabel(API.SKYBLOCK_AUCTION_API_PARSER, path is not None)
@@ -4254,7 +4348,7 @@ class LoadingPage(CustomPage):
                 self.processBar.setValues(len(msgs))
                 self.processBar.setNormalMode()
                 self.processBar.setValue(i + 1)
-            elif i == 6:
+            elif i == 4:
                 self.info.setText(msg)
                 if actionAPISuccessful:
                     t = time()
@@ -4285,13 +4379,17 @@ class Window(tk.Tk):
         MsgText.info("Creating GUI...")
         super().__init__(group=SG)
         MsgText.info("Loading Style...")
-
-        if not os.path.exists(os.path.join(CONFIG, "skyblock_save")):
-            os.mkdir(os.path.join(CONFIG, "skyblock_save"))
-            MsgText.warning("Folder does not exist! Creating folder: "+os.path.join(CONFIG, "skyblock_save"))
-        if not os.path.exists(os.path.join(CONFIG, "skyblock_save", "auctionhouse")):
-            os.mkdir(os.path.join(CONFIG, "skyblock_save", "auctionhouse"))
-            MsgText.warning("Folder does not exist! Creating folder: " + os.path.join(CONFIG, "skyblock_save", "auctionhouse"))
+        if not os.path.exists(os.path.join(APP_DATA)):
+            os.mkdir(APP_DATA)
+            MsgText.warning("Folder does not exist! Creating folder: " + os.path.join(APP_DATA))
+        if not os.path.exists(os.path.join(APP_DATA, "skyblock_save")):
+            os.mkdir(os.path.join(APP_DATA, "skyblock_save"))
+            MsgText.warning("Folder does not exist! Creating folder: "+os.path.join(APP_DATA, "skyblock_save"))
+        if not os.path.exists(os.path.join(APP_DATA, "skyblock_save", "auctionhouse")):
+            os.mkdir(os.path.join(APP_DATA, "skyblock_save", "auctionhouse"))
+            MsgText.warning("Folder does not exist! Creating folder: " + os.path.join(APP_DATA, "skyblock_save", "auctionhouse"))
+        # load average_price_save.json
+        ConfigFile.AVERAGE_PRICE = JsonConfig.loadConfig(os.path.join(APP_DATA, "skyblock_save", "average_price_save.json"), create=True)
         LOAD_STYLE() # load DarkMode!
         IconLoader.loadIcons()
         self.isShiftPressed = False
@@ -4316,6 +4414,7 @@ class Window(tk.Tk):
                 BazaarCraftProfitPage(self),
                 AuctionHousePage(self),
                 AccessoryBuyHelperPage(self),
+                MedalTransferProfitPage(self),
                 MagicFindCalculatorPage(self),
                 PestProfitPage(self),
                 AlchemyXPCalculatorPage(self),
@@ -4341,7 +4440,7 @@ class Window(tk.Tk):
         self.loadingPage.openMenuPage()
         Thread(target=self._autoRequestAPI).start()
         Thread(target=self._updateInfoLabel).start()
-        Thread(target=self.loadingPage.load).start()
+        Thread(target=self.loadingPage.preLoad).start()
         self.configureWindows()
     def _autoRequestAPI(self):
         started = False
@@ -4439,7 +4538,7 @@ class Window(tk.Tk):
         if type(data) == str:
             tk.SimpleDialog.askError(self, data)
             return
-        conf = JsonConfig.loadConfig(os.path.join(CONFIG, "skyblock_save", "bazaar.json"), create=True)
+        conf = JsonConfig.loadConfig(os.path.join(APP_DATA, "skyblock_save", "bazaar.json"), create=True)
         conf.setData(data)
         conf.save()
         API.SKYBLOCK_BAZAAR_API_PARSER = HypixelBazaarParser(data.getData())
@@ -4462,7 +4561,7 @@ class Window(tk.Tk):
             BILG.setText("Requesting Hypixel-API...")
             API.SKYBLOCK_BAZAAR_API_PARSER = requestBazaarHypixelAPI(self,
                                                                      Config,
-                                                                     saveTo=os.path.join(CONFIG, "skyblock_save", "bazaar.json"))
+                                                                     saveTo=os.path.join(APP_DATA, "skyblock_save", "bazaar.json"))
             updateBazaarInfoLabel(API.SKYBLOCK_BAZAAR_API_PARSER, self.isConfigLoadedFromFile)
         if e == "all" or e == "auction":
             AILG.setFg("white")
@@ -4470,7 +4569,7 @@ class Window(tk.Tk):
             API.SKYBLOCK_AUCTION_API_PARSER = requestAuctionHypixelAPI(self,
                                                                        Config,
                                                                        infoLabel=AILG,
-                                                                       saveTo=os.path.join(CONFIG, "skyblock_save", "auctionhouse"))
+                                                                       saveTo=os.path.join(APP_DATA, "skyblock_save", "auctionhouse"))
             updateAuctionInfoLabel(API.SKYBLOCK_AUCTION_API_PARSER, self.isConfigLoadedFromFile)
         updateBazaarAnalyzer()
         Constants.WAITING_FOR_API_REQUEST = False

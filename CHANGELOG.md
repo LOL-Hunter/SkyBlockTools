@@ -1,11 +1,19 @@
 
 
+## Version 2.3.1 Beta 1.0
+
+---
+### New Features:
+* added new Page: Accessoires Buy Helper
+### Fixes:
+
+
+
 ## Version 2.2.5 Alpha 1.0
 
 ---
 ### New Features:
-* Changed Logo to follow hypixel's copyright rules.
-* Changed Icon to follow hypixel's copyright rules.
+
 ### Fixes:
 * Fixed correct recognition of manipulated items in Bazaar-Flipping-Tool.
 * Fixed pet level-price filter in Auction House.
@@ -21,4 +29,3 @@
 * Release: Beta 1.0
 ### Fixes:
 * fixed scroll bug in menu when returning to menu after scrolled all the way down.
-

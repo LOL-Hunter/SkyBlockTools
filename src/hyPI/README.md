@@ -9,6 +9,8 @@ The API is split into three parts:
 * hyPI.recipeAPI
 * hyPI.skyCoflnetAPI
 
+
+
 # hyPI.hypixelAPI
 
 This part is used to get detailed prices of items.\
@@ -193,17 +195,16 @@ m_data = m_hist.getMayorAtYear(<year>) #-> returns "MayorData" instance of the g
 ```
 "MayorData" represents one Mayor.
 It has the following methods.
-
 ```python
-m_data._getID()  # -> returns an ID (not yes sure for what use)
-m_data.getName()  # -> returns mayors name.
-m_data.getKey()  # -> returns its type: for ex. ("fishing", "farming", ...)
-m_data.getYear()  # -> returns the SkyBlock year this mayor is active.
-m_data.getStartTimestamp()  # -> returns the timestamp when the mayor gets active.
-m_data.getEndTimestamp()  # -> returns the timestamp when the mayor time is over.
-m_data.getPerkAmount()  # -> returns how many perks the mayor has.
-m_perks = m_data.getPerks()  # -> returns a list of mayors perks as "MayorPerk" ("explained below")
-mayors = m_data.getElectionCandidates()  # -> returns get the Candidates. (Where this mayor won the election)
+m_data.getID()                  #-> returns an ID (not yes sure for what use)
+m_data.getName()                #-> returns mayors name.
+m_data.getKey()                 #-> returns its type: for ex. ("fishing", "farming", ...)
+m_data.getYear()                #-> returns the SkyBlock year this mayor is active.
+m_data.getStartTimestamp()      #-> returns the timestamp when the mayor gets active.
+m_data.getEndTimestamp()        #-> returns the timestamp when the mayor time is over.
+m_data.getPerkAmount()          #-> returns how many perks the mayor has.
+m_perks = m_data.getPerks()               #-> returns a list of mayors perks as "MayorPerk" ("explained below")
+mayors = m_data.getElectionCandidates()  #-> returns get the Candidates. (Where this mayor won the election)
 ```
 
 "mayors" is a list with "Mayor" instances.
