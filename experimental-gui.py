@@ -1370,7 +1370,7 @@ class ComposterProfitPage(CustomPage):
         singleCost = (coinsPerMatter * data["matter_required"] + coinsPerFuel * data["fuel_required"])
         singleProfit = compostSellPrice - singleCost
         enchantedSingleCost = (compostESellPrice - (singleCost*160)) / 160
-        #TODO test
+        # test
         enchantedSingleCostA = (compostESellPrice - (singleCost*self.addMultipleChance(data['multiple_drop_percentage'], 160))) / 160 # with multiple_drop_percentage
 
         compostFullFuel = round(data['fuel_cap']/data['fuel_required'], 2)
@@ -1507,7 +1507,7 @@ class BazaarToAuctionHouseFlipProfitPage(CustomPage):
             requiredItemString = "("
 
             ## Result price ##
-            #TODO get cheapest Auction house item price -> "resultItem"
+            # get cheapest Auction house item price -> "resultItem"
 
 
             ## ingredients calc ##
