@@ -4367,7 +4367,6 @@ class LoadingPage(CustomPage):
         self.placeRelative()
         #self.api.startAPIRequest()
 
-# Window class
 class Window(tk.Tk):
     def __init__(self):
         checkWindows() # ensures saved files
