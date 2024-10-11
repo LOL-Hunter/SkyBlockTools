@@ -384,9 +384,25 @@ class SettingsGUI(tk.Dialog):
 
     @staticmethod
     def checkAPIKeySet(master, hook):
+
+
+
+
+
+
         if Config.SETTINGS_CONFIG["api_key"] == "":
             tk.SimpleDialog.askInfo(master, "Hypixel-API-Key not set yet.\nSet API-Key in Settings to continue.")
-            SettingsGUI.openSettings(master, hook)
+
+            root = tk.Dialog(master, SG)
+            root.setCloseable(False)
+
+            # change api as widg
+
+            root.show()
+
+
+
+
             return True
         return False
 
