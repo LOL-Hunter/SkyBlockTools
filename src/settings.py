@@ -6,8 +6,7 @@ from constants import STYLE_GROUP as SG
 import os
 from datetime import datetime
 from threading import Thread
-from webbrowser import open as openURL
-from widgets import SettingValue
+from widgets import SettingValue, APILoginWidget
 from skyMisc import parseTimeToStr, parseTimeDelta, requestItemHypixelAPI
 from constants import API, Constants
 
@@ -15,7 +14,7 @@ APP_DATA = os.path.join(os.path.expanduser("~"), "AppData", "Roaming")
 APP_DATA_SETTINGS = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", ".SkyBlockTools")
 IMAGES = os.path.join(os.path.split(__file__)[0], "images")
 CONFIG = os.path.join(os.path.split(__file__)[0], "config")
-API_URL = "https://developer.hypixel.net/"
+
 
 if not os.path.exists(APP_DATA_SETTINGS):
     os.mkdir(APP_DATA_SETTINGS)
@@ -138,24 +137,8 @@ class SettingsGUI(tk.Dialog):
         if self.hook is not None:
             self.hook()
     def createGeneralTab(self, tab):
-        self.keyLf = tk.LabelFrame(tab, SG)
-        self.keyLf.setText("API-Authentication")
-        self.apiUsernameTextE = tk.TextEntry(self.keyLf, SG)
-        self.apiUsernameTextE.setValue(Config.SETTINGS_CONFIG["player_name"])
-        self.apiUsernameTextE.setText("Username:")
-        self.apiUsernameTextE.place(0, 0, 200, 25)
-        self.apiUsernameTextE.getEntry().disable()
-        self.apiKeyTextE = tk.TextEntry(self.keyLf, SG)
-        self.apiKeyTextE.setValue("*" * 16 if Config.SETTINGS_CONFIG["api_key"] != "" else "No api key set!")
-        self.apiKeyTextE.setText("API-Key:")
-        self.apiKeyTextE.place(0, 25, 200, 25)
-        self.apiKeyTextE.getEntry().disable()
-        tk.Button(self.keyLf, SG).setText("Change...").setCommand(self._openChangeWindow).placeRelative(changeWidth=-5,  fixY=50, fixHeight=25)
-        self.urlL = tk.Label(self.keyLf, SG).setText("Click to generate API-Key.").placeRelative(changeWidth=-5, fixY=75, fixHeight=25)
-        self.urlL.bind(self._enter, tk.EventType.ENTER)
-        self.urlL.bind(self._leave, tk.EventType.LEAVE)
-        self.urlL.bind(self._click, tk.EventType.LEFT_CLICK)
-        self.keyLf.place(0, 0, 205, 125)
+        self.apiWidg = APILoginWidget(tab, Config.SETTINGS_CONFIG)
+        self.apiWidg.place(0, 0, 205, 125)
 
         self.itemAPILf = tk.LabelFrame(tab, SG)
         self.itemAPILf.setText("Item-API")
@@ -298,15 +281,6 @@ class SettingsGUI(tk.Dialog):
         self.regItems.setText("")
         self.uptBtn.setDisabled()
         Thread(target=self._requestItemAPI).start()
-    def _enter(self):
-        self.urlL.setText(API_URL)
-    def _leave(self):
-        self.urlL.setText("Click to generate API-Key.")
-    def _click(self):
-        openURL(API_URL)
-        self.urlL.setText("Click to generate API-Key.")
-    def _openChangeWindow(self):
-        SettingsGUI.openAPIKeyChange(self)
 
     @staticmethod
     def openComposterSettings(master, finishHook=None, onScrollHook=None):
@@ -315,56 +289,7 @@ class SettingsGUI(tk.Dialog):
         ComposterSettings(dialog, onScrollHook)
         if finishHook is not None: dialog.onCloseEvent(finishHook)
         dialog.show()
-    @staticmethod
-    def openAPIKeyChange(master, continueAt=None):
-        def setData():
-            _apiKey = apiKeyTextE.getValue()
-            _userName = apiUsernameTextE.getValue()
-            if _apiKey == "" or _userName == "":
-                tk.SimpleDialog.askError(master, "'API-Key' or 'Username' is empty!")
-                return
-            Config.SETTINGS_CONFIG["api_key"] = _apiKey
-            Config.SETTINGS_CONFIG["player_name"] = _userName
-            Config.SETTINGS_CONFIG.save()
-            if isinstance(_master, SettingsGUI):
-                _master.apiKeyTextE.enable()
-                _master.apiUsernameTextE.enable()
-                _master.apiKeyTextE.setValue("*" * 16 if Config.SETTINGS_CONFIG["api_key"] != "" else "No api key set!")
-                _master.apiUsernameTextE.setValue(Config.SETTINGS_CONFIG["player_name"])
-                _master.apiKeyTextE.disable()
-                _master.apiUsernameTextE.disable()
-                _master.update()
 
-            master.destroy()
-            if continueAt is not None:
-                continueAt()
-        def cancel():
-            master.destroy()
-            if continueAt is not None:
-                continueAt()
-
-        _master = master
-        if isinstance(master, tk.Event):
-            master = master.getArgs(0)
-            if len(master.getArgs()) > 1:
-                continueAt = master.getArgs(1)
-        master = tk.Dialog(master, SG)
-        master.setTitle("Set API-Key")
-        master.setCloseable(False)
-        master.setResizeable(False)
-        master.setWindowSize(200, 75)
-        apiUsernameTextE = tk.TextEntry(master, SG)
-        apiUsernameTextE.setText("Username:")
-        apiUsernameTextE.place(0, 0, 200, 25)
-        apiKeyTextE = tk.TextEntry(master, SG)
-        apiKeyTextE.setText("API-Key:")
-        apiKeyTextE.place(0, 25, 200, 25)
-
-        tk.Button(master, SG).setText("OK").place(0, 50, 100, 25).setCommand(setData)
-        tk.Button(master, SG).setText("Cancel").place(100, 50, 100, 25).setCommand(cancel)
-
-        apiUsernameTextE.getEntry().setFocus()
-        master.show()
     @staticmethod
     def openSettings(master, hook=None):
         if not master.loadingPage.loadingComplete: return
@@ -384,25 +309,24 @@ class SettingsGUI(tk.Dialog):
 
     @staticmethod
     def checkAPIKeySet(master, hook):
-
-
-
-
-
+        def load():
+            root.destroy()
+            hook()
 
         if Config.SETTINGS_CONFIG["api_key"] == "":
             tk.SimpleDialog.askInfo(master, "Hypixel-API-Key not set yet.\nSet API-Key in Settings to continue.")
 
             root = tk.Dialog(master, SG)
             root.setCloseable(False)
+            root.setResizeable(False)
+            root.setWindowSize(205, 125)
 
-            # change api as widg
-
+            apiWidg = APILoginWidget(root,
+                                     Config.SETTINGS_CONFIG,
+                                     continueAt=load,
+                                     canCancel=False)
+            apiWidg.placeRelative()
             root.show()
-
-
-
-
             return True
         return False
 

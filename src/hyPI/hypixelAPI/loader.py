@@ -86,7 +86,10 @@ class HypixelAuctionParser:
         self._decode(rawData["auctions"])
         #print(ascii(self._binByID.keys()))
     def changeItemParser(self, parser:HypixelItemParser):
-        self._itemParser._data = parser._data
+        if self._itemParser is None:
+            self._itemParser = parser
+        else:
+            self._itemParser._data = parser._data
     def _decode(self, data:list):
         for auctData in data:
             if auctData["bin"]:
@@ -107,7 +110,7 @@ class HypixelAuctionParser:
                 try:
                     itemData = convertAuctionNameToID(auctData, self._itemParser, self._auctionIDs)
                 except:
-                    MsgText.error(format_exc(), True)
+                    MsgText.error(format_exc())
                     MsgText.warning(f"Could not parse Item name: {ascii(auctData['item_name'])}")
                     continue
                 _auc = NORAuctionProduct(auctData, itemData)

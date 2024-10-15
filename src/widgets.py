@@ -9,7 +9,96 @@ from pysettings.text import TextColor
 from traceback import format_exc
 from images import IconLoader
 from threading import Thread
+from webbrowser import open as openURL
 from time import time, sleep
+
+class APILoginWidget(tk.LabelFrame):
+    API_URL = "https://developer.hypixel.net/"
+    def __init__(self, master, settingsConfig, continueAt=None, canCancel=True):
+        super().__init__(master, SG)
+        self.master = master
+        self.continueAt = continueAt
+        self.canCancel = canCancel
+        self.settingsConfig = settingsConfig
+        self.setText("API-Authentication")
+        self.apiUsernameTextE = tk.TextEntry(self, SG)
+        self.apiUsernameTextE.setValue(settingsConfig["player_name"])
+        self.apiUsernameTextE.setText("Username:")
+        self.apiUsernameTextE.place(0, 0, 200, 25)
+        self.apiUsernameTextE.getEntry().disable()
+        self.apiKeyTextE = tk.TextEntry(self, SG)
+        self.apiKeyTextE.setValue("*" * 16 if settingsConfig["api_key"] != "" else "No api key set!")
+        self.apiKeyTextE.setText("API-Key:")
+        self.apiKeyTextE.place(0, 25, 200, 25)
+        self.apiKeyTextE.getEntry().disable()
+        tk.Button(self, SG).setText("Change...").setCommand(self.openAPIKeyChange).placeRelative(changeWidth=-5,
+                                                                                                        fixY=50,
+                                                                                                        fixHeight=25)
+        self.urlL = tk.Label(self, SG).setText("Click to generate API-Key.").placeRelative(changeWidth=-5,
+                                                                                                 fixY=75, fixHeight=25)
+        self.urlL.bind(self._enter, tk.EventType.ENTER)
+        self.urlL.bind(self._leave, tk.EventType.LEAVE)
+        self.urlL.bind(self._click, tk.EventType.LEFT_CLICK)
+    
+    def _enter(self):
+        self.urlL.setText(APILoginWidget.API_URL)
+    def _leave(self):
+        self.urlL.setText("Click to generate API-Key.")
+    def _click(self):
+        openURL(APILoginWidget.API_URL)
+        self.urlL.setText("Click to generate API-Key.")
+
+    def openAPIKeyChange(self):
+        def setData():
+            _apiKey = apiKeyTextE.getValue()
+            _userName = apiUsernameTextE.getValue()
+            if _apiKey == "" or _userName == "":
+                tk.SimpleDialog.askError(master, "'API-Key' or 'Username' is empty!")
+                return
+            self.settingsConfig["api_key"] = _apiKey
+            self.settingsConfig["player_name"] = _userName
+            self.settingsConfig.save()
+            if hasattr(_master, "writeAutoAPISettings"): # check if SettingsGUI class instance
+                _master.apiKeyTextE.enable()
+                _master.apiUsernameTextE.enable()
+                _master.apiKeyTextE.setValue("*" * 16 if self.settingsConfig["api_key"] != "" else "No api key set!")
+                _master.apiUsernameTextE.setValue(self.settingsConfig["player_name"])
+                _master.apiKeyTextE.disable()
+                _master.apiUsernameTextE.disable()
+                _master.update()
+
+            master.destroy()
+            if self.continueAt is not None:
+                self.continueAt()
+
+        def cancel():
+            if not self.canCancel: return
+            master.destroy()
+            if self.continueAt is not None:
+                self.continueAt()
+
+        _master = self.master
+        if isinstance(self.master, tk.Event):
+            master = self.master.getArgs(0)
+            if len(master.getArgs()) > 1:
+                self.continueAt = master.getArgs(1)
+        master = tk.Dialog(self.master, SG)
+        master.setTitle("Set API-Key")
+        master.setCloseable(False)
+        master.setResizeable(False)
+        master.setWindowSize(200, 75)
+        apiUsernameTextE = tk.TextEntry(master, SG)
+        apiUsernameTextE.setText("Username:")
+        apiUsernameTextE.place(0, 0, 200, 25)
+        apiKeyTextE = tk.TextEntry(master, SG)
+        apiKeyTextE.setText("API-Key:")
+        apiKeyTextE.place(0, 25, 200, 25)
+
+        tk.Button(master, SG).setText("OK").place(0, 50, 100, 25).setCommand(setData)
+        tk.Button(master, SG).setText("Cancel").place(100, 50, 100, 25).setCommand(cancel)
+
+        apiUsernameTextE.getEntry().setFocus()
+        master.show()
 
 class SettingValue(tk.Frame):
     CONFIG = None
