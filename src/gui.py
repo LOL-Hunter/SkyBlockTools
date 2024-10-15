@@ -3964,10 +3964,8 @@ class MedalTransferProfitPage(CustomPage):
         self.updateAverage.setCommand(self.requestAverage)
         self.updateAverage.setText("Update Jacobs Ticket Avg")
         self.updateAverage.placeRelative(fixWidth=200, fixHeight=25, fixY=100)
-
     def saveAverage(self):
         ConfigFile.AVERAGE_PRICE.saveConfig()
-
     def requestAverage(self):
         def request():
             try:
@@ -4008,14 +4006,12 @@ class MedalTransferProfitPage(CustomPage):
             Thread(target=request).start()
         else:
             tk.SimpleDialog.askError(self.master, "Another API-Request is still running!")
-
     def updatePrice(self):
         if "JACOBS_TICKET" in ConfigFile.AVERAGE_PRICE.keys():
             self.ticketAvgLabel.setText(prizeToStr(ConfigFile.AVERAGE_PRICE["JACOBS_TICKET"]))
         else:
             self.ticketAvgLabel.setText("None")
         self.updateTreeView()
-
     def openGraphGUI(self):
         self.master.showItemInfo(self, "JACOBS_TICKET")
     def updateTreeView(self):
@@ -4095,6 +4091,55 @@ class MedalTransferProfitPage(CustomPage):
         self.placeContentFrame()
         self.updatePrice() # and Treeview
         self.master.updateCurrentPageHook = self.updateTreeView
+class ForgeProfitTrackerPage(CustomPage):
+    def __init__(self, master):
+        super().__init__(master, pageTitle="Forge Profit Tracker Page", buttonText="Forge Profit Tracker")
+
+        self.treeView = tk.TreeView(self.contentFrame, SG)
+        self.treeView.setTableHeaders("ItemID", "Ingredients", "Cost", "Profit")
+
+        self.treeView.placeRelative(fixX=200)
+
+        self.tooFrame = tk.LabelFrame(self.contentFrame, SG)
+        self.tooFrame.setText("Tools")
+
+        self.tooFrame.placeRelative(fixWidth=200)
+
+
+
+    def updateTreeview(self):
+        self.treeView.clear()
+        if API.SKYBLOCK_BAZAAR_API_PARSER is None: return
+
+
+
+        item = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(itemID)
+        if item is None:
+            print("ERROR", itemID)
+            continue
+        if self.hideLowInstaSell.getValue() and item.getInstaSellWeek() / 168 < 1: continue
+        ## Sell price ##
+        if self.useSellOffers.getValue():  # use sell Offer
+            itemSellPrice = item.getInstaBuyPrice()
+        else:  # insta sell
+            itemSellPrice = item.getInstaSellPrice()
+        itemSellPrice = applyBazaarTax(itemSellPrice) * factor
+        if not itemSellPrice: continue  # sell is zero
+        ## Buy price ##
+        if self.useBuyOffers.getValue():
+            itemBuyPrice = [item.getInstaSellPrice() + .1] * factor
+        else:  # insta buy ingredients
+            itemBuyPrice = item.getInstaBuyPriceList(factor)
+        if len(itemBuyPrice) != factor:
+            print(f"[BazaarFlipper]: Item {itemID}. not enough in buy!")
+            continue
+
+
+    def onShow(self, **kwargs):
+        self.placeRelative()
+        self.placeContentFrame()
+        self.master.updateCurrentPageHook = self.updateTreeview
+        self.updateTreeview()
 
 # Menu Pages
 class MainMenuPage(CustomMenuPage):
@@ -4413,6 +4458,7 @@ class Window(tk.Tk):
                 BazaarCraftProfitPage(self),
                 AuctionHousePage(self),
                 AccessoryBuyHelperPage(self),
+                ForgeProfitTrackerPage(self),
                 MedalTransferProfitPage(self),
                 MagicFindCalculatorPage(self),
                 PestProfitPage(self),
