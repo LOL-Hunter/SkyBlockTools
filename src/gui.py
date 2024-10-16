@@ -4098,7 +4098,7 @@ class ForgeProfitTrackerPage(CustomPage):
         self.forgeConfig = JsonConfig.loadConfig(os.path.join(CONFIG, "forge_data.json"))
 
         self.treeView = tk.TreeView(self.contentFrame, SG)
-        self.treeView.setTableHeaders("ItemID", "Ingredients", "Cost", "Profit")
+        self.treeView.setTableHeaders("ItemID", "Ingredients", "Cost", "Profit", "ForgeTime")
 
         self.treeView.placeRelative(fixX=200)
 
@@ -4125,12 +4125,12 @@ class ForgeProfitTrackerPage(CustomPage):
             itemSellPrice = item.getInstaBuyPrice()
 
             itemBuyPriceTotal = 0
-            imputIDs = []
+            inputIDs = []
 
             for ingrediant in recipe["input"]:
                 itemIDInput = ingrediant["type"]
                 itemAmountInput = ingrediant["amount"]
-                imputIDs.append(itemIDInput)
+                inputIDs.append((itemIDInput, itemAmountInput))
 
                 item = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(itemIDInput)
                 if item is None:
@@ -4148,16 +4148,20 @@ class ForgeProfitTrackerPage(CustomPage):
                     profit=itemSellPrice-itemBuyPriceTotal,
                     sellPrice=itemSellPrice,
                     buyPrice=itemBuyPriceTotal,
-                    inputIDs=imputIDs,
-                    outputID=itemIDOutput
-
+                    inputStr="".join([f"{ID}[{amount}], " for ID, amount in inputIDs])[:-2],
+                    inputIDs=inputIDs,
+                    outputID=itemIDOutput,
+                    forgeTime=recipe["duration"]
                 )
             )
         sorters.sort()
         for sorter in sorters:
             self.treeView.addEntry(
                 sorter["outputID"],
-
+                sorter["inputStr"],
+                prizeToStr(sorter["buyPrice"]),
+                prizeToStr(sorter["sellPrice"]),
+                parseTimeFromSec(sorter["forgeTime"])
             )
 
     def onShow(self, **kwargs):
