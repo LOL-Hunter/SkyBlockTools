@@ -4095,6 +4095,8 @@ class ForgeProfitTrackerPage(CustomPage):
     def __init__(self, master):
         super().__init__(master, pageTitle="Forge Profit Tracker Page", buttonText="Forge Profit Tracker")
 
+        self.forgeConfig = JsonConfig.loadConfig(os.path.join(CONFIG, "forge_data.json"))
+
         self.treeView = tk.TreeView(self.contentFrame, SG)
         self.treeView.setTableHeaders("ItemID", "Ingredients", "Cost", "Profit")
 
@@ -4111,29 +4113,52 @@ class ForgeProfitTrackerPage(CustomPage):
         self.treeView.clear()
         if API.SKYBLOCK_BAZAAR_API_PARSER is None: return
 
+        sorters = []
 
+        for recipe in self.forgeConfig:
+            itemIDOutput = recipe["output"]
 
-        item = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(itemID)
-        if item is None:
-            print("ERROR", itemID)
-            continue
-        if self.hideLowInstaSell.getValue() and item.getInstaSellWeek() / 168 < 1: continue
-        ## Sell price ##
-        if self.useSellOffers.getValue():  # use sell Offer
+            item = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(itemIDOutput)
+            if item is None:
+                print("ERROR", itemIDOutput)
+                continue
             itemSellPrice = item.getInstaBuyPrice()
-        else:  # insta sell
-            itemSellPrice = item.getInstaSellPrice()
-        itemSellPrice = applyBazaarTax(itemSellPrice) * factor
-        if not itemSellPrice: continue  # sell is zero
-        ## Buy price ##
-        if self.useBuyOffers.getValue():
-            itemBuyPrice = [item.getInstaSellPrice() + .1] * factor
-        else:  # insta buy ingredients
-            itemBuyPrice = item.getInstaBuyPriceList(factor)
-        if len(itemBuyPrice) != factor:
-            print(f"[BazaarFlipper]: Item {itemID}. not enough in buy!")
-            continue
 
+            itemBuyPriceTotal = 0
+            imputIDs = []
+
+            for ingrediant in recipe["input"]:
+                itemIDInput = ingrediant["type"]
+                itemAmountInput = ingrediant["amount"]
+                imputIDs.append(itemIDInput)
+
+                item = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(itemIDInput)
+                if item is None:
+                    print("ERROR", itemIDInput)
+                    continue
+                itemBuyPrice = [item.getInstaSellPrice() + .1] * itemAmountInput
+                if len(itemBuyPrice) != itemAmountInput:
+                    print(f"[BazaarFlipper]: Item {itemIDInput}. not enough in buy!")
+                    continue
+
+                itemBuyPriceTotal += sum(itemBuyPrice)
+            sorters.append(
+                Sorter(
+                    sortKey="profit",
+                    profit=itemSellPrice-itemBuyPriceTotal,
+                    sellPrice=itemSellPrice,
+                    buyPrice=itemBuyPriceTotal,
+                    inputIDs=imputIDs,
+                    outputID=itemIDOutput
+
+                )
+            )
+        sorters.sort()
+        for sorter in sorters:
+            self.treeView.addEntry(
+                sorter["outputID"],
+
+            )
 
     def onShow(self, **kwargs):
         self.placeRelative()

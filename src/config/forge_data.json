@@ -2,11 +2,11 @@
   {
     "input": [
       {
-        "type": "",
-        "amount": ""
+        "type": "ENCHANTED_DIAMOND_BLOCK",
+        "amount": 2
       }
     ],
-    "output": "",
-    "forge_duration": ""
+    "output": "REFINED_DIAMOND",
+    "forge_duration": "28800"
   }
 ]
