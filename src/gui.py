@@ -3810,7 +3810,7 @@ class AccessoryBuyHelperPage(CustomPage):
 
         remaingSlots = slots - slotsUsed
 
-        if remaingSlots > 0:
+        if remaingSlots <= 0:
             for i, sorter in enumerate(sorters[::-1][remaingSlots+1:]):
                 jacobusSlotPrice = self.jacobusPricesConfig[data["jacobus"] + 1 + i//2] / 2
                 sorter["price"] = sorter["price"]+jacobusSlotPrice
@@ -4106,9 +4106,6 @@ class ForgeProfitTrackerPage(CustomPage):
         self.tooFrame.setText("Tools")
 
         self.tooFrame.placeRelative(fixWidth=200)
-
-
-
     def updateTreeview(self):
         self.treeView.clear()
         if API.SKYBLOCK_BAZAAR_API_PARSER is None: return
@@ -4163,7 +4160,6 @@ class ForgeProfitTrackerPage(CustomPage):
                 prizeToStr(sorter["sellPrice"]),
                 parseTimeFromSec(sorter["forgeTime"])
             )
-
     def onShow(self, **kwargs):
         self.placeRelative()
         self.placeContentFrame()
