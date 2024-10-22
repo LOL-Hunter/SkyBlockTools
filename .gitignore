@@ -1,2 +1,8 @@
 /src/config/skyblock_save
 /src/config/hypixel_item_config.json
+src/__pycache__/
+/src/hyPI/__pycache__/
+/src/hyPI/hypixelAPI/__pycache__/
+/src/hyPI/recipeAPI/__pycache__/
+/src/hyPI/skyCoflnetAPI/__pycache__/
+/src/images/__pycache__/
