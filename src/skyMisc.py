@@ -481,14 +481,11 @@ class RecipeResult:
     def __lt__(self, other):
         return self.getProfit() > other.getProfit()
 
-
-#
-
 match (system()):
     case "Windows":
-        System.CONFIG_PATH = _os.path.join(_os.path.expanduser("~"), "AppData", "Roaming")
+        System.CONFIG_PATH = _os.path.join(_os.path.expanduser("~"), "AppData", "Roaming", ".SkyBlockTools")
         System.SYSTEM_TYPE = "WINDOWS"
 
     case "Linux":
-        System.CONFIG_PATH = _os.path.join(_os.path.expanduser("~"), ".local", "share")
+        System.CONFIG_PATH = _os.path.join(_os.path.expanduser("~"), ".local", "share", ".SkyBlockTools")
         System.SYSTEM_TYPE = "LINUX"
