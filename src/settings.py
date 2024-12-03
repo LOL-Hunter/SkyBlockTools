@@ -8,10 +8,9 @@ from datetime import datetime
 from threading import Thread
 from widgets import SettingValue, APILoginWidget
 from skyMisc import parseTimeToStr, parseTimeDelta, requestItemHypixelAPI
-from constants import API, Constants
+from constants import API, Constants, System
 
-APP_DATA = os.path.join(os.path.expanduser("~"), "AppData", "Roaming")
-APP_DATA_SETTINGS = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", ".SkyBlockTools")
+APP_DATA_SETTINGS = System.CONFIG_PATH
 IMAGES = os.path.join(os.path.split(__file__)[0], "images")
 CONFIG = os.path.join(os.path.split(__file__)[0], "config")
 
@@ -19,6 +18,8 @@ CONFIG = os.path.join(os.path.split(__file__)[0], "config")
 if not os.path.exists(APP_DATA_SETTINGS):
     os.mkdir(APP_DATA_SETTINGS)
     MsgText.warning("Settings Folder missing! Creating at: "+APP_DATA_SETTINGS)
+
+
 def checkConfigForUpdates():
     for key in Config.SETTINGS_CONFIG.getDefault().keys():
         if key not in Config.SETTINGS_CONFIG.keys():

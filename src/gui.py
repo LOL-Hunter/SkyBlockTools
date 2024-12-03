@@ -13,7 +13,6 @@ from pysettings.jsonConfig import JsonConfig
 from pysettings.text import MsgText
 import os
 from datetime import datetime, timedelta
-from ctypes import windll
 from threading import Thread
 from time import time, sleep
 from typing import List, Tuple
@@ -26,9 +25,9 @@ from widgets import CompleterEntry, CustomPage, CustomMenuPage, TrackerWidget, A
 from bazaarAnalyzer import updateBazaarAnalyzer, BazaarAnalyzer
 from analyzer import getPlotData, getCheapestEnchantmentData
 from images import IconLoader
-from settings import SettingsGUI, Config, checkConfigForUpdates
 from constants import (
     VERSION,
+    System,
     RARITY_COLOR_CODE,
     LOAD_STYLE,
     STYLE_GROUP as SG,
@@ -68,7 +67,6 @@ from skyMisc import (
     BookCraft,
     RecipeResult,
     getDictEnchantmentIDToLevels,
-    checkWindows,
     updateItemLists,
     addPetsToAuctionHouse,
     playNotificationSound,
@@ -76,8 +74,8 @@ from skyMisc import (
     throwAPIConnectionException,
     throwAPITimeoutException
 )
+from settings import SettingsGUI, Config, checkConfigForUpdates
 
-APP_DATA = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", ".SkyBlockTools")
 IMAGES = os.path.join(os.path.split(__file__)[0], "images")
 CONFIG = os.path.join(os.path.split(__file__)[0], "config")
 
@@ -2342,7 +2340,7 @@ class LongTimeFlipHelperPage(CustomPage):
 
         self._decode()
     def _decode(self):
-        path = os.path.join(APP_DATA, "active_flip_config.json")
+        path = os.path.join(System.CONFIG_PATH, "active_flip_config.json")
         if not os.path.exists(path):
             MsgText.warning("active_flip_config.json dosent exist. Creating blank at: "+path)
             file = open(path, "w")
@@ -3066,6 +3064,7 @@ class PestProfitPage(CustomPage):
         for pestName in self.rarePestChances.keys():
             sorters = []
             for singleDropItemID, dropChance in iterDict(self.rarePestChances[pestName]):
+                dropChance, amount = dropChance
 
                 if singleDropItemID in BazaarItemID: # Bazaar Item!
                     item = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(singleDropItemID)
@@ -3109,7 +3108,7 @@ class PestProfitPage(CustomPage):
                     rareDropChance = dropChance * (1 + (farmingFortune + cropFortune) / 600)
                 averageNeededPestsForARareDrop = 1 / (rareDropChance / 100)
                 rawAverageNeededPestsForARareDrop = 1 / (dropChance / 100)
-                pestProfitRare = (rareDropChance / 100) * itemSellPrice
+                pestProfitRare = (rareDropChance / 100) * itemSellPrice * amount
 
                 sorters.append(
                     Sorter(
@@ -3123,11 +3122,15 @@ class PestProfitPage(CustomPage):
                         profit_full=itemSellPrice,
                         chance=rareDropChance,
                         raw_chance=dropChance,
+                        amount=amount,
                     )
                 )
             sorters.sort()
+            product = self.commonPestChances[pestName]["id"]
+            base_amount = self.commonPestChances[pestName]["base_amount"]
+            gain_additional_ff = self.commonPestChances[pestName]["gain_additional_ff"]
 
-            item = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(self.commonPestChances[pestName])
+            item = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(product)
 
             if self.useSellOffers.getValue():  # use sell Offer
                 itemSellPrice = item.getInstaBuyPrice()
@@ -3135,14 +3138,13 @@ class PestProfitPage(CustomPage):
                 itemSellPrice = item.getInstaSellPrice()
             itemSellPrice = applyBazaarTax(itemSellPrice)
 
-            pestProfitCommon = itemSellPrice * (1+farmingFortune/100)
+            pestProfitCommon = itemSellPrice * (base_amount+farmingFortune/gain_additional_ff)
 
             metaSorters.append(
                 Sorter(
                     sortKey="profit",
-
-                    itemID=self.commonPestChances[pestName],
-                    amount=(1+farmingFortune/100),
+                    itemID=product,
+                    amount=(base_amount+farmingFortune/gain_additional_ff),
                     pestName=pestName,
                     profitRareSorter=sorters,
                     profitCommon=pestProfitCommon,
@@ -4334,7 +4336,7 @@ class LoadingPage(CustomPage):
                 self.processBar.setAutomaticMode()
 
                 path = Config.SETTINGS_CONFIG["constants"]["hypixel_bazaar_config_path"]
-                bazaarConfPath = os.path.join(APP_DATA, "skyblock_save", "bazaar.json")
+                bazaarConfPath = os.path.join(System.CONFIG_PATH, "skyblock_save", "bazaar.json")
 
                 if not os.path.exists(path) and path != "":
                     tk.SimpleDialog.askWarning(self.master, "Could not read data from API-Config.\nConfig does not exist!\nSending request to Hypixel-API...")
@@ -4357,7 +4359,7 @@ class LoadingPage(CustomPage):
             elif i == 1: # check/fetch Item API
                 self.info.setText(msg)
 
-                path = os.path.join(APP_DATA, "skyblock_save", "hypixel_item_config.json")
+                path = os.path.join(System.CONFIG_PATH, "skyblock_save", "hypixel_item_config.json")
 
                 if not SettingsGUI.checkItemConfigExist():
                     tk.SimpleDialog.askWarning(self.master, "Could not read data from Item-API-Config.\nConfig does not exist!\nCreating new...")
@@ -4391,7 +4393,7 @@ class LoadingPage(CustomPage):
                 self.info.setText(msg)
 
                 path = Config.SETTINGS_CONFIG["constants"]["hypixel_auction_config_path"]
-                auctConfPath = os.path.join(APP_DATA, "skyblock_save", "auctionhouse")
+                auctConfPath = os.path.join(System.CONFIG_PATH, "skyblock_save", "auctionhouse")
 
                 if not os.path.exists(path) and path != "":
                     tk.SimpleDialog.askWarning(self.master,"Could not read data from API-Config.\nConfig does not exist!\nSending request to Hypixel-API...")
@@ -4406,8 +4408,8 @@ class LoadingPage(CustomPage):
                                                                            path=path,
                                                                            progBar=self.processBar,
                                                                            infoLabel=self.info,
-                                                                           saveTo=os.path.join(APP_DATA, "skyblock_save", "auctionhouse"))
-                pages = len(os.listdir(os.path.join(APP_DATA, "skyblock_save", "auctionhouse")))
+                                                                           saveTo=os.path.join(System.CONFIG_PATH, "skyblock_save", "auctionhouse"))
+                pages = len(os.listdir(os.path.join(System.CONFIG_PATH, "skyblock_save", "auctionhouse")))
                 MsgText.info(f"Loading {pages} Auction-Pages took {round(time()-t, 2)} Seconds!")
                 if API.SKYBLOCK_AUCTION_API_PARSER is not None: actionAPISuccessful = True
                 updateAuctionInfoLabel(API.SKYBLOCK_AUCTION_API_PARSER, path is not None)
@@ -4440,7 +4442,6 @@ class LoadingPage(CustomPage):
 # Window class
 class Window(tk.Tk):
     def __init__(self):
-        checkWindows() # ensures saved files
         checkConfigForUpdates()
         if Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_off_on_load"]:
             Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"] = False
@@ -4448,17 +4449,17 @@ class Window(tk.Tk):
         MsgText.info("Creating GUI...")
         super().__init__(group=SG)
         MsgText.info("Loading Style...")
-        if not os.path.exists(os.path.join(APP_DATA)):
-            os.mkdir(APP_DATA)
-            MsgText.warning("Folder does not exist! Creating folder: " + os.path.join(APP_DATA))
-        if not os.path.exists(os.path.join(APP_DATA, "skyblock_save")):
-            os.mkdir(os.path.join(APP_DATA, "skyblock_save"))
-            MsgText.warning("Folder does not exist! Creating folder: "+os.path.join(APP_DATA, "skyblock_save"))
-        if not os.path.exists(os.path.join(APP_DATA, "skyblock_save", "auctionhouse")):
-            os.mkdir(os.path.join(APP_DATA, "skyblock_save", "auctionhouse"))
-            MsgText.warning("Folder does not exist! Creating folder: " + os.path.join(APP_DATA, "skyblock_save", "auctionhouse"))
+        if not os.path.exists(os.path.join(System.CONFIG_PATH)):
+            os.mkdir(System.CONFIG_PATH)
+            MsgText.warning("Folder does not exist! Creating folder: " + System.CONFIG_PATH)
+        if not os.path.exists(os.path.join(System.CONFIG_PATH, "skyblock_save")):
+            os.mkdir(os.path.join(System.CONFIG_PATH, "skyblock_save"))
+            MsgText.warning("Folder does not exist! Creating folder: "+os.path.join(System.CONFIG_PATH, "skyblock_save"))
+        if not os.path.exists(os.path.join(System.CONFIG_PATH, "skyblock_save", "auctionhouse")):
+            os.mkdir(os.path.join(System.CONFIG_PATH, "skyblock_save", "auctionhouse"))
+            MsgText.warning("Folder does not exist! Creating folder: " + os.path.join(System.CONFIG_PATH, "skyblock_save", "auctionhouse"))
         # load average_price_save.json
-        ConfigFile.AVERAGE_PRICE = JsonConfig.loadConfig(os.path.join(APP_DATA, "skyblock_save", "average_price_save.json"), create=True)
+        ConfigFile.AVERAGE_PRICE = JsonConfig.loadConfig(os.path.join(System.CONFIG_PATH, "skyblock_save", "average_price_save.json"), create=True)
         LOAD_STYLE() # load DarkMode!
         IconLoader.loadIcons()
         self.isShiftPressed = False
@@ -4478,6 +4479,7 @@ class Window(tk.Tk):
         self.mainMenuPage = MainMenuPage(self, [
                 LongTimeFlipHelperPage(self),
                 ItemPriceTrackerPage(self),
+            PestProfitPage(self),
                 MayorInfoPage(self),
                 BazaarFlipProfitPage(self),
                 BazaarCraftProfitPage(self),
@@ -4486,7 +4488,7 @@ class Window(tk.Tk):
                 ForgeProfitTrackerPage(self),
                 MedalTransferProfitPage(self),
                 MagicFindCalculatorPage(self),
-                PestProfitPage(self),
+
                 AlchemyXPCalculatorPage(self),
                 ItemInfoPage(self),
                 BazaarToAuctionHouseFlipProfitPage(self),
@@ -4511,7 +4513,7 @@ class Window(tk.Tk):
         Thread(target=self._autoRequestAPI).start()
         Thread(target=self._updateInfoLabel).start()
         Thread(target=self.loadingPage.preLoad).start()
-        self.configureWindows()
+        if System.SYSTEM_TYPE == "WINDOWS": self.configureWindows()
     def _autoRequestAPI(self):
         started = False
         timer = time()
@@ -4550,6 +4552,7 @@ class Window(tk.Tk):
     def configureWindows(self):
         self.updateIdleTasks()
         self.withdraw()
+        from ctypes import windll
         GWL_EXSTYLE = -20
         WS_EX_APPWINDOW = 0x00040000
         WS_EX_TOOLWINDOW = 0x00000080
@@ -4608,7 +4611,7 @@ class Window(tk.Tk):
         if type(data) == str:
             tk.SimpleDialog.askError(self, data)
             return
-        conf = JsonConfig.loadConfig(os.path.join(APP_DATA, "skyblock_save", "bazaar.json"), create=True)
+        conf = JsonConfig.loadConfig(os.path.join(System.CONFIG_PATH, "skyblock_save", "bazaar.json"), create=True)
         conf.setData(data)
         conf.save()
         API.SKYBLOCK_BAZAAR_API_PARSER = HypixelBazaarParser(data.getData())
@@ -4631,7 +4634,7 @@ class Window(tk.Tk):
             BILG.setText("Requesting Hypixel-API...")
             API.SKYBLOCK_BAZAAR_API_PARSER = requestBazaarHypixelAPI(self,
                                                                      Config,
-                                                                     saveTo=os.path.join(APP_DATA, "skyblock_save", "bazaar.json"))
+                                                                     saveTo=os.path.join(System.CONFIG_PATH, "skyblock_save", "bazaar.json"))
             updateBazaarInfoLabel(API.SKYBLOCK_BAZAAR_API_PARSER, self.isConfigLoadedFromFile)
         if e == "all" or e == "auction":
             AILG.setFg("white")
@@ -4639,7 +4642,7 @@ class Window(tk.Tk):
             API.SKYBLOCK_AUCTION_API_PARSER = requestAuctionHypixelAPI(self,
                                                                        Config,
                                                                        infoLabel=AILG,
-                                                                       saveTo=os.path.join(APP_DATA, "skyblock_save", "auctionhouse"))
+                                                                       saveTo=os.path.join(System.CONFIG_PATH, "skyblock_save", "auctionhouse"))
             updateAuctionInfoLabel(API.SKYBLOCK_AUCTION_API_PARSER, self.isConfigLoadedFromFile)
         updateBazaarAnalyzer()
         Constants.WAITING_FOR_API_REQUEST = False

@@ -22,6 +22,10 @@ class API:
     SKYBLOCK_AUCTION_API_PARSER: HypixelAuctionParser = None
     SKYBLOCK_ITEM_API_PARSER: HypixelItemParser = None
 
+class System:
+    CONFIG_PATH = ""
+    SYSTEM_TYPE = ""
+
 BazaarItemID: [str] = [] # creation on runtime
 AuctionItemID: [str] = [] # creation on runtime
 

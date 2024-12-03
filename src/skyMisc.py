@@ -9,11 +9,10 @@ import tksimple as tk
 from pysettings.jsonConfig import JsonConfig
 from pysettings.text import TextColor, MsgText
 from datetime import datetime
-from constants import BAZAAR_INFO_LABEL_GROUP as BILG, AUCT_INFO_LABEL_GROUP as AILG, API, ALL_ENCHANTMENT_IDS, AuctionItemID, BazaarItemID
+from constants import BAZAAR_INFO_LABEL_GROUP as BILG, AUCT_INFO_LABEL_GROUP as AILG, API, ALL_ENCHANTMENT_IDS, AuctionItemID, BazaarItemID, System
 from skyMath import parseTimeDelta
 from typing import List, Dict
 from platform import system
-from winsound import Beep
 from constants import Constants
 
 def requestBazaarHypixelAPI(master, config, path=None, saveTo=None)->HypixelBazaarParser | None:
@@ -376,7 +375,11 @@ def parseTimeFromSec(sec)->str:
     out += f"{round(sec, 3)}s"
     return out.strip()
 def playNotificationSound():
-    Beep(800, 300)
+    if System.SYSTEM_TYPE == "WINDOWS":
+        from winsound import Beep
+        Beep(800, 300)
+    else:
+        MsgText.warning("Beep on this System is not yet Implemented!")
 def updateItemLists():
     BazaarItemID.clear()
     AuctionItemID.clear()
@@ -478,10 +481,14 @@ class RecipeResult:
     def __lt__(self, other):
         return self.getProfit() > other.getProfit()
 
-def checkWindows():
-    match (system()):
-        case "Windows":
-            PATH = _os.path.join(_os.path.expanduser("~"), "AppData", "Roaming")
 
-        case _:
-            raise NotImplementedError("This game is only implemented for Windows yet.")
+#
+
+match (system()):
+    case "Windows":
+        System.CONFIG_PATH = _os.path.join(_os.path.expanduser("~"), "AppData", "Roaming")
+        System.SYSTEM_TYPE = "WINDOWS"
+
+    case "Linux":
+        System.CONFIG_PATH = _os.path.join(_os.path.expanduser("~"), ".local", "share")
+        System.SYSTEM_TYPE = "LINUX"

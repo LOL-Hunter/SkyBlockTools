@@ -1,40 +1,44 @@
     {
     "beetle":{
-        "ENCHANTMENT_PESTERMINATOR_1":3.5,
-        "MUTANT_NETHER_STALK":3 
+        "ENCHANTMENT_PESTERMINATOR_1":[3.5, 1],
+        "MUTANT_NETHER_STALK":[0.5, 9]
     },
     "cricket":{
-        "ENCHANTED_GOLDEN_CARROT":3,
-        "CHIRPING_STEREO":0.5
+        "ENCHANTED_GOLDEN_CARROT":[3, 12],
+        "CHIRPING_STEREO":[0.5, 1]
     },
     "earthworm":{
-        "BOOKWORM_BOOK":2,
-        "ENCHANTED_MELON_BLOCK":4
+        "BOOKWORM_BOOK":[2, 1],
+        "ENCHANTED_MELON_BLOCK":[0.5, 15]
     },
    "fly":{
-       "BEADY_EYES":1.5,
-       "TIGHTLY_TIED_HAY_BALE":1
+       "BEADY_EYES":[1.5, 1],
+       "ENCHANTED_HAY_BLOCK":[0.5, 3]
    }, 
    "locust":{
-       "ENCHANTED_BAKED_POTATO":3,
-       "ENCHANTMENT_SUNDER_6":0.5
+       "ENCHANTED_BAKED_POTATO":[0.5, 10],
+       "ENCHANTMENT_SUNDER_6":[0.5, 1]
    },
    "mite":{
-       "ENCHANTED_CACTUS":2,
-       "ATMOSPHERIC_FILTER":0.25
+       "ENCHANTED_CACTUS":[0.5, 6],
+       "ATMOSPHERIC_FILTER":[0.25, 1]
    },
     "mosquito":{
-        "ENCHANTED_SUGAR_CANE":2,
-        "CLIPPED_WINGS":1
+        "ENCHANTED_SUGAR_CANE":[0.5, 6],
+        "CLIPPED_WINGS":[1, 1]
    },
-   "moth":{
-        "POLISHED_PUMPKIN":1,
-        "PET_RAT":0.2
+    "moth":{
+      "ENCHANTED_COOKIE":[0.5, 11],
+      "WRIGGLING_LARVA":[0.5, 1]
+   },
+   "rat":{
+        "POLISHED_PUMPKIN":[0.5, 3],
+        "PET_RAT":[0.2, 1]
    },
    "slug":{
-       "ENCHANTED_HUGE_MUSHROOM_1":0.5,
-       "ENCHANTED_HUGE_MUSHROOM_2":0.5,
-       "PET_SLUG_epic":0.5,
-       "PET_SLUG_legendary":0.1
+       "ENCHANTED_HUGE_MUSHROOM_1":[0.5, 15],
+       "ENCHANTED_HUGE_MUSHROOM_2":[0.5, 15],
+       "PET_SLUG_epic":[0.5, 1],
+       "PET_SLUG_legendary":[0.1, 1]
    }
 }

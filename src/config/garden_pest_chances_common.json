@@ -1,11 +1,52 @@
 {
-    "beetle":"ENCHANTED_NETHER_STALK",
-    "cricket":"ENCHANTED_CARROT",
-    "earthworm":"ENCHANTED_MELON",
-    "fly":"ENCHANTED_HAY_BLOCK",
-    "locust":"ENCHANTED_POTATO",
-    "mite":"ENCHANTED_CACTUS_GREEN",
-    "mosquito":"ENCHANTED_SUGAR",
-    "moth":"ENCHANTED_COCOA",
-    "slug":"ENCHANTED_RED_MUSHROOM"
+    "beetle": {
+        "id": "ENCHANTED_NETHER_STALK",
+        "base_amount": 3,
+        "gain_additional_ff": 12
+    },
+    "cricket": {
+        "id": "ENCHANTED_CARROT",
+        "base_amount": 3,
+        "gain_additional_ff": 10.5
+    },
+    "earthworm": {
+        "id": "ENCHANTED_MELON",
+        "base_amount": 5,
+        "gain_additional_ff": 35
+    },
+    "fly": {
+        "id": "ENCHANTED_WHEAT",
+        "base_amount": 1,
+        "gain_additional_ff": 35
+    },
+    "locust": {
+        "id": "ENCHANTED_POTATO",
+        "base_amount": 3,
+        "gain_additional_ff": 10.5
+    },
+    "mite": {
+        "id": "ENCHANTED_CACTUS_GREEN",
+        "base_amount": 2,
+        "gain_additional_ff": 17.5
+    },
+    "mosquito": {
+        "id": "ENCHANTED_SUGAR",
+        "base_amount": 2,
+        "gain_additional_ff": 17.5
+    },
+    "moth": {
+        "id": "ENCHANTED_COCOA",
+        "base_amount": 3,
+        "gain_additional_ff": 12
+    },
+    "slug": {
+        "id": "ENCHANTED_RED_MUSHROOM",
+        "base_amount": 1,
+        "gain_additional_ff": 35
+    },
+    "rat": {
+        "id": "ENCHANTED_PUMPKIN",
+        "base_amount": 1,
+        "gain_additional_ff": 35
+    }
 }
