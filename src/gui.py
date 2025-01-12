@@ -4266,11 +4266,14 @@ class MainMenuPage(CustomMenuPage):
         if not hasattr(self, "scrollBarFrame"): return
         x, y, width, height = e.getValue()
         self.scrollBarFrame.place(x+width+3, y, 20, height)
-    def onScroll(self, e:tk.Event):
+    def onScrollUp(self):
+        self.onScroll(1)
+    def onScrollDown(self):
+        self.onScroll(-1)
+    def onScroll(self, e:tk.Event|int, speed=10):
         if not self.isActive(): return # if this page is not visible
         if self.buttonFrame.getHeight() < self.scrollFrame.getHeight(): return
-        speed = 10
-        delta = e.getScrollDelta()
+        delta = e.getScrollDelta() if isinstance(e, tk.Event) else e
         if delta < 0: # down
             if not self.scrollFrame.getHeight() >= self.buttonFrame.getHeight()-abs(self.scrollFramePosY):
                 self.scrollFramePosY -= speed
@@ -4475,13 +4478,13 @@ class Window(tk.Tk):
         self.searchPage = SearchPage(self)
         self.loadingPage = LoadingPage(self)
 
-        ## REGISTER FEATURES ##
         self.mainMenuPage = MainMenuPage(self, [
                 LongTimeFlipHelperPage(self),
                 ItemPriceTrackerPage(self),
             PestProfitPage(self),
                 MayorInfoPage(self),
                 BazaarFlipProfitPage(self),
+                AlchemyXPCalculatorPage(self),
                 BazaarCraftProfitPage(self),
                 AuctionHousePage(self),
                 AccessoryBuyHelperPage(self),
@@ -4489,13 +4492,13 @@ class Window(tk.Tk):
                 MedalTransferProfitPage(self),
                 MagicFindCalculatorPage(self),
 
-                AlchemyXPCalculatorPage(self),
                 ItemInfoPage(self),
                 BazaarToAuctionHouseFlipProfitPage(self),
                 ComposterProfitPage(self),
                 EnchantingBookBazaarCheapestPage(self),
                 EnchantingBookBazaarProfitPage(self),
         ])
+        ## REGISTER FEATURES ##
 
         self.infoTopLevel = tk.Toplevel(self, SG)
         self.infoTopLevel.setTitle("Price Graph")
@@ -4548,6 +4551,8 @@ class Window(tk.Tk):
         self.bind(lambda:Thread(target=self.refreshAPIRequest, args=("all",)).start(), tk.EventType.hotKey(tk.FunctionKey.ALT, "F5"))
         self.bind(lambda:SettingsGUI.openSettings(self), tk.EventType.hotKey(tk.FunctionKey.ALT, "s"))
 
+        self.bind(self.mainMenuPage.onScrollUp, tk.EventType.ARROW_UP)
+        self.bind(self.mainMenuPage.onScrollDown, tk.EventType.ARROW_DOWN)
         self.bind(self.mainMenuPage.onScroll, tk.EventType.WHEEL_MOTION)
     def configureWindows(self):
         self.updateIdleTasks()

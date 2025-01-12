@@ -4,7 +4,7 @@
         "MUTANT_NETHER_STALK":[0.5, 9]
     },
     "cricket":{
-        "ENCHANTED_GOLDEN_CARROT":[3, 12],
+        "ENCHANTED_GOLDEN_CARROT":[0.5, 12],
         "CHIRPING_STEREO":[0.5, 1]
     },
     "earthworm":{
@@ -13,7 +13,7 @@
     },
    "fly":{
        "BEADY_EYES":[1.5, 1],
-       "ENCHANTED_HAY_BLOCK":[0.5, 3]
+       "ENCHANTED_HAY_BALE":[0.5, 3]
    }, 
    "locust":{
        "ENCHANTED_BAKED_POTATO":[0.5, 10],
@@ -36,8 +36,8 @@
         "PET_RAT":[0.2, 1]
    },
    "slug":{
-       "ENCHANTED_HUGE_MUSHROOM_1":[0.5, 15],
-       "ENCHANTED_HUGE_MUSHROOM_2":[0.5, 15],
+       "ENCHANTED_HUGE_MUSHROOM_1":[0.25, 15],
+       "ENCHANTED_HUGE_MUSHROOM_2":[0.25, 15],
        "PET_SLUG_epic":[0.5, 1],
        "PET_SLUG_legendary":[0.1, 1]
    }
