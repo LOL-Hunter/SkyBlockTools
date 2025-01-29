@@ -3659,8 +3659,75 @@ class AccessoryBuyHelperPage(CustomPage):
         self.filterNotBuyableCheck.setText("Hide 'Not Buyable' Items")
         self.filterNotBuyableCheck.place(0, 0, 192, 25)
 
+        self.compareFrame = tk.LabelFrame(self.toolFrame, group=SG)
+        self.compareFrame.setText("Compare")
+        self.compareFrame.place(0, 538, 192, 150)
+
+        tk.Label(self.compareFrame, group=SG).setText("Compare Player:").place(0, 0, 192, 25)
+        self.compPlay1 = tk.DropdownMenu(self.compareFrame).place(0, 25, 192, 25)
+        tk.Label(self.compareFrame, group=SG).setText("With Player:").place(0, 50, 192, 25)
+        self.compPlay2 = tk.DropdownMenu(self.compareFrame).place(0, 75, 192, 25)
+        tk.Button(self.compareFrame, group=SG).setCommand(self.compare).setText("Compare ...").place(0, 100, 192, 25)
+
         self.updateAccounts(None)
         self.accessories = None
+    def compare(self):
+        pl1 = self.compPlay1.getValue()
+        pl2 = self.compPlay2.getValue()
+        if pl1 == "" or pl2 == "": return
+        if pl1 == pl2: return
+        root = tk.Toplevel(self.master, group=SG)
+        tv = tk.TreeView(root, group=SG)
+        tv.setTableHeaders("Name", pl1, pl2)
+        p1Acc = {acc["id"]:acc for acc in Config.SETTINGS_CONFIG["accessories"][pl1]["accessories"]}
+        p2Acc = {acc["id"]:acc for acc in Config.SETTINGS_CONFIG["accessories"][pl2]["accessories"]}
+
+        for k, v in zip(p1Acc.keys(), p1Acc.values()):
+            p1Str = ""
+            p2Str = ""
+            if k in p2Acc.keys():
+                p1Str = "X"
+                p2Str = "X"
+                if v["recomb"] != p2Acc[k]["recomb"]:
+                    p1Str += ("R" if v["recomb"] else "")
+                    p2Str += ("R" if p2Acc[k]["recomb"] else "")
+                if v["enrichment"] != p2Acc[k]["enrichment"]:
+                    p1Str += ("R" if v["recomb"] else "")
+                    p2Str += ("R" if p2Acc[k]["recomb"] else "")
+                if v["recomb"] == p2Acc[k]["recomb"] and v["rarity"] != p2Acc[k]["rarity"]:
+                    p1Str += f"({v["rarity"]})"
+                    p2Str += f"({p2Acc[k]["rarity"]})"
+                if p1Str+p2Str == "XX": continue
+                tv.addEntry(k, p1Str, p2Str)
+                continue
+
+            tv.addEntry(k, f"X", "")
+
+        for k, v in zip(p2Acc.keys(), p2Acc.values()):
+            p1Str = ""
+            p2Str = ""
+            if k in p1Acc.keys():
+                p1Str = "X"
+                p2Str = "X"
+                if v["recomb"] != p2Acc[k]["recomb"]:
+                    p1Str += ("R" if p1Acc[k]["recomb"] else "")
+                    p2Str += ("R" if v["recomb"] else "")
+                if v["enrichment"] != p2Acc[k]["enrichment"]:
+                    p1Str += ("R" if p1Acc[k]["recomb"] else "")
+                    p2Str += ("R" if v["recomb"] else "")
+                if v["recomb"] == p2Acc[k]["recomb"] and v["rarity"] != p2Acc[k]["rarity"]:
+                    p1Str += f"({p1Acc[k]["rarity"]})"
+                    p2Str += f"({v["rarity"]})"
+                if p1Str + p2Str == "XX": continue
+                tv.addEntry(k, p1Str, p2Str)
+                continue
+            tv.addEntry(k, f"", "X")
+
+
+        tv.placeRelative()
+        root.show()
+        
+
     def removeAccount(self):
         name = self.accDrop.getValue()
         if name == "": return
@@ -3684,7 +3751,10 @@ class AccessoryBuyHelperPage(CustomPage):
             powder += MAGIC_POWDER[i["rarity"].upper()]
         return powder
     def updateAccounts(self, name):
-        self.accDrop.setOptionList(list(Config.SETTINGS_CONFIG["accessories"].keys()))
+        accs = list(Config.SETTINGS_CONFIG["accessories"].keys())
+        self.accDrop.setOptionList(accs)
+        self.compPlay1.setOptionList(accs)
+        self.compPlay2.setOptionList(accs)
         if name is not None:
             self.accDrop.setValue(name)
             self.updateHelper()
