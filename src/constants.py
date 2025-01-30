@@ -4,7 +4,7 @@ from tkinter import ttk
 from hyPI.hypixelAPI.loader import HypixelBazaarParser, HypixelAuctionParser, HypixelItemParser
 import os
 
-VERSION = "v2.2.5"
+VERSION = "v2.3.0"
 APP_DATA = os.path.join(os.path.expanduser("~"), "AppData", "Roaming")
 CONFIG = os.path.join(os.path.split(__file__)[0], "config")
 

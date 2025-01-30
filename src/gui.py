@@ -3411,6 +3411,7 @@ class AccessoryBuyHelperAccount(tk.Dialog):
         self.page = page
         self.master = master
         self.updHook = updHook
+        self.profile = ""
         self.accessories = [] if data is None else data["accessories"]
         self.setWindowSize(800, 800)
         self.setMinSize(500, 800)
@@ -3462,6 +3463,7 @@ class AccessoryBuyHelperAccount(tk.Dialog):
             self.redsMinerDrop.setValueByIndex(data["redstone_miner"])
             self.communityDrop.setValueByIndex(data["community_centre"])
             self.jacobusDrop.setValueByIndex(data["jacobus"])
+            self.profile = data["profile"]
             self.select()
         else:
             self.redsColDrop.setValueByIndex(0)
@@ -3488,12 +3490,15 @@ class AccessoryBuyHelperAccount(tk.Dialog):
         def request(playerName, profileName):
             url = f"https://sky.shiiyu.moe/api/v2/talismans/{playerName}/{profileName.lower()}"
             try:
-                val =  getReq(url).json()
+                val = getReq(url).json()
             except ConnectionError:
                 tk.SimpleDialog.askError(self.master, "An Exception occurred while connecting to API.\nCheck your internet connection.")
                 return
             except ReadTimeout:
                 tk.SimpleDialog.askError(self.master, "Timeout Exception occurred!")
+                return
+            if "error" in val.keys():
+                tk.SimpleDialog.askError(self.master)
                 return
             self.accessories.clear()
             for acc in val["accessories"]["accessories"]:
@@ -3510,11 +3515,13 @@ class AccessoryBuyHelperAccount(tk.Dialog):
             self.updateTreeView()
         data = tk.SimpleDialog.askUsernamePassword(self.master,
                                                    initialUname=self.nameEntry.getValue(),
+                                                   initialPassw=self.profile,
                                                    unameString="Player Name",
                                                    passwString="Profile",
                                                    hidePassword=False
                                                    )
         if data is None: return
+        self.profile = data[1].lower()
         Thread(target=request, args=data).start()
     def select(self):
         self.slotsFrame.setText(f"Slots [{self.getTotalSlots()}]")
@@ -3544,6 +3551,7 @@ class AccessoryBuyHelperAccount(tk.Dialog):
             "jacobus":self.jacobusDrop.getSelectedIndex(),
             "slots":self.getTotalSlots(),
             "powder":0,
+            "profile":self.profile,
             "accessories":self.accessories
         }
     def getTotalSlots(self):
@@ -3681,10 +3689,7 @@ class AccessoryBuyHelperPage(CustomPage):
         tv.setTableHeaders("Name", pl1, pl2)
         p1Acc = {acc["id"]:acc for acc in Config.SETTINGS_CONFIG["accessories"][pl1]["accessories"]}
         p2Acc = {acc["id"]:acc for acc in Config.SETTINGS_CONFIG["accessories"][pl2]["accessories"]}
-
         for k, v in zip(p1Acc.keys(), p1Acc.values()):
-            p1Str = ""
-            p2Str = ""
             if k in p2Acc.keys():
                 p1Str = "X"
                 p2Str = "X"
@@ -3700,12 +3705,8 @@ class AccessoryBuyHelperPage(CustomPage):
                 if p1Str+p2Str == "XX": continue
                 tv.addEntry(k, p1Str, p2Str)
                 continue
-
             tv.addEntry(k, f"X", "")
-
         for k, v in zip(p2Acc.keys(), p2Acc.values()):
-            p1Str = ""
-            p2Str = ""
             if k in p1Acc.keys():
                 p1Str = "X"
                 p2Str = "X"
@@ -3722,12 +3723,8 @@ class AccessoryBuyHelperPage(CustomPage):
                 tv.addEntry(k, p1Str, p2Str)
                 continue
             tv.addEntry(k, f"", "X")
-
-
         tv.placeRelative()
         root.show()
-        
-
     def removeAccount(self):
         name = self.accDrop.getValue()
         if name == "": return
@@ -4420,7 +4417,7 @@ class LoadingPage(CustomPage):
                         path = bazaarConfPath
                 t = time()
                 API.SKYBLOCK_BAZAAR_API_PARSER = requestBazaarHypixelAPI(self.master, Config, path=path, saveTo=bazaarConfPath)
-                MsgText.info(f"Loading HypixelBazaarConfig too {round(time()-t, 2)} Seconds!")
+                MsgText.info(f"Loading HypixelBazaarConfig took {round(time()-t, 2)} Seconds!")
                 if API.SKYBLOCK_BAZAAR_API_PARSER is not None: bazaarAPISuccessful = True
 
                 updateBazaarInfoLabel(API.SKYBLOCK_BAZAAR_API_PARSER, path is not None)
