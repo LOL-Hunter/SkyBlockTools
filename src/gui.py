@@ -985,6 +985,7 @@ class BazaarCraftProfitPage(CustomPage):
             "ENCHANTED_EYE_OF_ENDER",
             "ENCHANTED_COOKIE",
             "BLESSED_BAIT"
+            "ENCHANTED_CAKE"
         ]
         self.validRecipes = self._getValidRecipes()
         self.validBzItems = [i.getID() for i in self.validRecipes]
@@ -3700,8 +3701,8 @@ class AccessoryBuyHelperPage(CustomPage):
                     p1Str += ("R" if v["recomb"] else "")
                     p2Str += ("R" if p2Acc[k]["recomb"] else "")
                 if v["recomb"] == p2Acc[k]["recomb"] and v["rarity"] != p2Acc[k]["rarity"]:
-                    p1Str += f"({v["rarity"]})"
-                    p2Str += f"({p2Acc[k]["rarity"]})"
+                    p1Str += f"({v['rarity']})"
+                    p2Str += f"({p2Acc[k]['rarity']})"
                 if p1Str+p2Str == "XX": continue
                 tv.addEntry(k, p1Str, p2Str)
                 continue
@@ -3717,8 +3718,8 @@ class AccessoryBuyHelperPage(CustomPage):
                     p1Str += ("R" if p1Acc[k]["recomb"] else "")
                     p2Str += ("R" if v["recomb"] else "")
                 if v["recomb"] == p2Acc[k]["recomb"] and v["rarity"] != p2Acc[k]["rarity"]:
-                    p1Str += f"({p1Acc[k]["rarity"]})"
-                    p2Str += f"({v["rarity"]})"
+                    p1Str += f"({p1Acc[k]['rarity']})"
+                    p2Str += f"({v['rarity']})"
                 if p1Str + p2Str == "XX": continue
                 tv.addEntry(k, p1Str, p2Str)
                 continue
