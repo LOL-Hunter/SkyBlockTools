@@ -14,9 +14,10 @@ from time import time, sleep
 
 class APILoginWidget(tk.LabelFrame):
     API_URL = "https://developer.hypixel.net/"
-    def __init__(self, master, settingsConfig, continueAt=None, canCancel=True):
+    def __init__(self, master, tkMaster, settingsConfig, continueAt=None, canCancel=True):
         super().__init__(master, SG)
         self.master = master
+        self.tkmaster = tkMaster
         self.continueAt = continueAt
         self.canCancel = canCancel
         self.settingsConfig = settingsConfig
@@ -31,11 +32,8 @@ class APILoginWidget(tk.LabelFrame):
         self.apiKeyTextE.setText("API-Key:")
         self.apiKeyTextE.place(0, 25, 200, 25)
         self.apiKeyTextE.getEntry().disable()
-        tk.Button(self, SG).setText("Change...").setCommand(self.openAPIKeyChange).placeRelative(changeWidth=-5,
-                                                                                                        fixY=50,
-                                                                                                        fixHeight=25)
-        self.urlL = tk.Label(self, SG).setText("Click to generate API-Key.").placeRelative(changeWidth=-5,
-                                                                                                 fixY=75, fixHeight=25)
+        tk.Button(self, SG).setText("Change...").setCommand(self.openAPIKeyChange).placeRelative(changeWidth=-5, fixY=50, fixHeight=25)
+        self.urlL = tk.Label(self, SG).setText("Click to generate API-Key.").placeRelative(changeWidth=-5, fixY=75, fixHeight=25)
         self.urlL.bind(self._enter, tk.EventType.ENTER)
         self.urlL.bind(self._leave, tk.EventType.LEAVE)
         self.urlL.bind(self._click, tk.EventType.LEFT_CLICK)
@@ -78,11 +76,12 @@ class APILoginWidget(tk.LabelFrame):
                 self.continueAt()
 
         _master = self.master
-        if isinstance(self.master, tk.Event):
+        """if isinstance(self.master, tk.Event):       WTF
             master = self.master.getArgs(0)
             if len(master.getArgs()) > 1:
-                self.continueAt = master.getArgs(1)
-        master = tk.Dialog(self.master, SG)
+                self.continueAt = master.getArgs(1)"""
+
+        master = tk.Dialog(self.tkmaster, SG)
         master.setTitle("Set API-Key")
         master.setCloseable(False)
         master.setResizeable(False)

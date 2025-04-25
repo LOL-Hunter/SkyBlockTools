@@ -1,8 +1,8 @@
 # -*- coding: iso-8859-15 -*-
 import os as _os
-from hyPI.APIError import APIConnectionError, NoAPIKeySetException, APITimeoutException
+from hyPI.APIError import APIConnectionError, NoAPIKeySetException, APITimeoutException, CouldNotReadDataPackageException
 from hyPI.hypixelAPI import HypixelAPIURL, APILoader, fileLoader
-from hyPI.hypixelAPI.loader import HypixelBazaarParser, HypixelAuctionParser, HypixelItemParser
+from hyPI.hypixelAPI.loader import HypixelBazaarParser, HypixelAuctionParser, HypixelItemParser, HypixelProfileParser, HypixelProfilesParser
 from hyPI.skyCoflnetAPI import SkyConflnetAPI
 from hyPI import getEnchantmentIDLvl
 import tksimple as tk
@@ -14,6 +14,92 @@ from skyMath import parseTimeDelta
 from typing import List, Dict
 from platform import system
 from constants import Constants
+
+
+def requestProfilesHypixelAPI(master, config, uuid:str)->HypixelProfilesParser | None:
+    """
+    @param uuid:
+    @param config:
+    @param master:
+    @return:
+    """
+    try: # config.SETTINGS_CONFIG["player_name"]
+        TextColor.printStrf("§INFO§cRequesting 'PROFILES_DATA' from Hypixel-API")
+        data = APILoader(HypixelAPIURL.PROFILES_URL, config.SETTINGS_CONFIG["api_key"], uuid=uuid)
+
+        parser = HypixelProfilesParser(data)
+    except APIConnectionError as e:
+        throwAPIConnectionException(
+            source="Hypixel Profiles API",
+            master=master,
+            event=e
+        )
+        return None
+    except NoAPIKeySetException as e:
+        throwNoAPIKeyException(
+            source="Hypixel Profiles API",
+            master=master,
+            event=e
+        )
+        return None
+    except APITimeoutException as e:
+        throwAPITimeoutException(
+            source="Hypixel Profiles API",
+            master=master,
+            event=e
+        )
+        return None
+    except CouldNotReadDataPackageException as e:
+        throwCouldNotReadDataPackageException(
+            source="Hypixel Profiles API",
+            master=master,
+            event=e
+        )
+        return None
+    return parser
+
+def requestProfileHypixelAPI(master, config, accUuid:str)->HypixelProfileParser | None:
+    """
+    @param accUuid:
+    @param config:
+    @param master:
+    @return:
+    """
+    try: # config.SETTINGS_CONFIG["player_name"]
+        TextColor.printStrf(f"§INFO§cRequesting 'PROFILE_DATA_[{accUuid}]' from Hypixel-API")
+        data = APILoader(HypixelAPIURL.PROFILE_URL, config.SETTINGS_CONFIG["api_key"], profile=accUuid)
+
+        parser = HypixelProfileParser(data)
+    except APIConnectionError as e:
+        throwAPIConnectionException(
+            source="Hypixel Profile API",
+            master=master,
+            event=e
+        )
+        return None
+    except NoAPIKeySetException as e:
+        throwNoAPIKeyException(
+            source="Hypixel Profile API",
+            master=master,
+            event=e
+        )
+        return None
+    except APITimeoutException as e:
+        throwAPITimeoutException(
+            source="Hypixel Profile API",
+            master=master,
+            event=e
+        )
+        return None
+    except CouldNotReadDataPackageException as e:
+        throwCouldNotReadDataPackageException(
+            source="Hypixel Profile API",
+            master=master,
+            event=e
+        )
+        return None
+    return parser
+
 
 def requestBazaarHypixelAPI(master, config, path=None, saveTo=None)->HypixelBazaarParser | None:
     """
@@ -33,7 +119,7 @@ def requestBazaarHypixelAPI(master, config, path=None, saveTo=None)->HypixelBaza
                 return None
         else:
             TextColor.printStrf("§INFO§cRequesting 'BAZAAR_DATA' from Hypixel-API")
-            data = APILoader(HypixelAPIURL.BAZAAR_URL, config.SETTINGS_CONFIG["api_key"], config.SETTINGS_CONFIG["player_name"])
+            data = APILoader(HypixelAPIURL.BAZAAR_URL, config.SETTINGS_CONFIG["api_key"], name=config.SETTINGS_CONFIG["player_name"])
 
             if saveTo is not None and data is not None:
                 conf = JsonConfig.loadConfig(saveTo, create=True)
@@ -57,6 +143,13 @@ def requestBazaarHypixelAPI(master, config, path=None, saveTo=None)->HypixelBaza
         return None
     except APITimeoutException as e:
         throwAPITimeoutException(
+            source="Hypixel Bazaar API",
+            master=master,
+            event=e
+        )
+        return None
+    except CouldNotReadDataPackageException as e:
+        throwCouldNotReadDataPackageException(
             source="Hypixel Bazaar API",
             master=master,
             event=e
@@ -102,7 +195,7 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
             parser = HypixelAuctionParser(
                 APILoader(HypixelAPIURL.AUCTION_URL,
                           config.SETTINGS_CONFIG["api_key"],
-                          config.SETTINGS_CONFIG["player_name"]),
+                          name=config.SETTINGS_CONFIG["player_name"]),
                 API.SKYBLOCK_ITEM_API_PARSER,
                 AuctionItemID
             )
@@ -118,7 +211,7 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
                 TextColor.printStrf(f"§INFO§cRequesting 'AUCTION_DATA' from Hypixel-API [{page+1}]")
                 data = APILoader(HypixelAPIURL.AUCTION_URL,
                                  config.SETTINGS_CONFIG["api_key"],
-                                 config.SETTINGS_CONFIG["player_name"],
+                                 name=config.SETTINGS_CONFIG["player_name"],
                                  page=page)
                 if saveTo is not None:
                     file = JsonConfig.fromDict(data)
@@ -148,6 +241,13 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
             event=e
         )
         return None
+    except CouldNotReadDataPackageException as e:
+        throwCouldNotReadDataPackageException(
+            source="Hypixel Auction API",
+            master=master,
+            event=e
+        )
+        return None
     return parser
 def requestItemHypixelAPI(master, config, path=None, saveTo=None)->HypixelItemParser | None:
     """
@@ -167,7 +267,7 @@ def requestItemHypixelAPI(master, config, path=None, saveTo=None)->HypixelItemPa
                 return None
         else:
             TextColor.printStrf("§INFO§cRequesting 'ITEM_DATA' from Hypixel-API")
-            data = APILoader(HypixelAPIURL.ITEM_URL, config.SETTINGS_CONFIG["api_key"], config.SETTINGS_CONFIG["player_name"])
+            data = APILoader(HypixelAPIURL.ITEM_URL, config.SETTINGS_CONFIG["api_key"], name=config.SETTINGS_CONFIG["player_name"])
         if not data:
             return
         if saveTo is not None:
@@ -198,6 +298,13 @@ def requestItemHypixelAPI(master, config, path=None, saveTo=None)->HypixelItemPa
             event=e
         )
         return None
+    except CouldNotReadDataPackageException as e:
+        throwCouldNotReadDataPackageException(
+            source="Hypixel Item API",
+            master=master,
+            event=e
+        )
+        return None
     return parser
 
 def throwAPIConnectionException(source:str, master:tk.Tk, event:APIConnectionError):
@@ -212,6 +319,11 @@ def throwAPITimeoutException(source:str, master:tk.Tk, event:APITimeoutException
     MsgText.error(f"{source} request failed! Timeout Exception.")
     Constants.WAITING_FOR_API_REQUEST = False
     tk.SimpleDialog.askError(master, event.getMessage(), "SkyBlockTools")
+def throwCouldNotReadDataPackageException(source:str, master:tk.Tk, event:CouldNotReadDataPackageException):
+    MsgText.error(f"{source} request failed! Timeout Exception.")
+    Constants.WAITING_FOR_API_REQUEST = False
+    tk.SimpleDialog.askError(master, event.getMessage(), "SkyBlockTools")
+
 
 def updateBazaarInfoLabel(api:HypixelBazaarParser | None, loaded=False):
     if api is not None:

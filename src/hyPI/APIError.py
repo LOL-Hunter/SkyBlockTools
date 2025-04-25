@@ -22,12 +22,11 @@ class APITimeoutException(_BaseException):
 
 
 class CouldNotReadDataPackageException(_BaseException):
-    def __init__(self, data, success=True):
-        if not success:
-            msg = f"Could not decode api packet. (SUCCESS=False)"
-        else:
-            msg = "Could not decode api packet."
-            super().__init__(msg)
+    def __init__(self, data):
+        _msg = "Could not decode api packet."
+        if "cause" in data.keys():
+            _msg += (" ["+data["cause"]+"]")
+        super().__init__(_msg)
 
 
 class APIOnCooldownException(_BaseException):

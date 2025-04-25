@@ -21,9 +21,10 @@ def getTimezone(tz:str)->dt | None:
         tz = tz[:-1] + ".000"
     time = dt.fromisoformat(tz)
     return time_zone.localize(time) + timedelta(hours=2)
+
 def convertAuctionNameToID(data:dict, itemParser, auctionIDs:[str])->dict:
     displayName = name = data["item_name"]
-    category = data["category"]
+    categories = data["categories"]
     name = name.upper().replace(" ", "_")
     level = 0
     potion_level = 0
@@ -59,7 +60,7 @@ def convertAuctionNameToID(data:dict, itemParser, auctionIDs:[str])->dict:
     name = name.strip("_")
     #remove shiny
     shiny=False
-    if "SHINY" in name and category in ["armor", "weapon"]:
+    if "SHINY" in name and ("armor" in categories or "weapon" in categories):
         name = name.replace("SHINY", "").replace("__", "_")
         shiny = True
     #handle pet
@@ -69,7 +70,7 @@ def convertAuctionNameToID(data:dict, itemParser, auctionIDs:[str])->dict:
         name = "PET_"+name[-1].strip("_")
     # handle rune
     runeLvl = 0
-    if "RUNE" in name:
+    if "RUNE" in name and not name == "RUNEBOOK":
         *runeID, _, lvl = name.strip().split("_")
         runeID = "_".join(runeID)
         name = f"RUNE_{runeID.upper()}"

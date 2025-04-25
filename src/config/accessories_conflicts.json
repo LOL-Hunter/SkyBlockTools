@@ -328,5 +328,10 @@
     "WEDDING_RING_7",
     "WEDDING_RING_8",
     "WEDDING_RING_9"
+  ],
+  [
+    "JUNK_TALISMAN",
+    "JUNK_RING",
+    "JUNK_ARTIFACT"
   ]
 ]

@@ -1,3 +1,4 @@
+import json
 from pysettings.jsonConfig import JsonConfig
 from requests import get as getReq
 from requests.exceptions import ConnectionError, ReadTimeout
@@ -5,11 +6,10 @@ from hyPI.hypixelAPI.loader import HypixelBazaarParser, HypixelAuctionParser, Hy
 from hyPI.constants import HypixelAPIURL, Config
 from hyPI.APIError import NoAPIKeySetException, APIConnectionError, APITimeoutException
 
-def APILoader(url:HypixelAPIURL, api_key, name, **kwargs) -> dict | None:
+def APILoader(url:HypixelAPIURL, api_key, **kwargs) -> dict | None:
     if api_key == "": raise NoAPIKeySetException()
     data = {**{
              "key":api_key,
-             "name":name,
             },
             **kwargs}
     if data["key"] == "": raise NoAPIKeySetException()
@@ -23,4 +23,3 @@ def APILoader(url:HypixelAPIURL, api_key, name, **kwargs) -> dict | None:
 
 def fileLoader(path:str)->dict:
     return JsonConfig.loadConfig(path).data
-

@@ -19,7 +19,6 @@ if not os.path.exists(APP_DATA_SETTINGS):
     os.mkdir(APP_DATA_SETTINGS)
     MsgText.warning("Settings Folder missing! Creating at: "+APP_DATA_SETTINGS)
 
-
 def checkConfigForUpdates():
     for key in Config.SETTINGS_CONFIG.getDefault().keys():
         if key not in Config.SETTINGS_CONFIG.keys():
@@ -134,11 +133,10 @@ class SettingsGUI(tk.Dialog):
         self.show()
         self.lift()
     def close(self):
-        super().close()
         if self.hook is not None:
             self.hook()
     def createGeneralTab(self, tab):
-        self.apiWidg = APILoginWidget(tab, Config.SETTINGS_CONFIG)
+        self.apiWidg = APILoginWidget(tab, self, Config.SETTINGS_CONFIG)
         self.apiWidg.place(0, 0, 205, 125)
 
         self.itemAPILf = tk.LabelFrame(tab, SG)
@@ -323,6 +321,7 @@ class SettingsGUI(tk.Dialog):
             root.setWindowSize(205, 125)
 
             apiWidg = APILoginWidget(root,
+                                     root,
                                      Config.SETTINGS_CONFIG,
                                      continueAt=load,
                                      canCancel=False)

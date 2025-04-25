@@ -200,6 +200,8 @@ class HypixelAPIURL(Enum):
     BAZAAR_URL = "https://api.hypixel.net/skyblock/bazaar"
     AUCTION_URL = "https://api.hypixel.net/v2/skyblock/auctions"
     ITEM_URL = "https://api.hypixel.net/v2/resources/skyblock/items"
+    PROFILE_URL = "https://api.hypixel.net/v2/skyblock/profile"
+    PROFILES_URL = "https://api.hypixel.net/v2/skyblock/profiles"
 
 class SkyCoflnetAPIURL:
     GET_URL_BAZAAR_HIST_HOUR = lambda itemTag: f"https://sky.coflnet.com/api/bazaar/{itemTag}/history/hour"

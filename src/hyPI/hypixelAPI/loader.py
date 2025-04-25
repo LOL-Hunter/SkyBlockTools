@@ -1,3 +1,4 @@
+import uuid
 from pysettings import iterDict
 from pysettings.text import MsgText
 from typing import Dict, List, Tuple, Any
@@ -6,14 +7,95 @@ from hyPI.APIError import *
 from hyPI._parsers import ProductWithOrders, BINAuctionProduct, NORAuctionProduct, convertAuctionNameToID, Item
 from traceback import format_exc
 from time import time
+from base64 import b64decode
+from nbt.nbt import NBTFile
+from io import BytesIO
+from string import digits, ascii_lowercase
+
 
 def getTimezone(tz)->datetime:
     unixTime = tz/1000
     return datetime.fromtimestamp(unixTime)
 
+
+
+class HypixelProfilesParser:
+    def __init__(self, rawData:dict):
+        if not rawData["success"]: raise CouldNotReadDataPackageException(rawData)
+        self._data = rawData
+
+        self._profileIDs = [i["profile_id"] for i in self._data["profiles"]]
+        self._serverNames = [i["cute_name"] for i in self._data["profiles"]]
+        self._gameModes = [("normal" if "game_mode" not in i.keys() else i["game_mode"]) for i in self._data["profiles"]]
+
+    def getProfileIDs(self)->List[str]:
+        return self._profileIDs
+    def getProfiles(self):
+        return self._data["profiles"]
+    def getServerNames(self)->List[str]:
+        return self._serverNames
+    def getGameModes(self)->List[str]:
+        return self._gameModes
+
+
+
+class HypixelProfileParser:
+    def __init__(self, rawData:dict):
+        if not rawData["success"]: raise CouldNotReadDataPackageException(rawData)
+        self._data = rawData
+
+    def decodeAccessoriesFromUUID(self, uuid:str)->List[Dict]:
+        _accData = []
+        dataB64 = self._data["profile"]["members"][uuid]["inventory"]["bag_contents"]["talisman_bag"]["data"]
+
+        dataGZip = b64decode(dataB64)
+
+        dataNBT = BytesIO(dataGZip)
+
+        nbt = NBTFile(fileobj=dataNBT)
+
+        temp = {}
+
+        for tag_compound in nbt['i']:
+            if 'tag' in tag_compound:
+                accID = str(tag_compound['tag']['ExtraAttributes']['id'])
+                recom = False if "rarity_upgrades" not in tag_compound['tag']['ExtraAttributes'].keys() else bool(tag_compound['tag']['ExtraAttributes']['rarity_upgrades'])
+                enrich = False if "talisman_enrichment" not in tag_compound['tag']['ExtraAttributes'].keys() else bool(tag_compound['tag']['ExtraAttributes']['talisman_enrichment'])
+                loreLastTag = str(tag_compound['tag']["display"]["Lore"][-1])
+
+                # remove unicode Chrs
+                loreLastTag = loreLastTag.encode('ascii','ignore').decode()
+                # remove numbers and lowercase
+                table = str.maketrans('', '', ascii_lowercase + digits)
+                loreLastTag = loreLastTag.translate(table)
+                # get first Word as Rarity
+                rarity = loreLastTag.strip().split(" ")[0]
+
+                data = {
+                    "id":accID,
+                    "recomb":recom,
+                    "enrichment":enrich,
+                    "rarity":rarity,
+                }
+
+                RARITIES = ["COMMON", "UNCOMMON", "RARE", "EPIC", "LEGENDARY", "MYTHIC", "SPECIAL", "VERY_SPECIAL", "SUPREME"]
+
+                if accID in temp.keys(): # already in bag -> look for best
+                    otherData = temp[accID]
+                    if RARITIES.index(rarity) > RARITIES.index(otherData["rarity"]): # this acc is rarer
+                        otherData["inactive"] = True
+                        data["inactive"] = False
+                    else: # registered is rarer
+                        data["inactive"] = True
+                else: # new unique
+                    data["inactive"] = False
+                    temp[accID] = data
+                _accData.append(data)
+        return _accData
+
 class HypixelBazaarParser:
     def __init__(self, rawData:dict):
-        if not rawData["success"]: raise CouldNotReadDataPackageException(rawData, success=False)
+        if not rawData["success"]: raise CouldNotReadDataPackageException(rawData)
         self._data = rawData
         self._product_IDs = []
         self._products:Dict[str, ProductWithOrders] = {} # id<str> : product <Product>
@@ -95,8 +177,8 @@ class HypixelAuctionParser:
             if auctData["bin"]:
                 try:
                     itemData = convertAuctionNameToID(auctData, self._itemParser, self._auctionIDs)
-                except:
-                    MsgText.warning(f"Could not parse Item name: {ascii(auctData['item_name'])}")
+                except Exception as e:
+                    MsgText.warning(f"Could not parse Item name: {ascii(auctData['item_name'])} | ERR: ({e})")
                     continue
                 #if "PET" in itemData["id"]: print(ascii(itemData["id"]))
                 #if itemData["id"] is None: print(ascii(itemData["name"]))
@@ -109,9 +191,8 @@ class HypixelAuctionParser:
             else:
                 try:
                     itemData = convertAuctionNameToID(auctData, self._itemParser, self._auctionIDs)
-                except:
-                    MsgText.error(format_exc())
-                    MsgText.warning(f"Could not parse Item name: {ascii(auctData['item_name'])}")
+                except Exception as e:
+                    MsgText.warning(f"Could not parse Item name: {ascii(auctData['item_name'])} | ERR: ({e})")
                     continue
                 _auc = NORAuctionProduct(auctData, itemData)
                 if itemData["id"] in self._norByID.keys():

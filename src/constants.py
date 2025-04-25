@@ -40,6 +40,7 @@ MAGIC_POWDER = {
     "MYTHIC": 22,
     "SPECIAL": 3,
     "VERY_SPECIAL": 5,
+    "SUPREME": 0 # crux tier7 (dont care)
 }
 
 RARITY_COLOR_CODE = {

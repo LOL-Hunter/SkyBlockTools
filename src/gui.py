@@ -1,4 +1,6 @@
 # -*- coding: iso-8859-15 -*-
+import json
+
 from hyPI.APIError import APIConnectionError, NoAPIKeySetException, APITimeoutException
 from hyPI._parsers import MayorData, BazaarHistoryProduct, BaseAuctionProduct, BINAuctionProduct, NORAuctionProduct
 from hyPI.hypixelAPI.loader import HypixelBazaarParser
@@ -54,6 +56,8 @@ from skyMisc import (
     requestAuctionHypixelAPI,
     requestItemHypixelAPI,
     requestBazaarHypixelAPI,
+    requestProfileHypixelAPI,
+    requestProfilesHypixelAPI,
     updateAuctionInfoLabel,
     updateBazaarInfoLabel,
     modeToBazaarAPIFunc,
@@ -3412,8 +3416,9 @@ class AccessoryBuyHelperAccount(tk.Dialog):
         self.page = page
         self.master = master
         self.updHook = updHook
-        self.profile = ""
+        self.profile = {"uuid":"", "profile":""}
         self.accessories = [] if data is None else data["accessories"]
+        self.inactive_accessories = [] if data is None else data["inactive_accessories"]
         self.setWindowSize(800, 800)
         self.setMinSize(500, 800)
         self.setCloseable(False)
@@ -3438,6 +3443,9 @@ class AccessoryBuyHelperAccount(tk.Dialog):
         if data is not None:
             self.nameEntry.getEntry().setValue(data['name'])
             self.nameEntry.getEntry().disable()
+
+            self.profile = data["profile"]
+
         self.nameEntry.placeRelative(fixWidth=195, fixHeight=25)
 
         self.slotsFrame = tk.LabelFrame(self.toolFrame, SG)
@@ -3449,10 +3457,10 @@ class AccessoryBuyHelperAccount(tk.Dialog):
         tk.Label(self.slotsFrame, SG).setText("Community Shop:").place(0, 50, 106, 25)
         tk.Label(self.slotsFrame, SG).setText("Jacobus Slots:").place(0, 75, 106, 25)
 
-        self.redsColDrop = tk.DropdownMenu(self.slotsFrame, SG).place(106, 0, 86, 25).onSelectEvent(self.select)
-        self.redsMinerDrop = tk.DropdownMenu(self.slotsFrame, SG).place(106, 25, 86, 25).onSelectEvent(self.select)
-        self.communityDrop = tk.DropdownMenu(self.slotsFrame, SG).place(106, 50, 86, 25).onSelectEvent(self.select)
-        self.jacobusDrop = tk.DropdownMenu(self.slotsFrame, SG).place(106, 75, 86, 25).onSelectEvent(self.select)
+        self.redsColDrop = tk.DropdownMenu(self.slotsFrame, SG).place(106, 0, 86, 25).onSelectEvent(self.updateTreeView)
+        self.redsMinerDrop = tk.DropdownMenu(self.slotsFrame, SG).place(106, 25, 86, 25).onSelectEvent(self.updateTreeView)
+        self.communityDrop = tk.DropdownMenu(self.slotsFrame, SG).place(106, 50, 86, 25).onSelectEvent(self.updateTreeView)
+        self.jacobusDrop = tk.DropdownMenu(self.slotsFrame, SG).place(106, 75, 86, 25).onSelectEvent(self.updateTreeView)
 
         self.redsColDrop.setOptionList([f"lvl{k} ({v} Slots)" for k, v in page.slotsConfig["redstone_collection"].items()])
         self.redsMinerDrop.setOptionList(["0", "1", "2", "3", "4"])
@@ -3465,7 +3473,6 @@ class AccessoryBuyHelperAccount(tk.Dialog):
             self.communityDrop.setValueByIndex(data["community_centre"])
             self.jacobusDrop.setValueByIndex(data["jacobus"])
             self.profile = data["profile"]
-            self.select()
         else:
             self.redsColDrop.setValueByIndex(0)
             self.redsMinerDrop.setValueByIndex(0)
@@ -3476,22 +3483,42 @@ class AccessoryBuyHelperAccount(tk.Dialog):
         self.accessoriesFrame.setText("Accessories")
         self.accessoriesFrame.place(0, 174, 195, 100+20)
 
-        tk.Button(self.accessoriesFrame, SG).setText("Add Accessory").place(0, 0, 192, 25).setDisabled()
-        tk.Button(self.accessoriesFrame, SG).setText("Edit Accessory").place(0, 25, 192, 25).setDisabled()
-        tk.Button(self.accessoriesFrame, SG).setText("Remove Accessory").place(0, 50, 192, 25).setDisabled()
-        tk.Button(self.accessoriesFrame, SG).setText("Import Accessories").place(0, 75, 192, 25).setCommand(self.importAccessories)
-
+        self.addBtn = tk.Button(self.accessoriesFrame, SG).setText("Add Accessory").place(0, 0, 192, 25).setCommand(self.openSearch)
+        self.editBtn = tk.Button(self.accessoriesFrame, SG).setText("Edit Accessory").place(0, 25, 192, 25).setDisabled().setCommand(self.openEditDialog)
+        self.delBtn = tk.Button(self.accessoriesFrame, SG).setText("Remove Accessory").place(0, 50, 192, 25).setDisabled()
+        self.impBtn = tk.Button(self.accessoriesFrame, SG).setText("Import Accessories").place(0, 75, 192, 25).setCommand(self.importAccessories)
 
         if data is None: self.cancel = tk.Button(self.toolFrame, SG).setText("Cancel").placeRelative(fixHeight=25, changeWidth=-3, stickDown=True, changeY=-45).setCommand(self.destroy)
         self.close = tk.Button(self.toolFrame, SG).setText("Save & Close").placeRelative(fixHeight=25, changeWidth=-3, stickDown=True, changeY=-20).setCommand(self.close)
 
         if self.edit: self.updateTreeView()
         self.show()
+
+    def openSearch(self):
+        pass
+
+
+    def openEditDialog(self):
+        root = tk.Dialog(self)
+
+
+
+
+
+        root.show()
+
+
     def importAccessories(self):
-        def request(playerName, profileName):
-            url = f"https://sky.shiiyu.moe/api/v2/talismans/{playerName}/{profileName.lower()}"
+        def request():
+            """ ### old ###
+
+            url = f"https://sky.lea.moe/api/v2/talismans/{playerName}/{profileName.lower()}"
             try:
-                val = getReq(url).json()
+                val = getReq(url)
+                val = val.json()
+            except json.decoder.JSONDecodeError:
+                tk.SimpleDialog.askError(self.master, f"{val.text}")
+                return
             except ConnectionError:
                 tk.SimpleDialog.askError(self.master, "An Exception occurred while connecting to API.\nCheck your internet connection.")
                 return
@@ -3501,31 +3528,40 @@ class AccessoryBuyHelperAccount(tk.Dialog):
             if "error" in val.keys():
                 tk.SimpleDialog.askError(self.master)
                 return
-            self.accessories.clear()
-            for acc in val["accessories"]["accessories"]:
-                if acc["isInactive"]:
+            self.accessories.clear()"""
+
+            profilesData = requestProfilesHypixelAPI(self.master, Config, uuid=self.profile["uuid"])
+            if profilesData is None: return
+
+            chooseData = tk.SimpleDialog.chooseFromList(self, values=[f"{i[0]} on {i[1]}" for i in zip(profilesData.getGameModes(), profilesData.getServerNames())], useIndexInstead=True, group=SG)
+            if chooseData is None: return
+            self.profile["account_id"] = profilesData.getProfileIDs()[chooseData]
+
+            data = requestProfileHypixelAPI(self.master, Config, accUuid=self.profile["account_id"])
+            if data is None: return
+            accessories = data.decodeAccessoriesFromUUID(self.profile["uuid"])
+            self.accessories = []
+            self.inactive_accessories = []
+            for acc in accessories:
+                if acc["inactive"]:
+                    self.inactive_accessories.append(acc)
                     continue
-                accData = {
-                    "id": acc["tag"]["ExtraAttributes"]["id"],
-                    "recomb": acc["recombobulated"],
-                    "enrichment": True if "enrichment" in acc.keys() else False,
-                    "rarity": acc["rarity"].upper(),
-                }
-                self.accessories.append(accData)
+                self.accessories.append(acc)
+
+            profile = profilesData.getProfiles()[chooseData]
+            jacobusSlots = profile["members"][self.profile["uuid"]]["accessory_bag_storage"]["bag_upgrades_purchased"]
+            self.jacobusDrop.setValue(f"{jacobusSlots*2} Slots")
+
             self.save()
             self.updateTreeView()
-        data = tk.SimpleDialog.askUsernamePassword(self.master,
-                                                   initialUname=self.nameEntry.getValue(),
-                                                   initialPassw=self.profile,
-                                                   unameString="Player Name",
-                                                   passwString="Profile",
-                                                   hidePassword=False
-                                                   )
-        if data is None: return
-        self.profile = data[1].lower()
-        Thread(target=request, args=data).start()
-    def select(self):
-        self.slotsFrame.setText(f"Slots [{self.getTotalSlots()}]")
+        uuid = tk.SimpleDialog.askString(self, message="uuid:", initialValue=self.profile["uuid"])
+        if uuid is None: return
+
+        self.profile = {
+            "uuid": uuid.replace("-", ""),
+            "account_id": ""
+        }
+        Thread(target=request).start()
     def check(self):
         if self.nameEntry.getValue() == "":
             tk.SimpleDialog.askError(self.master, "Player name cannot be empty!")
@@ -3533,8 +3569,14 @@ class AccessoryBuyHelperAccount(tk.Dialog):
         return True
     def updateTreeView(self):
         self.treeView.clear()
+        self.slotsFrame.setText(f"Slots [{self.getTotalSlots()}]")
         for acc in Config.SETTINGS_CONFIG["accessories"][self.nameEntry.getValue()]["accessories"]:
-            self.treeView.addEntry(acc["id"], acc["recomb"], acc["enrichment"], acc["rarity"].lower())
+            self.treeView.addEntry(acc["id"], acc["recomb"], acc["enrichment"], acc["rarity"].lower(), tag="none")
+        for acc in Config.SETTINGS_CONFIG["accessories"][self.nameEntry.getValue()]["inactive_accessories"]:
+            self.treeView.addEntry(acc["id"], acc["recomb"], acc["enrichment"], acc["rarity"].lower(), tag="inactive")
+        self.treeView.setBgColorByTag("none", Color.COLOR_DARK)
+        self.treeView.setBgColorByTag("inactive", tk.Color.RED)
+
     def close(self):
         if self.check():
             self.save()
@@ -3553,7 +3595,8 @@ class AccessoryBuyHelperAccount(tk.Dialog):
             "slots":self.getTotalSlots(),
             "powder":0,
             "profile":self.profile,
-            "accessories":self.accessories
+            "accessories":self.accessories,
+            "inactive_accessories":self.inactive_accessories
         }
     def getTotalSlots(self):
         slots = self.redsMinerDrop.getSelectedIndex()
@@ -3571,6 +3614,7 @@ class AccessoryBuyHelperPage(CustomPage):
         self.ignoreConfig = JsonConfig.loadConfig(os.path.join(CONFIG, "accessories_ignore.json"))
         self.slotsConfig = JsonConfig.loadConfig(os.path.join(CONFIG, "accessories_buy_slots.json"))
         self.jacobusPricesConfig = JsonConfig.loadConfig(os.path.join(CONFIG, "accessories_jacobus_prices.json"))
+        self.cantRecomb = JsonConfig.loadConfig(os.path.join(CONFIG, "accessories_cannot_recomb.json"))
 
         self.toolFrame = tk.LabelFrame(self.contentFrame, group=SG)
         self.toolFrame.setText("Tools")
@@ -3746,7 +3790,8 @@ class AccessoryBuyHelperPage(CustomPage):
     def getPowder(self, data):
         powder = 0
         for i in data:
-            powder += MAGIC_POWDER[i["rarity"].upper()]
+            rarity = i["rarity"].upper()
+            powder += MAGIC_POWDER[rarity]
         return powder
     def updateAccounts(self, name):
         accs = list(Config.SETTINGS_CONFIG["accessories"].keys())
@@ -3837,12 +3882,11 @@ class AccessoryBuyHelperPage(CustomPage):
             price = price[-1].getPrice() if len(price) > 0 else None
             rarity = acc["rarity"].upper()
             powder = MAGIC_POWDER[rarity]
+
             pricePerMP = None if price is None else (price/powder)
 
             recomb = False
             action = "buy"
-
-
 
             #check recomb
             if price is not None:
@@ -3900,7 +3944,7 @@ class AccessoryBuyHelperPage(CustomPage):
 
             # check recomb
 
-            if acc["recomb"]: continue
+            if acc["recomb"] or acc["id"] in self.cantRecomb: continue
             rarities = list(MAGIC_POWDER.keys())
             rarity2 = rarities[rarities.index(rarity) + 1]
             powder2diff = MAGIC_POWDER[rarity2] - powder
@@ -3974,13 +4018,13 @@ class AccessoryBuyHelperPage(CustomPage):
         slotPrice = 0
 
         for acc in sorters[::-1]:
-            costAll += acc["price"]
+            costAll += 0 if acc["price"] is None else acc["price"]
             powderAll += acc["powder"]
-            recombCount += 1 if acc["recomb"] else 0
+            recombCount += 1 if acc["recomb"] and acc["id"] not in self.cantRecomb else 0
             if acc["slots"] is not None:
                 slotCount += acc["slots"][0]
                 slotPrice += acc["slots"][1]
-            if budget is not None and costAll > budget: break
+            if budget is not None and costAll > budget: break # TODO recomb price not included
 
             self.treeView.addEntry(acc["id"], acc["action"], prizeToStr(acc["price"]), prizeToStr(acc["pricePerMP"]))
 
