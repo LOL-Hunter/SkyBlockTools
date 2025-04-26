@@ -267,10 +267,7 @@ class SettingsGUI(tk.Dialog):
         self.valueLf.place(0, 50, 305, 300)
     def _requestItemAPI(self):
         Constants.WAITING_FOR_API_REQUEST = True
-
         API.SKYBLOCK_ITEM_API_PARSER = requestItemHypixelAPI(self, Config, saveTo=os.path.join(APP_DATA_SETTINGS, "skyblock_save", "hypixel_item_config.json"))
-        if API.SKYBLOCK_AUCTION_API_PARSER is not None:
-            API.SKYBLOCK_AUCTION_API_PARSER.changeItemParser(API.SKYBLOCK_ITEM_API_PARSER)
         Constants.WAITING_FOR_API_REQUEST = False
         self.uptBtn.setEnabled()
         self.updateItemAPIWidgets()

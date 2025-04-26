@@ -6,3 +6,4 @@ tkcalendar
 matplotlib
 pyperclip
 pytz
+nbt

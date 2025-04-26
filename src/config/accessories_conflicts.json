@@ -333,5 +333,9 @@
     "JUNK_TALISMAN",
     "JUNK_RING",
     "JUNK_ARTIFACT"
+  ],
+  [
+    "SEAL_TALISMAN",
+    "SEAL_RING"
   ]
 ]

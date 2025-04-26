@@ -1,10 +1,15 @@
 from typing import List, Dict, Tuple, Any
 from pysettings import iterDict
+from pysettings.jsonConfig import JsonConfig
 
 from hyPI.constants import Config, Category, MODIFIER, _RUNE_CONVERT, ROMIC_NUMBERS
 from hyPI.APIError import YearNotAvailableInData
 from datetime import datetime as dt, timedelta
 from pytz import timezone
+
+from base64 import b64decode
+from nbt.nbt import NBTFile
+from io import BytesIO
 
 def getHypTimezone(tz)->dt:
     unixTime = tz/1000
@@ -22,7 +27,87 @@ def getTimezone(tz:str)->dt | None:
     time = dt.fromisoformat(tz)
     return time_zone.localize(time) + timedelta(hours=2)
 
-def convertAuctionNameToID(data:dict, itemParser, auctionIDs:[str])->dict:
+
+def convertAuctionNameToID(data:dict)->dict:
+    dataB64 = data["item_bytes"]
+    dataGZip = b64decode(dataB64)
+    dataNBT = BytesIO(dataGZip)
+    nbt = NBTFile(fileobj=dataNBT)["i"][0]
+
+    itemID = str(nbt["tag"]["ExtraAttributes"]["id"])
+
+    if "petInfo" in nbt["tag"]["ExtraAttributes"].keys(): # is Pet
+
+        petData = str(nbt["tag"]["ExtraAttributes"]["petInfo"])
+        petData = JsonConfig.fromString(petData)
+        """
+        -> petData
+            {"type":"BAL",
+            "active":false,
+            "exp":3.561394662898961E7,
+            "tier":"LEGENDARY",
+            "hideInfo":false,
+            "heldItem":"BEJEWELED_COLLAR",
+            "candyUsed":0,
+            "uuid":"8d44fed3-acc8-47d1-99d6-777d9835812b",
+            "uniqueId":"278175b7-b116-4d7f-8f4d-e16c8adc33f4",
+            "hideRightClick":false,
+            "noMove":false}
+        """
+
+        itemID += petData["type"]
+    level = 0
+    if data["item_name"].startswith("["): # pet
+        levelPart, *name = data["item_name"].split("]")
+        level = levelPart.split(" ")[1]
+
+    attributes = None
+    if "attributes" in nbt["tag"]["ExtraAttributes"].keys(): # has attributes {TAG_Int('blazing_resistance'): 1, TAG_Int('life_regeneration'): 1}
+
+        _attr = nbt["tag"]["ExtraAttributes"]["attributes"]
+        _attrKeys = nbt["tag"]["ExtraAttributes"]["attributes"].keys()
+        attributes = {
+            _attrKeys[0]: int(str(_attr[_attrKeys[0]])),
+        }
+        if len(_attr) == 2:
+            attributes[_attrKeys[1]] = int(str(_attr[_attrKeys[1]]))
+
+    runeData = None
+    if "runes" in nbt["tag"]["ExtraAttributes"].keys():  # has rune / is rune {TAG_Int('ZOMBIE_SLAYER'): 1}
+
+        _rune = nbt["tag"]["ExtraAttributes"]["runes"]
+        _runeKeys = nbt["tag"]["ExtraAttributes"]["runes"].keys()
+
+        runeData = {
+            _runeKeys[0]: int(str(_rune[_runeKeys[0]])),
+        }
+
+
+
+    return {
+        "id": itemID,
+        "name": data["item_name"],
+        "recomb": "rarity_upgrades" in nbt["tag"]["ExtraAttributes"].keys(),
+        "stars": 0 if "upgrade_level" not in nbt["tag"]["ExtraAttributes"].keys() else int(str(nbt["tag"]["ExtraAttributes"]["upgrade_level"])),
+        #"isUpgraded": isUpgraded,
+        "reforge": None if "modifier" not in nbt["tag"]["ExtraAttributes"].keys() else str(nbt["tag"]["ExtraAttributes"]["modifier"]).upper(),
+        #"upgrade_stone": reforgeStone,
+        "wooden_singularity_used": "wood_singularity_count" in nbt["tag"]["ExtraAttributes"].keys(),
+        "shiny": "is_shiny" in nbt["tag"]["ExtraAttributes"].keys(),
+        "hot_potato_count": int(0 if "hot_potato_count" not in nbt["tag"]["ExtraAttributes"].keys() else str(nbt["tag"]["ExtraAttributes"]["hot_potato_count"])),
+        "pet_level": level,
+        "rune_data": runeData,
+        "potion_level": 0 if "potion_level" not in nbt["tag"]["ExtraAttributes"].keys() else int(str(nbt["tag"]["ExtraAttributes"]["potion_level"])),
+        "attributes":attributes,
+    }
+
+
+
+
+
+
+
+def convertAuctionNameToID_OLD(data:dict, itemParser, auctionIDs:[str])->dict:
     displayName = name = data["item_name"]
     categories = data["categories"]
     name = name.upper().replace(" ", "_")

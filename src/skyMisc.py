@@ -176,11 +176,7 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
             if progBar is not None:
                 progBar.setValue(0)
                 progBar.setValues(len(fileList))
-            parser = HypixelAuctionParser(
-                fileLoader(_os.path.join(path, fileList[0])),
-                API.SKYBLOCK_ITEM_API_PARSER,
-                AuctionItemID
-            )
+            parser = HypixelAuctionParser(fileLoader(_os.path.join(path, fileList[0])))
             for i, fileName in enumerate(fileList[1:]):
                 if progBar is not None: progBar.addValue()
                 if infoLabel is not None: infoLabel.setText(f"Fetching Hypixel Auction API... [{i+1}/{len(fileList)}]")
@@ -195,9 +191,7 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
             parser = HypixelAuctionParser(
                 APILoader(HypixelAPIURL.AUCTION_URL,
                           config.SETTINGS_CONFIG["api_key"],
-                          name=config.SETTINGS_CONFIG["player_name"]),
-                API.SKYBLOCK_ITEM_API_PARSER,
-                AuctionItemID
+                          name=config.SETTINGS_CONFIG["player_name"])
             )
             if saveTo is not None:
                 file = JsonConfig.fromDict(parser._data)
