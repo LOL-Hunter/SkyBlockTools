@@ -271,7 +271,7 @@ class CompleterEntry(tk.Entry):
         if selected == -1: return
         self._listBox.setItemSelectedByIndex(selected)
         self._listBox.see(selected)
-    def _onListboxSelect(self, e):
+    def _onListboxSelect(self, e, event):
         if e.type == "35" or e.keysym == "Escape": #virtual event triggered by shift-Left? without no marking
             return None
         #entry = self.getValue()
@@ -286,8 +286,7 @@ class CompleterEntry(tk.Entry):
     def closeListbox(self):
         self.isListboxOpen = False
         self._listBox.placeForget()
-    def _decryptEvent(self, args):
-        return args
+
     def onUserInputEvent(self, func, args:list=None, priority:int=0, defaultArgs=False, disableArgs=False):
         event = tk._EventHandler._registerNewEvent(self, func, tk.EventType.KEY_UP, args, priority, decryptValueFunc=self._decryptEvent, defaultArgs=defaultArgs, disableArgs=disableArgs)
         event["afterTriggered"] = self._updateMenu

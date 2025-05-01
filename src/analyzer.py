@@ -1,7 +1,6 @@
 from hyPI.hypixelAPI.loader import HypixelBazaarParser
 from hyPI import getEnchantmentIDLvl
 
-from constants import BazaarItemID, AuctionItemID, ALL_ENCHANTMENT_IDS
 from skyMath import getMedianExponent, parsePrizeList
 from skyMisc import getDictEnchantmentIDToLevels
 

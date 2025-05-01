@@ -4593,7 +4593,7 @@ class Window(tk.Tk):
         self.mainMenuPage = MainMenuPage(self, [
                 LongTimeFlipHelperPage(self),
                 ItemPriceTrackerPage(self),
-            PestProfitPage(self),
+                PestProfitPage(self),
                 MayorInfoPage(self),
                 BazaarFlipProfitPage(self),
                 AlchemyXPCalculatorPage(self),
@@ -4603,7 +4603,6 @@ class Window(tk.Tk):
                 ForgeProfitTrackerPage(self),
                 MedalTransferProfitPage(self),
                 MagicFindCalculatorPage(self),
-
                 ItemInfoPage(self),
                 BazaarToAuctionHouseFlipProfitPage(self),
                 ComposterProfitPage(self),
