@@ -3493,11 +3493,8 @@ class AccessoryBuyHelperAccount(tk.Dialog):
 
         if self.edit: self.updateTreeView()
         self.show()
-
     def openSearch(self):
         pass
-
-
     def openEditDialog(self):
         root = tk.Dialog(self)
 
@@ -3506,8 +3503,6 @@ class AccessoryBuyHelperAccount(tk.Dialog):
 
 
         root.show()
-
-
     def importAccessories(self):
         def request():
             """ ### old ###
@@ -3576,7 +3571,6 @@ class AccessoryBuyHelperAccount(tk.Dialog):
             self.treeView.addEntry(acc["id"], acc["recomb"], acc["enrichment"], acc["rarity"].lower(), tag="inactive")
         self.treeView.setBgColorByTag("none", Color.COLOR_DARK)
         self.treeView.setBgColorByTag("inactive", tk.Color.RED)
-
     def close(self):
         if self.check():
             self.save()
@@ -3790,7 +3784,10 @@ class AccessoryBuyHelperPage(CustomPage):
     def getPowder(self, data):
         powder = 0
         for i in data:
-            rarity = i["rarity"].upper()
+            rarity = i["rarity"].upper() # {'id': 'PARTY_HAT_SLOTH', 'recomb': True, 'enrichment': True, 'rarity': 'VERY', 'inactive': False}
+            if rarity not in MAGIC_POWDER.keys():
+                MsgText.error(f"Could not parse Rarity: {i}")
+                continue
             powder += MAGIC_POWDER[rarity]
         return powder
     def updateAccounts(self, name):

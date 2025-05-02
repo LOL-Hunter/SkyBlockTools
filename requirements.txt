@@ -7,3 +7,4 @@ matplotlib
 pyperclip
 pytz
 nbt
+requests

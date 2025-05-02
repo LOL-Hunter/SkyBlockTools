@@ -69,7 +69,9 @@ class HypixelProfileParser:
                 table = str.maketrans('', '', ascii_lowercase + digits)
                 loreLastTag = loreLastTag.translate(table)
                 # get first Word as Rarity
-                rarity = loreLastTag.strip().split(" ")[0]
+                print(loreLastTag)
+                loreLastTag = loreLastTag.replace("DUNGEON ", "")
+                rarity = "_".join(loreLastTag.strip().split(" ")[0:-1])
 
                 data = {
                     "id":accID,
