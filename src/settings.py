@@ -85,7 +85,8 @@ class Config:
             "cost_reduction":1
         },
         "auction_creator_uuids":{},
-        "accessories":{}
+        "accessories":{},
+        "player_rank": "New_Player"
     })
     SETTINGS_CONFIG.load("settings.json")
     SettingValue.CONFIG = SETTINGS_CONFIG

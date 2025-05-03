@@ -527,6 +527,9 @@ class Sorter:
     def __setitem__(self, key, value):
         self._data[key] = value
 
+    def __repr__(self):
+        return str(self._data)
+
     def get(self):
         return self._sort
 class BookCraft:
