@@ -82,8 +82,6 @@ def convertAuctionNameToID(data:dict)->dict:
             _runeKeys[0]: int(str(_rune[_runeKeys[0]])),
         }
 
-
-
     return {
         "id": itemID,
         "name": data["item_name"],
@@ -100,12 +98,6 @@ def convertAuctionNameToID(data:dict)->dict:
         "potion_level": 0 if "potion_level" not in nbt["tag"]["ExtraAttributes"].keys() else int(str(nbt["tag"]["ExtraAttributes"]["potion_level"])),
         "attributes":attributes,
     }
-
-
-
-
-
-
 
 def convertAuctionNameToID_OLD(data:dict, itemParser, auctionIDs:[str])->dict:
     displayName = name = data["item_name"]

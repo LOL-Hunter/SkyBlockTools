@@ -4296,7 +4296,6 @@ class BoosterCookieBitsProfit(CustomPage):
         self.rankSelect.setValue(Config.SETTINGS_CONFIG["player_rank"])
         self.rankSelect.onSelectEvent(self.updateTreeview)
         self.rankSelect.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=150)
-
     def updateTreeview(self):
         BITS_BASE = 4800
         self.treeView.clear()
@@ -4371,8 +4370,6 @@ class BoosterCookieBitsProfit(CustomPage):
             )
         self.treeView.setBgColorByTag("AUCTION", tk.Color.rgb(138, 90, 12))
         self.treeView.setBgColorByTag("BAZAAR", tk.Color.rgb(22, 51, 45))
-
-
     def onShow(self, **kwargs):
         self.placeRelative()
         self.placeContentFrame()
