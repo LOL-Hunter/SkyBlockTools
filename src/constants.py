@@ -14,7 +14,6 @@ class Color:
     COLOR_GRAY = tk.Color.rgb(160, 160, 160)
 
 class ConfigFile:
-    MAYOR_DATA = JsonConfig.loadConfig(os.path.join(CONFIG, "mayor.json"))
     AVERAGE_PRICE = None
 
 class API:
@@ -57,6 +56,35 @@ RARITY_COLOR_CODE = {
     "SUPREME":"#AA0000",
 }
 
+MAYOR_NORMAL = [
+    "Diana",
+    "Paul",
+    "Finnegan",
+    "Marina",
+    "Cole",
+    "Diaz",
+    "Foxy",
+    "Aatrox"
+]
+MAYOR_SPEC = [
+    "Jerry",
+    "Scorpius",
+    "Derpy",
+]
+
+MAYOR_PERK_AMOUNT = {
+    "Diana": 4,
+    "Paul": 3,
+    "Finnegan": 4,
+    "Marina": 4,
+    "Cole": 4,
+    "Diaz": 4,
+    "Foxy": 4,
+    "Aatrox": 3,
+    "Jerry": 3,
+    "Scorpius": 2,
+    "Derpy": 4,
+}
 
 STYLE_GROUP = tk.WidgetGroup()
 STYLE_GROUP.addCommand("setBg", Color.COLOR_DARK, ignoreErrors=True)

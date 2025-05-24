@@ -6,7 +6,7 @@ from hyPI.constants import Config, Category, MODIFIER, _RUNE_CONVERT, ROMIC_NUMB
 from hyPI.APIError import YearNotAvailableInData
 from datetime import datetime as dt, timedelta
 from pytz import timezone
-
+import json
 from base64 import b64decode
 from nbt.nbt import NBTFile
 from io import BytesIO
@@ -27,6 +27,12 @@ def getTimezone(tz:str)->dt | None:
     time = dt.fromisoformat(tz)
     return time_zone.localize(time) + timedelta(hours=2)
 
+def getMayorTimezone(tz:str)->dt | None:
+    if tz is None: return None
+    time_zone = timezone("Europe/Berlin")
+    tz = tz.replace(" +00:00", "")
+    time = dt.strptime(tz, "%m/%d/%Y %H:%M:%S")
+    return time_zone.localize(time) + timedelta(hours=2)
 
 def convertAuctionNameToID(data:dict)->dict:
     dataB64 = data["item_bytes"]
@@ -81,7 +87,6 @@ def convertAuctionNameToID(data:dict)->dict:
         runeData = {
             _runeKeys[0]: int(str(_rune[_runeKeys[0]])),
         }
-
     return {
         "id": itemID,
         "name": data["item_name"],
@@ -296,16 +301,12 @@ class AuctionHistory:
         self._data = data
         self._range = range_
         self._slots = self._parseTimeSlots(data)
-
     def __getitem__(self, item):
         return self._slots[item]
-
     def _parseTimeSlots(self, l:list)->List[AuctionHistoryProduct]:
         return [AuctionHistoryProduct(i) for i in l]
-
     def getTimeSlots(self) -> List[AuctionHistoryProduct]:
         return self._slots
-
     def getTimeSlotAT(self, tstamp)->BazaarHistoryProduct:
         pass
 class AuctionProduct:
@@ -315,6 +316,7 @@ class AuctionProduct:
     def getSellPrice(self): return self._data["sell"]
     def getAvailableItems(self): return self._data["available"]
     def getTimestamp(self)->dt: return getTimezone(self._data["updatedAt"])
+
 
 class MayorPerk:
     def __init__(self, data):
@@ -349,9 +351,9 @@ class MayorData:
     def getYear(self)->int:
         return self._data["year"]
     def getStartTimestamp(self)->dt:
-        return getTimezone(self._data["start"])
+        return getMayorTimezone(self._data["start"])
     def getEndTimestamp(self)->dt:
-        return getTimezone(self._data["end"])
+        return getMayorTimezone(self._data["end"])
     def getID(self)->str:
         return self._data["id"]
     def getElectionCandidates(self)->List[Mayor]:
@@ -360,42 +362,16 @@ class MayorData:
     @staticmethod
     def fromData(i):
         if "winner" not in i.keys():
-            #print("\n*\n*\n", ascii(i))
             return None
-
-
         if "perks" in i["winner"].keys():
             return MayorData(i)
         return None
-
 class MayorHistory:
     def __init__(self, data):
-        self._data = data[1:] # first data is corrupted (-> ~2019)
-        #print(ascii(self._data))
-        self._mayorYear = {}
-        self._mayors = self._parse(self._data)
+        self._data = data
 
-    def _parse(self, data):
-        d = []
-        for i in data:
-            if "candidates" in i.keys():
-                mdata = MayorData.fromData(i)
-                if mdata is None: continue
-                d.append(mdata)
-                self._mayorYear[mdata.getYear()] = mdata
-        return d
-
-    def getCurrentMayor(self)->MayorData:
-        return MayorData(self._data[-1])
-
-    def getMayors(self)->List[MayorData]:
-        return self._mayors
-
-    def getMayorAtYear(self, year: int):
-        if year in self._mayorYear.keys():
-            return self._mayorYear[year]
-        else:
-            raise YearNotAvailableInData(year)
+    def getData(self)->dict:
+        return self._data
 
 class Recipe:
     """
@@ -644,3 +620,6 @@ class Item: # Hypixel ItemInstance
         return self._data.get("tier", None)
     def getCategory(self)->str | None:
         return self._data.get("category", None)
+
+
+

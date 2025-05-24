@@ -1,8 +1,9 @@
 from hyPI.hypixelAPI.loader import HypixelBazaarParser
 from hyPI import getEnchantmentIDLvl
-
+from random import randint
 from skyMath import getMedianExponent, parsePrizeList
 from skyMisc import getDictEnchantmentIDToLevels
+from constants import MAYOR_NORMAL, MAYOR_SPEC, MAYOR_PERK_AMOUNT
 
 def getPlotData(itemId:str, func):
     hist = func(itemId)
@@ -108,5 +109,93 @@ def getCheapestEnchantmentData(parser:HypixelBazaarParser, inputEnchantment:str,
             singleDict = rawDict.copy()
             singleDict["book_from_id"] = single
         returnList.append(singleDict)
-
     return returnList
+
+def simulateElections(data:dict, n=100_000):
+    mayorPool = list(data["next_perks"].keys())
+    _data = {}
+    for mayor in mayorPool:
+        _data[mayor] = {}
+        numOfPerks = data["next_perks"][mayor]["perks"]
+        maxAmountOfPerks = MAYOR_PERK_AMOUNT[mayor]
+        numOfDraws = data["next_perks"][mayor]["cycles_without_selected"] + 1
+        _data[mayor]["chances"] = []
+        if data["next_perks"][mayor]["available_perks"][0]["name"] == "<Random_Perk>": continue # mayor came back after one election cycle -> ignore (must have exact one perk)
+        if numOfPerks == maxAmountOfPerks: continue # skip if already have all perks (from diaz)
+        drawData = [0, 0, 0, 0] # [zero, one, two, three] times perks gained
+        for _ in range(n):
+            newNumOfPerks = numOfPerks
+            for draw in range(numOfDraws):
+                if newNumOfPerks == maxAmountOfPerks: break
+                if newNumOfPerks < 3 and randint(0, 1) == 1:
+                    newNumOfPerks += 1
+                elif newNumOfPerks >= 3 and randint(1, 100) <= 8:
+                    newNumOfPerks += 1
+            gained = newNumOfPerks - numOfPerks
+            drawData[gained] += 1
+        for i, times in enumerate(drawData):
+            if times <= 0: break
+            _data[mayor]["chances"].append(times / n)
+    return _data
+
+
+def analyzeMayors(data:list, currentMinister:str, ministerHasLTI, yearOffset:int=0):
+    if not len(data): return None
+    lastSpecialName = None
+    lastSpecialYear = None
+    currentMinister = currentMinister.lower().capitalize()
+    currentYear = data[-1]["year"] - yearOffset
+    currentMayor = data[-1]["winner"]["name"]
+    currentPerks = data[-1]["winner"]["perks"]
+    perkData = {}
+    oldWinner = [None, None]
+    for election in data:
+        candidates = []
+        for candidate in election["candidates"]:
+            name = candidate["name"]
+            perks = len(candidate["perks"])
+            if name not in perkData.keys() and name not in MAYOR_SPEC:
+                perkData[name] = {
+                    "perks":0,
+                    "available_perks": [],
+                    "cycles_without_selected":0
+                }
+            if name not in MAYOR_SPEC:
+                perkData[name]["perks"] = perks
+                perkData[name]["available_perks"] = candidate["perks"].copy()
+                perkData[name]["cycles_without_selected"] = 0
+            if name in MAYOR_SPEC:
+                lastSpecialYear = election["year"]
+                lastSpecialName = name
+            candidates.append(name)
+        for may in MAYOR_NORMAL:
+            if may not in candidates and may in perkData.keys():
+                perkData[may]["cycles_without_selected"] += 1
+        if election["winner"]["name"] in MAYOR_NORMAL: perkData.pop(election["winner"]["name"])
+        oldWinner[0] = oldWinner[1]
+        oldWinner[1] = {
+            "name": election["winner"]["name"],
+            "can_participate_again": election["year"]+2
+        }
+        if oldWinner[0] is not None:
+            if oldWinner[0]["name"] in MAYOR_NORMAL:
+                perkData[oldWinner[0]["name"]] = {
+                    "perks": 1,
+                    "available_perks": [{"name":"<Random_Perk>", "description":"<Random_Perk>"}],
+                    "cycles_without_selected": 0
+                }
+
+    # Diaz is Minister with "Long Term Investment"-Perk -> Diaz will appear as Mayor in next Cycle with FULL perks
+    if currentMinister == "Diaz" and ministerHasLTI:
+        perkData["Diaz"]["perks"] = 4
+    # Diaz is Main with "Long Term Investment"-Perk Current Minister will appear with FULL perks
+    elif currentMayor == "Diaz" and any([i["name"] == "Long Term Investment" for i in currentPerks]):
+        perkData[currentMinister]["perks"] = MAYOR_PERK_AMOUNT[currentMinister]
+    else:
+        perkData.pop(currentMinister)
+    return {
+        "next_special_name":MAYOR_SPEC[(MAYOR_SPEC.index(lastSpecialName)+1) % len(MAYOR_SPEC)],
+        "next_special_year":lastSpecialYear+8,
+        "next_special_in_years":lastSpecialYear+8-currentYear,
+        "next_perks":perkData,
+    }

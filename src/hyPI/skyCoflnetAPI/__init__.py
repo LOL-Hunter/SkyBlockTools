@@ -1,3 +1,5 @@
+import json
+from datetime import datetime, timedelta
 from requests import get as getReq
 from requests.exceptions import ConnectionError, ReadTimeout
 from hyPI.APIError import APIConnectionError, APITimeoutException
@@ -88,9 +90,22 @@ class SkyConflnetAPI:
         return Recipe(packet)
 
     @staticmethod
-    def getMayorData() -> MayorHistory:
-        packet = _request(SkyCoflnetAPIURL.GET_URL_MAJOR_ACTIVE())
-        return MayorHistory(packet)
+    def getMayorData(days=200) -> list:
+        time = datetime.now() - timedelta(days=days)
+
+        try:
+            packet = getReq(
+                SkyCoflnetAPIURL.GET_URL_MAJOR_ACTIVE(),
+                params={
+                    "from": time.isoformat(),
+                    "to": datetime.now().isoformat(),
+                }
+            ).json()
+        except ConnectionError:
+            raise APIConnectionError(SkyCoflnetAPIURL.GET_URL_MAJOR_ACTIVE())
+        except ReadTimeout:
+            raise APITimeoutException(SkyCoflnetAPIURL.GET_URL_MAJOR_ACTIVE())
+        return packet
 
 if __name__ == '__main__':
     print(ascii(_request("https://sky.coflnet.com/api/items")))

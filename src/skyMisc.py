@@ -2,7 +2,7 @@
 import os as _os
 from hyPI.APIError import APIConnectionError, NoAPIKeySetException, APITimeoutException, CouldNotReadDataPackageException
 from hyPI.hypixelAPI import HypixelAPIURL, APILoader, fileLoader
-from hyPI.hypixelAPI.loader import HypixelBazaarParser, HypixelAuctionParser, HypixelItemParser, HypixelProfileParser, HypixelProfilesParser
+from hyPI.hypixelAPI.loader import HypixelBazaarParser, HypixelAuctionParser, HypixelItemParser, HypixelProfileParser, HypixelProfilesParser, HypixelMayorParser
 from hyPI.skyCoflnetAPI import SkyConflnetAPI
 from hyPI import getEnchantmentIDLvl
 import tksimple as tk
@@ -15,7 +15,47 @@ from typing import List, Dict
 from platform import system
 from constants import Constants
 
+def requestMayorHypixelAPI(master, config)->HypixelMayorParser | None:
+    """
+    @param uuid:
+    @param config:
+    @param master:
+    @return:
+    """
+    try:
+        TextColor.printStrf("§INFO§cRequesting 'MAYOR_DATA' from Hypixel-API")
+        data = APILoader(HypixelAPIURL.MAYOR_URL, config.SETTINGS_CONFIG["api_key"])
 
+        parser = HypixelMayorParser(data)
+    except APIConnectionError as e:
+        throwAPIConnectionException(
+            source="Hypixel Mayor API",
+            master=master,
+            event=e
+        )
+        return None
+    except NoAPIKeySetException as e:
+        throwNoAPIKeyException(
+            source="Hypixel Mayor API",
+            master=master,
+            event=e
+        )
+        return None
+    except APITimeoutException as e:
+        throwAPITimeoutException(
+            source="Hypixel Mayor API",
+            master=master,
+            event=e
+        )
+        return None
+    except CouldNotReadDataPackageException as e:
+        throwCouldNotReadDataPackageException(
+            source="Hypixel Mayor API",
+            master=master,
+            event=e
+        )
+        return None
+    return parser
 def requestProfilesHypixelAPI(master, config, uuid:str)->HypixelProfilesParser | None:
     """
     @param uuid:
@@ -57,7 +97,6 @@ def requestProfilesHypixelAPI(master, config, uuid:str)->HypixelProfilesParser |
         )
         return None
     return parser
-
 def requestProfileHypixelAPI(master, config, accUuid:str)->HypixelProfileParser | None:
     """
     @param accUuid:
@@ -99,8 +138,6 @@ def requestProfileHypixelAPI(master, config, accUuid:str)->HypixelProfileParser 
         )
         return None
     return parser
-
-
 def requestBazaarHypixelAPI(master, config, path=None, saveTo=None)->HypixelBazaarParser | None:
     """
 

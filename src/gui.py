@@ -2,13 +2,12 @@
 import json
 
 from hyPI.APIError import APIConnectionError, NoAPIKeySetException, APITimeoutException
-from hyPI._parsers import MayorData, BazaarHistoryProduct, BaseAuctionProduct, BINAuctionProduct, NORAuctionProduct
+from hyPI._parsers import MayorData, BazaarHistoryProduct, BaseAuctionProduct, BINAuctionProduct, NORAuctionProduct, getMayorTimezone
 from hyPI.hypixelAPI.loader import HypixelBazaarParser
 from hyPI.recipeAPI import RecipeAPI
 from hyPI.skyCoflnetAPI import SkyConflnetAPI
+from hyPI.hypixelAPI.loader import HypixelMayorParser
 import tksimple as tk
-from requests import get as getReq
-from requests.exceptions import ConnectionError, ReadTimeout
 from pysettings import iterDict
 from pysettings.geometry import _map
 from pysettings.jsonConfig import JsonConfig
@@ -25,7 +24,7 @@ from pytz import timezone
 
 from widgets import CompleterEntry, CustomPage, CustomMenuPage, TrackerWidget, APIRequest
 from bazaarAnalyzer import updateBazaarAnalyzer, BazaarAnalyzer
-from analyzer import getPlotData, getCheapestEnchantmentData
+from analyzer import getPlotData, getCheapestEnchantmentData, analyzeMayors, simulateElections
 from images import IconLoader
 from constants import (
     VERSION,
@@ -42,7 +41,8 @@ from constants import (
     BazaarItemID,
     AuctionItemID,
     ALL_ENCHANTMENT_IDS,
-    ConfigFile
+    ConfigFile,
+    MAYOR_PERK_AMOUNT
 )
 from skyMath import (
     getPlotTicksFromInterval,
@@ -58,6 +58,7 @@ from skyMisc import (
     requestBazaarHypixelAPI,
     requestProfileHypixelAPI,
     requestProfilesHypixelAPI,
+    requestMayorHypixelAPI,
     updateAuctionInfoLabel,
     updateBazaarInfoLabel,
     modeToBazaarAPIFunc,
@@ -93,17 +94,21 @@ class MayorInfoPage(CustomPage):
 
         self.images = self.loadMayorImages()
 
-        self.currentMayor:MayorData = None
+        self.currentMayorData:HypixelMayorParser = None
+        self.mayorHistData:dict = None
+        self.analyzedMayorData:dict = None
+        self.simulatedElections:dict = None
+        self.electionHasStarted = False
+        self.electionSorters = []
+        self.allVotes = 0
 
         self.notebook = tk.Notebook(self.contentFrame, SG)
         self.tabMayorCur = self.notebook.createNewTab("Current Mayor", SG)
-        self.tabMayorHist = self.notebook.createNewTab("Mayor History", SG)
-        self.tabMayorRef = self.notebook.createNewTab("Mayor Reference", SG)
+        self.tabMayorHist = self.notebook.createNewTab("Next Election", SG)
         self.notebook.placeRelative()
 
         self.createCurrentTab(self.tabMayorCur)
         self.createHistoryTab(self.tabMayorHist)
-        self.createReferenceTab(self.tabMayorRef)
 
         self.api = APIRequest(self, self._getTkMaster())
         self.api.setRequestAPIHook(self.requestAPIHook)
@@ -117,7 +122,7 @@ class MayorInfoPage(CustomPage):
         self.timeLabel.setFont(20)
         self.timeLabel.placeRelative(changeWidth=-5, changeHeight=-20)
 
-        self.timerLf.placeRelative(fixWidth=495, fixHeight=50, fixX=100)
+        self.timerLf.placeRelative(fixHeight=50, fixX=200) # fixWidth=395
 
         self.imageLf = tk.LabelFrame(self.topFrameCurr, SG)
         self.imageLf.setText("Current Mayor")
@@ -125,12 +130,18 @@ class MayorInfoPage(CustomPage):
         self.imageDisplay.placeRelative(fixWidth=100, fixHeight=230, fixX=5, changeHeight=-15, changeWidth=-15)
         self.imageLf.placeRelative(fixWidth=100, fixHeight=240)
 
+        self.imageLf2 = tk.LabelFrame(self.topFrameCurr, SG)
+        self.imageLf2.setText("Current Minister")
+        self.imageDisplay2 = tk.Label(self.imageLf2, SG).setText("No Image!")
+        self.imageDisplay2.placeRelative(fixWidth=100, fixHeight=230, fixX=5, changeHeight=-15, changeWidth=-15)
+        self.imageLf2.placeRelative(fixX=100, fixWidth=100, fixHeight=240)
+
         self.dataLf = tk.LabelFrame(self.topFrameCurr, SG)
         self.dataLf.setText("Data")
         self.dataText = tk.Text(self.dataLf, SG, readOnly=True)
         self.dataText.setFont(15)
         self.dataText.placeRelative(changeWidth=-5, changeHeight=-20)
-        self.dataLf.placeRelative(fixX=100, fixY=50, fixWidth=495, fixHeight=140+50)
+        self.dataLf.placeRelative(fixX=200, fixY=50, fixHeight=140+50) #fixWidth=395
 
         self.dataLf = tk.LabelFrame(self.topFrameCurr, SG)
         self.dataLf.setText("Perks")
@@ -138,142 +149,127 @@ class MayorInfoPage(CustomPage):
         self.dataTextPerks.setFont(15)
         self.dataTextPerks.setWrapping(tk.Wrap.WORD)
         self.dataTextPerks.placeRelative(changeWidth=-5, changeHeight=-20)
-        self.dataLf.placeRelative(fixX=0, fixY=240, fixWidth=595, fixHeight=250)
+        self.dataLf.placeRelative(fixX=0, fixY=240) # fixWidth=595, fixHeight=250
 
-        self.topFrameCurr.placeRelative(fixWidth=600, centerX=True)
-    def createReferenceTab(self, tab):
-
-        self.topFrame = tk.Frame(tab, SG)
-        self.menuFrame = tk.Frame(tab, SG)
-
-        self.imageLf_hist = tk.LabelFrame(self.topFrame, SG)
-        self.imageLf_hist.setText("Mayor")
-        self.imageDisplay_ref = tk.Label(self.imageLf_hist, SG).setText("No Image!")
-        self.imageDisplay_ref.placeRelative(fixWidth=100, fixHeight=230, fixX=5, changeHeight=-15, changeWidth=-15)
-        self.imageLf_hist.placeRelative(fixWidth=100, fixHeight=240)
-
-        self.dataLf = tk.LabelFrame(self.topFrame, SG)
-        self.dataLf.setText("Data")
-        self.dataText_ref = tk.Text(self.dataLf, SG, readOnly=True)
-        self.dataText_ref.setFont(15)
-        self.dataText_ref.placeRelative(changeWidth=-5, changeHeight=-20)
-        self.dataLf.placeRelative(fixX=100, fixY=50, fixWidth=495, fixHeight=140 + 50)
-
-        self.dataLf = tk.LabelFrame(self.topFrame, SG)
-        self.dataLf.setText("Perks")
-        self.dataTextPerks_ref = tk.Text(self.dataLf, SG, readOnly=True, scrollAble=True)
-        self.dataTextPerks_ref.setFont(15)
-        self.dataTextPerks_ref.setWrapping(tk.Wrap.WORD)
-        self.dataTextPerks_ref.placeRelative(changeWidth=-5, changeHeight=-20)
-        self.dataLf.placeRelative(fixX=0, fixY=240, fixWidth=595, fixHeight=250)
-
-        tk.Button(self.topFrame, SG).setText("Back to Mayor Menu").setCommand(self.backToMenu).placeRelative(fixHeight=50, stickRight=True, fixWidth=200)
-
-        self.regMayLf = tk.LabelFrame(self.menuFrame, SG).setText("Regular")
-        self.specMayLf = tk.LabelFrame(self.menuFrame, SG).setText("Special")
-
-        widthButton = 300
-        heightButton = 35
-        regIndex = 0
-        specIndex = 0
-        for name, data in iterDict(ConfigFile.MAYOR_DATA.getData()):
-            if data["special"]:
-                specIndex += 1
-                index = specIndex
-                _master = self.specMayLf
-            else:
-                regIndex += 1
-                index = regIndex
-                _master = self.regMayLf
-
-            b = tk.Button(_master, SG)
-            b.setText(name.capitalize() +f"\n({ConfigFile.MAYOR_DATA[name]['key']})")
-            b.setCommand(self.showMayorInfo, args=[name])
-            b.placeRelative(fixWidth=widthButton-5, fixHeight=heightButton, centerX=True, fixY=(index-1)*heightButton)
-
-        self.regMayLf.placeRelative(centerX=True, fixHeight=regIndex * heightButton + 20, fixWidth=widthButton)
-        self.specMayLf.placeRelative(centerX=True, fixY=regIndex * heightButton + 20, fixHeight=specIndex * heightButton + 20, fixWidth=widthButton)
-
-
-        self.menuFrame.placeRelative()
-    def showMayorInfo(self, e):
-        name = e.getArgs(0)
-        self.menuFrame.placeForget()
-        self.topFrame.placeRelative(fixWidth=600, centerX=True)
-        self._getTkMaster().updateDynamicWidgets()
-
-        dataContent = {
-            "Mayor Name:": name,
-            "Profession:": ConfigFile.MAYOR_DATA[name]["key"],
-            "Peaks:": f"[max {len(ConfigFile.MAYOR_DATA[name]['perks'])}]"
-        }
-        self.dataText_ref.setText(f"\n".join([f"{k} {v}" for k, v in iterDict(dataContent)]))
-
-        out = ""
-        for perk in ConfigFile.MAYOR_DATA[name]["perks"]:
-            name_ = perk["name"]
-            desc = perk["description"]
-            out += f"§g== {name_} ==\n"
-            out += f"§c{desc}\n"
-
-        self.dataTextPerks_ref.clear()
-        self.dataTextPerks_ref.addStrf(out)
-
-        if name in self.images.keys():
-            self.imageDisplay_ref.setImage(self.images[name])
-        else:
-            self.imageDisplay_ref.clearImage()
-            self.imageDisplay_ref.setText("No Image Available")
-    def backToMenu(self, e):
-        self.topFrame.placeForget()
-        self.menuFrame.placeRelative(fixWidth=600, centerX=True)
-        self._getTkMaster().updateDynamicWidgets()
+        self.topFrameCurr.placeRelative() # fixWidth=600, centerX=True
     def createHistoryTab(self, tab):
-        pass
-    def getPerkDescFromPerkName(self, mName, pName)->str:
-        for perk in ConfigFile.MAYOR_DATA[mName]["perks"]:
-            if perk["name"] == pName:
-                return perk["description"]
+        self.dataLf2 = tk.LabelFrame(tab, SG)
+        self.dataLf2.setText("Data")
+        self.dataPrediction = tk.Text(self.dataLf2, SG, readOnly=True)
+        self.dataPrediction.setFont(15)
+        self.dataPrediction.placeRelative(changeWidth=-5, changeHeight=-20)
+        self.dataLf2.placeRelative(fixHeight=240)
+
+        self.lfPrediction = tk.LabelFrame(tab, SG)
+        self.lfPrediction.setText("Prediction")
+        self.dataPredictionMayor = tk.Text(self.lfPrediction, SG, readOnly=True, scrollAble=True)
+        self.dataPredictionMayor.setFont(15)
+        self.dataPredictionMayor.placeRelative(changeWidth=-5, changeHeight=-20)
+        self.lfPrediction.placeRelative(fixY=240, xOffsetRight=50)
+
+        self.lfNext = tk.LabelFrame(tab, SG)
+        self.lfNext.setText("Next-Election")
+        self.dataNextMayor = tk.Text(self.lfNext, SG, readOnly=True, scrollAble=True)
+        self.dataNextMayor.setFont(15)
+        self.dataNextMayor.placeRelative(changeWidth=-5, changeHeight=-20)
+        self.lfNext.placeRelative(fixY=240, xOffsetLeft=50)
+
     def configureContentFrame(self):
-        mayorName = self.currentMayor.getName().lower()
-        key = self.currentMayor.getKey()
-        currYear = self.currentMayor.getYear()
-        perks = self.currentMayor.getPerks()
-        perkCount = self.currentMayor.getPerkAmount()
-        self.currentMayorEnd = self.currentMayor.getEndTimestamp()
+        mayorName = self.currentMayorData.getMainMayorName()
+        ministerName = self.currentMayorData.getMinisterName()
+        currYear = self.currentMayorData.getCurrentYear()
+
+        mayorPerks = self.currentMayorData.getMainMayorPerks()
+        mayorPerkCount = self.currentMayorData.getMainMayorPerksAmount()
+
+        ministerPerk = self.currentMayorData.getMinisterPerk()
+
+        self.currentMayorEnd = getMayorTimezone(self.mayorHistData[-1]["end"])
 
         delta:timedelta = self.currentMayorEnd - self.getLocalizedNow()
         self.timeLabel.setText(parseTimeToStr(parseTimeDelta(delta)))
 
         dataContent = {
             "Mayor Name:": mayorName,
-            "Profession:": key,
+            "Minister Name:": ministerName,
             "Year:": currYear,
-            "Perks:": f"[{perkCount}/{len(ConfigFile.MAYOR_DATA[mayorName]['perks'])}]"
+            "Perks:": f"[{mayorPerkCount}/{MAYOR_PERK_AMOUNT[mayorName]}]"
         }
         self.dataText.setText(f"\n".join([f"{k} {v}" for k, v in iterDict(dataContent)]))
 
-        out = ""
-        activePerkNames = []
-        for perk in perks:
-            perkName = perk.getPerkName()
-            activePerkNames.append(perkName)
-            out += f"§g== {perkName} ==\n"
-            out += f"§c{self.getPerkDescFromPerkName(mayorName, perkName)}\n"
-        for perk in ConfigFile.MAYOR_DATA[mayorName]["perks"]:
+        out = "§o" + "Mayor-Perks" + "\n"
+        for perk in mayorPerks:
             perkName = perk["name"]
-            if perkName not in activePerkNames:
-                out += f"§r== {perkName} ==\n"
-                out += f"§c{self.getPerkDescFromPerkName(mayorName, perkName)}\n"
+            perkDesc = perk["description"]
+
+            for enc in ["\xa7e", "\xa77", "\xa76", "\u2663", "\xa7d", "\xa7a", "\xa75", "\xa7b", "\u262f", "§3", "§9"]:
+                perkDesc = perkDesc.replace(enc, "")
+
+            out += f"§g== {perkName} ==\n"
+            out += f"§c{perkDesc}\n"
+
+        out += "\n\n§o" + "Minister-Perk" + "\n"
+
+        perkName = ministerPerk["name"]
+        perkDesc = ministerPerk["description"]
+
+        perkDesc = perkDesc.encode('ascii', 'ignore').decode()
+        out += f"§g== {perkName} ==\n"
+        out += f"§c{perkDesc}\n"
 
         self.dataTextPerks.clear()
         self.dataTextPerks.addStrf(out)
 
-        if mayorName in self.images.keys():
-            self.imageDisplay.setImage(self.images[mayorName])
+        if mayorName.lower() in self.images.keys():
+            self.imageDisplay.setImage(self.images[mayorName.lower()])
         else:
             self.imageDisplay.clearImage()
-            self.imageDisplay.setText("No Image Available")
+            self.imageDisplay.setText("No Image!")
+
+        if ministerName.lower() in self.images.keys():
+            self.imageDisplay2.setImage(self.images[ministerName.lower()])
+        else:
+            self.imageDisplay2.clearImage()
+            self.imageDisplay2.setText("No Image!")
+
+        out = ""
+        if self.analyzedMayorData["next_special_in_years"] == 1:
+            out += f"§c === {self.analyzedMayorData['next_special_name']} ===\n"
+
+        for mayor in self.analyzedMayorData["next_perks"].keys():
+            out += f"§c === {mayor} ===\n"
+            for perk in self.analyzedMayorData["next_perks"][mayor]["available_perks"]:
+                out += f"\t§g{perk['name']}\n"
+            for i, chance in enumerate(self.simulatedElections[mayor]["chances"]):
+                out += f"\t§oChance to gain +{i} perks: {round(chance*100, 2)}%\n"
+        self.dataPredictionMayor.clear()
+        self.dataPredictionMayor.addStrf(out)
+
+        dataContent = {
+            "Possible Mayors:": len(self.analyzedMayorData["next_perks"].keys()),
+            "Next Special Mayor:": self.analyzedMayorData["next_special_name"],
+            "Next Special Mayor in": f"{self.analyzedMayorData['next_special_in_years']} Years!",
+            "Next Year:": currYear+1
+        }
+        self.dataPrediction.setText(f"\n".join([f"{k} {v}" for k, v in iterDict(dataContent)]))
+
+        self.lfNext.setText(f"Next-Election [year-{currYear+1}]")
+        if self.electionHasStarted:
+            self.lfPrediction.setText(f"Prediction [year-{currYear + 2}]")
+            out = ""
+            for sorter in self.electionSorters:
+                perc = (sorter["votes"] / self.allVotes) * 100
+                out += f"§c === {sorter['name']} ({round(perc, 2)}%) ===\n"
+                for perk in sorter["perks"]:
+                    out += f"\t§g{perk['name']}\n"
+            self.dataNextMayor.clear()
+            self.dataNextMayor.addStrf(out)
+        else:
+            self.lfPrediction.setText(f"Prediction [year-{currYear+1}]")
+            self.dataNextMayor.setText("Election not Started Yet!")
+
+
+
     def getLocalizedNow(self)->datetime:
         return timezone("Europe/Berlin").localize(datetime.now())
     def updateTimer(self):
@@ -296,7 +292,7 @@ class MayorInfoPage(CustomPage):
         return images
     def requestAPIHook(self):
         try:
-            self.mayorHist = SkyConflnetAPI.getMayorData()
+            self.mayorHistData = SkyConflnetAPI.getMayorData()
         except APIConnectionError as e:
             throwAPIConnectionException(
                 source="Mayor",
@@ -318,8 +314,53 @@ class MayorInfoPage(CustomPage):
                 event=e
             )
             return None
-        self.currentMayor = self.mayorHist.getCurrentMayor()
-        self.configureContentFrame()
+        self.currentMayorData = requestMayorHypixelAPI(self.master, Config)
+        yearOffset = 0
+        if self.currentMayorData is not None and self.mayorHistData is not None:
+            yearOffset = 1
+            self.electionHasStarted = self.currentMayorData.hasElectionStarted()
+            mayorHistData = self.mayorHistData.copy()
+            minister = self.currentMayorData.getMinisterName()
+            isLTI = (self.currentMayorData.getMinisterPerkName() == "Long Term Investment")
+            if self.electionHasStarted: # add data from election to predict next election
+                self.electionSorters = []
+                self.allVotes = 0
+                for candidate in self.currentMayorData.getCurrentCandidates():
+                    self.electionSorters.append(
+                        Sorter(
+                            sortKey="votes",
+                            votes=candidate["votes"],
+                            name=candidate["name"],
+                            perks=candidate["perks"]
+                        )
+                    )
+                    self.allVotes += candidate["votes"]
+                self.electionSorters.sort()
+
+                winner = self.electionSorters[0]
+                minister = self.electionSorters[1]["name"]
+                isLTI = "Long Term Investment" in [perk["name"] for perk in self.electionSorters[1]["perks"] if perk["minister"]]
+
+                mayorHistData.append(
+                    {
+                        "year":mayorHistData[-1]["year"]+1,
+                        "candidates":self.currentMayorData.getCurrentCandidates(),
+                        "winner": {
+                            "name":winner["name"],
+                            "perks":winner["perks"]
+                        }
+                    }
+                )
+            self.analyzedMayorData = analyzeMayors(
+                mayorHistData,
+                minister,
+                isLTI,
+                yearOffset
+            )
+
+            self.simulatedElections = simulateElections(self.analyzedMayorData)
+
+            self.configureContentFrame()
     def onShow(self, **kwargs):
         self.master.updateCurrentPageHook = None  # hook to update tv on new API-Data available
         self.placeRelative()

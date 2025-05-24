@@ -11,16 +11,49 @@ from base64 import b64decode
 from nbt.nbt import NBTFile
 from io import BytesIO
 from string import digits, ascii_lowercase
-
+import json
+from datetime import datetime as dt
 
 def getTimezone(tz)->datetime:
     unixTime = tz/1000
     return datetime.fromtimestamp(unixTime)
 
 
+class HypixelMayorParser:
+    def __init__(self, rawData: dict):
+        if not rawData["success"]: raise CouldNotReadDataPackageException(rawData)
+        self._data = rawData
+
+    def getCurrentYear(self)->int:
+        return self._data["mayor"]["election"]["year"]
+
+    def getMainMayorName(self)->str:
+        return self._data["mayor"]["name"]
+
+    def getMainMayorPerksAmount(self)->int:
+        return len(self._data["mayor"]["perks"])
+
+    def getMainMayorPerks(self)->list:
+        return self._data["mayor"]["perks"]
+
+    def getMinisterName(self)->str:
+        return self._data["mayor"]["minister"]["name"]
+
+    def getMinisterPerk(self)->dict:
+        return self._data["mayor"]["minister"]["perk"]
+
+    def getMinisterPerkName(self)->str:
+        return self._data["mayor"]["minister"]["perk"]["name"]
+
+    def hasElectionStarted(self)->bool:
+        return "current" in self._data.keys()
+
+    def getCurrentCandidates(self)->list:
+        return self._data["current"]["candidates"]
+
 
 class HypixelProfilesParser:
-    def __init__(self, rawData:dict):
+    def __init__(self, rawData: dict):
         if not rawData["success"]: raise CouldNotReadDataPackageException(rawData)
         self._data = rawData
 
