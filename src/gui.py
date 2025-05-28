@@ -1957,11 +1957,8 @@ class LongTimeFlip(tk.Frame):
         tk.Button(self.rMenu).setText("ItemInfo").setCommand(self.onItemInfo)
         tk.Button(self.rMenu).setText("Request Average Price...").setCommand(self.requestAverage)
         self.rMenu.create()
-
-
     def saveAverage(self):
         ConfigFile.AVERAGE_PRICE.saveConfig()
-
     def requestAverage(self):
         def request():
             try:
@@ -2000,7 +1997,6 @@ class LongTimeFlip(tk.Frame):
             Thread(target=request).start()
     def onItemInfo(self):
         self.window.showItemInfo(self.page, self.selectedItem)
-
     def onEdit(self):
         NewFlipWindow(self, self.page, self.master._getTkMaster(), self.selectedItem, finish=self.page.finishEdit, data=self.data).show()
     def updateWidget(self, isOrder=None):
@@ -2485,6 +2481,7 @@ class LongTimeFlipHelperPage(CustomPage):
         else:
             self.fullProfitL.setFg("red")
     def onShow(self, **kwargs):
+        self.master.updateCurrentPageHook = self.updateView  # hook to update tv on new API-Data available
         if "itemName" in kwargs: # search complete
             self._menuData["history"].pop(-2) # delete search Page and self
             self._menuData["history"].pop(-2) # workaround
