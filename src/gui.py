@@ -4423,9 +4423,9 @@ class MainMenuPage(CustomMenuPage):
         self.scrollFramePosY = 0
         self.activeButtons = []
         self.image = tk.PILImage.loadImage(os.path.join(IMAGES, "logo.png"))
-        self.image.resize(.55)
+        self.image.resize(.2)
         self.image.preRender()
-        self.title = tk.Label(self, SG).setImage(self.image).placeRelative(centerX=True, fixHeight=self.image.getHeight(), fixWidth=self.image.getWidth(), fixY=50)
+        self.title = tk.Label(self, SG).setImage(self.image).placeRelative(centerX=True, fixHeight=self.image.getHeight(), fixWidth=self.image.getWidth(), fixY=20)
 
         self.playerHead1 = tk.PILImage.loadImage(os.path.join(IMAGES, "lol_hunter.png")).resizeTo(32, 32).preRender()
         self.playerHead2 = tk.PILImage.loadImage(os.path.join(IMAGES, "glaciodraco.png")).resizeTo(32, 32).preRender()
@@ -4560,9 +4560,9 @@ class LoadingPage(CustomPage):
         self.loadingComplete = False
         self.master:Window = master
         self.image = tk.PILImage.loadImage(os.path.join(IMAGES, "logo.png"))
-        self.image.resize(.89)
+        self.image.resize(.3)
         self.image.preRender()
-        self.title = tk.Label(self, SG).setImage(self.image).placeRelative(centerX=True, fixHeight=self.image.getHeight(), fixWidth=self.image.getWidth(), fixY=50)
+        self.title = tk.Label(self, SG).setImage(self.image).placeRelative(centerX=True, fixHeight=self.image.getHeight(), fixWidth=self.image.getWidth(), fixY=40)
 
         self.processBar = tk.Progressbar(self, SG)
         self.processBar.placeRelative(fixHeight=25, fixY=300, changeX=+50, changeWidth=-100)
