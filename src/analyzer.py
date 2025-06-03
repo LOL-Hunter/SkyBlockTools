@@ -158,7 +158,9 @@ def analyzeMayors(data:list, currentMinister:str, ministerHasLTI, yearOffset:int
                 perkData[name] = {
                     "perks":0,
                     "available_perks": [],
-                    "cycles_without_selected":0
+                    "cycles_without_selected":0,
+                    "is_special": False,
+                    "has_full_perks": False
                 }
             if name not in MAYOR_SPEC:
                 perkData[name]["perks"] = perks
@@ -182,19 +184,41 @@ def analyzeMayors(data:list, currentMinister:str, ministerHasLTI, yearOffset:int
                 perkData[oldWinner[0]["name"]] = {
                     "perks": 1,
                     "available_perks": [{"name":"<Random_Perk>", "description":"<Random_Perk>"}],
-                    "cycles_without_selected": 0
+                    "cycles_without_selected": 0,
+                    "is_special": False,
+                    "has_full_perks": False
                 }
 
     # Diaz is Minister with "Long Term Investment"-Perk -> Diaz will appear as Mayor in next Cycle with FULL perks
     if currentMinister == "Diaz" and ministerHasLTI:
         perkData["Diaz"]["perks"] = 4
+        perkData["Diaz"]["available_perks"].append({"name":"<Full_Perk>", "description":"<Full_Perk>"})
+        perkData["Diaz"]["has_full_perks"] = True
     # Diaz is Main with "Long Term Investment"-Perk Current Minister will appear with FULL perks
     elif currentMayor == "Diaz" and any([i["name"] == "Long Term Investment" for i in currentPerks]):
         perkData[currentMinister]["perks"] = MAYOR_PERK_AMOUNT[currentMinister]
+        perkData[currentMinister]["available_perks"].append({"name":"<Full_Perk>", "description":"<Full_Perk>"})
+        perkData[currentMinister]["has_full_perks"] = True
     else:
         perkData.pop(currentMinister)
+
+    for may in perkData.keys():
+        mayorData = perkData[may]
+        if mayorData["available_perks"] == MAYOR_PERK_AMOUNT[may]:
+            mayorData["has_full_perks"] = True
+    NEXT_SPEC_NAME = MAYOR_SPEC[(MAYOR_SPEC.index(lastSpecialName)+1) % len(MAYOR_SPEC)]
+    if lastSpecialYear+8-currentYear:
+
+        perkData[NEXT_SPEC_NAME] = {
+            "perks": MAYOR_PERK_AMOUNT[NEXT_SPEC_NAME],
+            "cycles_without_selected": 0,
+            "available_perks": [{"name":"<Full_Perk>", "description":"<Full_Perk>"}],
+            "is_special": True,
+            "has_full_perks": True
+        }
+
     return {
-        "next_special_name":MAYOR_SPEC[(MAYOR_SPEC.index(lastSpecialName)+1) % len(MAYOR_SPEC)],
+        "next_special_name":NEXT_SPEC_NAME,
         "next_special_year":lastSpecialYear+8,
         "next_special_in_years":lastSpecialYear+8-currentYear,
         "next_perks":perkData,

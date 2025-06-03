@@ -1,5 +1,7 @@
 # SkyBlockTools
 
+![image](src/images/icons/icon.png)
+
 The software provides numerous features in connection with the Minecraft game mode Skyblock on the Hypixel server.
 
 ## Features

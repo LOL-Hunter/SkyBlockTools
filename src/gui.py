@@ -233,11 +233,8 @@ class MayorInfoPage(CustomPage):
             self.imageDisplay2.setText("No Image!")
 
         out = ""
-        if self.analyzedMayorData["next_special_in_years"] == 1:
-            out += f"§c === {self.analyzedMayorData['next_special_name']} ===\n"
-
         for mayor in self.analyzedMayorData["next_perks"].keys():
-            out += f"§c === {mayor} ===\n"
+            out += f"{self._chCC(self.analyzedMayorData['next_perks'][mayor])} === {mayor} ===\n"
             for perk in self.analyzedMayorData["next_perks"][mayor]["available_perks"]:
                 out += f"\t§g{perk['name']}\n"
             for i, chance in enumerate(self.simulatedElections[mayor]["chances"]):
@@ -248,7 +245,7 @@ class MayorInfoPage(CustomPage):
         dataContent = {
             "Possible Mayors:": len(self.analyzedMayorData["next_perks"].keys()),
             "Next Special Mayor:": self.analyzedMayorData["next_special_name"],
-            "Next Special Mayor in": f"{self.analyzedMayorData['next_special_in_years']} Years!",
+            "Next Special Mayor in": f"{self.analyzedMayorData['next_special_in_years']} Years! ({self.analyzedMayorData['next_special_year']})",
             "Next Year:": currYear+1
         }
         self.dataPrediction.setText(f"\n".join([f"{k} {v}" for k, v in iterDict(dataContent)]))
@@ -268,6 +265,16 @@ class MayorInfoPage(CustomPage):
             self.lfPrediction.setText(f"Prediction [year-{currYear+1}]")
             self.dataNextMayor.setText("Election not Started Yet!")
 
+
+    def _chCC(self, data):
+        """
+        choose Color Code
+        """
+        if data["is_special"]:
+            return "§m"
+        if data["has_full_perks"]:
+            return "§y"
+        return "§c"
 
 
     def getLocalizedNow(self)->datetime:
@@ -1998,7 +2005,7 @@ class LongTimeFlip(tk.Frame):
     def onItemInfo(self):
         self.window.showItemInfo(self.page, self.selectedItem)
     def onEdit(self):
-        NewFlipWindow(self, self.page, self.master._getTkMaster(), self.selectedItem, finish=self.page.finishEdit, data=self.data).show()
+        NewFlipWindow(self, self.page, self.window, self.selectedItem, finish=self.page.finishEdit, data=self.data).show()
     def updateWidget(self, isOrder=None):
         if isOrder is None:
             isOrder = self.isOrder
@@ -2215,7 +2222,6 @@ class NewFlipWindow(tk.Dialog):
                 self.page.deleteEntry(self.widget)
             self.destroy()
             if self._finishHook is not None: self._finishHook()
-
     def takeOffer(self):
         item = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(self.itemID)
         price = item.getInstaSellPrice()+.1
