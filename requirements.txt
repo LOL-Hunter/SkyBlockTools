@@ -1,10 +1,9 @@
-Pillow
+numpy
+matplotlib
 pyfiglet
 termcolor
-colorama
-tkcalendar
-matplotlib
 pyperclip
+Pillow
 pytz
 nbt
 requests

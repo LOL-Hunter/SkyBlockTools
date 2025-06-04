@@ -1,17 +1,5 @@
 # -*- coding: iso-8859-15 -*-
-import json
-
-from hyPI.APIError import APIConnectionError, NoAPIKeySetException, APITimeoutException
-from hyPI._parsers import MayorData, BazaarHistoryProduct, BaseAuctionProduct, BINAuctionProduct, NORAuctionProduct, getMayorTimezone
-from hyPI.hypixelAPI.loader import HypixelBazaarParser
-from hyPI.recipeAPI import RecipeAPI
-from hyPI.skyCoflnetAPI import SkyConflnetAPI
-from hyPI.hypixelAPI.loader import HypixelMayorParser
 import tksimple as tk
-from pysettings import iterDict
-from pysettings.geometry import _map
-from pysettings.jsonConfig import JsonConfig
-from pysettings.text import MsgText
 import os
 from datetime import datetime, timedelta
 from threading import Thread
@@ -22,6 +10,15 @@ from matplotlib.figure import Figure
 from pyperclip import copy as copyStr
 from pytz import timezone
 
+from hyPI.APIError import APIConnectionError, NoAPIKeySetException, APITimeoutException
+from hyPI._parsers import MayorData, BazaarHistoryProduct, BaseAuctionProduct, BINAuctionProduct, NORAuctionProduct, getMayorTimezone
+from hyPI.hypixelAPI.loader import HypixelBazaarParser
+from hyPI.recipeAPI import RecipeAPI
+from hyPI.skyCoflnetAPI import SkyConflnetAPI
+from hyPI.hypixelAPI.loader import HypixelMayorParser
+
+from logger import MsgText
+from jsonConfig import JsonConfig
 from widgets import CompleterEntry, CustomPage, CustomMenuPage, TrackerWidget, APIRequest
 from bazaarAnalyzer import updateBazaarAnalyzer, BazaarAnalyzer
 from analyzer import getPlotData, getCheapestEnchantmentData, analyzeMayors, simulateElections
@@ -69,6 +66,8 @@ from skyMisc import (
     parsePrice,
     search,
     Sorter,
+    _map,
+    iterDict,
     BookCraft,
     RecipeResult,
     getDictEnchantmentIDToLevels,

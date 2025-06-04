@@ -1,16 +1,18 @@
-from constants import STYLE_GROUP as SG, AUCT_INFO_LABEL_GROUP as AILG, BAZAAR_INFO_LABEL_GROUP as BILG
 import tksimple as tk
-from analyzer import getPlotData
-from constants import Constants, ConfigFile
-from skyMath import getMedianFromList
-from hyPI.skyCoflnetAPI import SkyConflnetAPI
-from hyPI.APIError import APIConnectionError, NoAPIKeySetException
-from pysettings.text import TextColor
 from traceback import format_exc
-from images import IconLoader
 from threading import Thread
 from webbrowser import open as openURL
 from time import time, sleep
+
+from hyPI.skyCoflnetAPI import SkyConflnetAPI
+from hyPI.APIError import APIConnectionError, NoAPIKeySetException
+
+from constants import STYLE_GROUP as SG, AUCT_INFO_LABEL_GROUP as AILG, BAZAAR_INFO_LABEL_GROUP as BILG
+from analyzer import getPlotData
+from constants import Constants, ConfigFile
+from skyMath import getMedianFromList
+from logger import TextColor
+from images import IconLoader
 
 class APILoginWidget(tk.LabelFrame):
     API_URL = "https://developer.hypixel.net/"

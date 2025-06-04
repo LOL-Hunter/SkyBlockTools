@@ -1,5 +1,3 @@
-from hyPI.hypixelAPI.loader import HypixelBazaarParser
-from hyPI._parsers import ProductWithOrders
 from skyMath import applyBazaarTax
 from constants import BazaarItemID, API, ConfigFile
 from skyMisc import Sorter

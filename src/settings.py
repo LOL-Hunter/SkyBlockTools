@@ -1,13 +1,13 @@
 import tksimple as tk
-from pysettings.jsonConfig import AdvancedJsonConfig
-from pysettings import iterDict
-from pysettings.text import MsgText
-from constants import STYLE_GROUP as SG
 import os
 from datetime import datetime
 from threading import Thread
+
+from constants import STYLE_GROUP as SG
+from logger import MsgText
+from jsonConfig import AdvancedJsonConfig
 from widgets import SettingValue, APILoginWidget
-from skyMisc import parseTimeToStr, parseTimeDelta, requestItemHypixelAPI
+from skyMisc import iterDict, parseTimeToStr, parseTimeDelta, requestItemHypixelAPI
 from constants import API, Constants, System
 
 APP_DATA_SETTINGS = System.CONFIG_PATH

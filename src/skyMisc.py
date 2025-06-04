@@ -1,13 +1,15 @@
 # -*- coding: iso-8859-15 -*-
+import tksimple as tk
 import os as _os
+
 from hyPI.APIError import APIConnectionError, NoAPIKeySetException, APITimeoutException, CouldNotReadDataPackageException
 from hyPI.hypixelAPI import HypixelAPIURL, APILoader, fileLoader
 from hyPI.hypixelAPI.loader import HypixelBazaarParser, HypixelAuctionParser, HypixelItemParser, HypixelProfileParser, HypixelProfilesParser, HypixelMayorParser
 from hyPI.skyCoflnetAPI import SkyConflnetAPI
 from hyPI import getEnchantmentIDLvl
-import tksimple as tk
-from pysettings.jsonConfig import JsonConfig
-from pysettings.text import TextColor, MsgText
+
+from jsonConfig import JsonConfig
+from logger import TextColor, MsgText
 from datetime import datetime
 from constants import BAZAAR_INFO_LABEL_GROUP as BILG, AUCT_INFO_LABEL_GROUP as AILG, API, ALL_ENCHANTMENT_IDS, AuctionItemID, BazaarItemID, System
 from skyMath import parseTimeDelta
@@ -626,6 +628,16 @@ class RecipeResult:
         return self._profit
     def __lt__(self, other):
         return self.getProfit() > other.getProfit()
+
+def iterDict(__iterable:dict):
+    return zip(__iterable.keys(), __iterable.values())
+def _map(value, iMin, iMax, oMin=None, oMax=None):
+    if oMin is None and oMax is None:
+        oMax = iMax
+        iMax = iMin
+        iMin = 0
+        oMin = 0
+    return int((value-iMin) * (oMax-oMin) / (iMax-iMin) + oMin)
 
 match (system()):
     case "Windows":

@@ -1,5 +1,4 @@
 import tksimple as tk
-from pysettings.jsonConfig import JsonConfig
 from tkinter import ttk
 from hyPI.hypixelAPI.loader import HypixelBazaarParser, HypixelAuctionParser, HypixelItemParser
 import os
