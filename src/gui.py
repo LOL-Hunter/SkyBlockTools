@@ -2006,6 +2006,7 @@ class LongTimeFlip(tk.Frame):
     def onEdit(self):
         NewFlipWindow(self, self.page, self.window, self.selectedItem, finish=self.page.finishEdit, data=self.data).show()
     def updateWidget(self, isOrder=None):
+        if API.SKYBLOCK_BAZAAR_API_PARSER is None: return
         if isOrder is None:
             isOrder = self.isOrder
         else:
