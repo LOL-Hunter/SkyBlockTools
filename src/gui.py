@@ -4514,6 +4514,7 @@ class MainMenuPage(CustomMenuPage):
             self.scrollLabel.place(2, 2, 20-4, self.scrollFrame.getHeight()-4)
         else:
             self.scrollLabel.place(2, 2, 20 - 4, 50)
+    @tk.runWatcherDec
     def onPlaceRelative(self, e):
         if not hasattr(self, "scrollBarFrame"): return
         x, y, width, height = e.getValue()
@@ -4698,6 +4699,7 @@ class LoadingPage(CustomPage):
 class Window(tk.Tk):
     def __init__(self):
         checkConfigForUpdates()
+        tk.enableRelativePlaceOptimization()
         if Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_off_on_load"]:
             Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"] = False
             Config.SETTINGS_CONFIG.save()
