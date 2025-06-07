@@ -2406,6 +2406,7 @@ class LongTimeFlipHelperPage(CustomPage):
                               input=[BazaarItemID],
                               next_page=self
                               )
+    @tk.runWatcherDec
     def onResizeEvent(self, e):
         if self.master.getWidth() // (self.flipWidth + self.flipGap) != self.flipw or (self.master.getHeight()-200) // (self.flipHeight + self.flipGap) != self.fliph:
             self.placeWidgets()
