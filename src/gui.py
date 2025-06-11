@@ -2420,7 +2420,7 @@ class LongTimeFlipHelperPage(CustomPage):
         flipCol = 0
 
         mode = self.modeS.getValue()
-        showFin = self.showFinished.getValue()
+        showFin = self.showFinished.getState()
         placedFlips = []
         for frame in self.flips:
             if showFin != frame.isFinished():
