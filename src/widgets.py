@@ -29,12 +29,12 @@ class APILoginWidget(tk.LabelFrame):
         self.apiUsernameTextE.setValue(settingsConfig["player_name"])
         self.apiUsernameTextE.setText("Username:")
         self.apiUsernameTextE.place(0, 0, 200, 25)
-        self.apiUsernameTextE.getEntry().disable()
+        self.apiUsernameTextE.getEntry().setDisabled()
         self.apiKeyTextE = tk.TextEntry(self, SG)
         self.apiKeyTextE.setValue("*" * 16 if settingsConfig["api_key"] != "" else "No api key set!")
         self.apiKeyTextE.setText("API-Key:")
         self.apiKeyTextE.place(0, 25, 200, 25)
-        self.apiKeyTextE.getEntry().disable()
+        self.apiKeyTextE.getEntry().setDisabled()
         tk.Button(self, SG).setText("Change...").setCommand(self.openAPIKeyChange).placeRelative(changeWidth=-5, fixY=50, fixHeight=25)
         self.urlL = tk.Label(self, SG).setText("Click to generate API-Key.").placeRelative(changeWidth=-5, fixY=75, fixHeight=25)
         self.urlL.bind(self._enter, tk.EventType.ENTER)
@@ -152,7 +152,7 @@ class CustomPage(tk.MenuPage):
             self._info = tk.Label(self, AILG).placeRelative(stickDown=True, fixHeight=15, changeX=100, changeWidth=-200, changeY=-15)
             self._info2 = tk.Label(self, BILG).placeRelative(stickDown=True, fixHeight=15, changeX=100, changeWidth=-200)
     def _home(self):
-        self.master.mainMenuPage._menuData["history"] = [self.master.mainMenuPage]
+        self.master.mainMenuPage._history = [self.master.mainMenuPage]
         self.placeForget()
         self.master.mainMenuPage.openMenuPage()
     def setPageTitle(self, t:str):
@@ -302,7 +302,7 @@ class CompleterEntry(tk.Entry):
     def __decryptEvent(self, args):
         try:
             w = args.widget
-            if self._listBox["selectionMode"] == tk.Listbox.SINGLE:
+            if self._listBox._selectionMode == "single":
                 return w.get(int(w.curselection()[0]))
             else:
                 return [w.get(int(i)) for i in w.curselection()]
@@ -314,7 +314,7 @@ class CompleterEntry(tk.Entry):
         x, y, width, height = e.getValue()
         self._rect = tk.Rect.fromLocWidthHeight(tk.Location2D(x, y + height), width, 200)
     def place(self, x=None, y=None, width=None, height=None, anchor:tk.Anchor=tk.Anchor.UP_LEFT):
-        assert not self["destroyed"], "The widget has been destroyed and can no longer be placed."
+        assert not self._destroyed, "The widget has been destroyed and can no longer be placed."
         if x is None: x = 0
         if y is None: y = 0
         if hasattr(anchor, "value"):
@@ -329,8 +329,7 @@ class CompleterEntry(tk.Entry):
         y = int(round(y, 0))
         self.placeForget()
         self._rect = tk.Rect.fromLocWidthHeight(tk.Location2D(x, y + height), width, 180)
-        self["widget"].place(x=x, y=y, width=width, height=height, anchor=anchor)
-        self["alive"] = True
+        self._widget.place(x=x, y=y, width=width, height=height, anchor=anchor)
         return self
 class TrackerWidget(tk.LabelFrame):
     def __init__(self, master, window, title):

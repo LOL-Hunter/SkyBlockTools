@@ -144,7 +144,7 @@ class MayorInfoPage(CustomPage):
 
         self.dataLf = tk.LabelFrame(self.topFrameCurr, SG)
         self.dataLf.setText("Perks")
-        self.dataTextPerks = tk.Text(self.dataLf, SG, readOnly=True, scrollAble=True)
+        self.dataTextPerks = tk.ScrollableText(self.dataLf, SG, readOnly=True)
         self.dataTextPerks.setFont(15)
         self.dataTextPerks.setWrapping(tk.Wrap.WORD)
         self.dataTextPerks.placeRelative(changeWidth=-5, changeHeight=-20)
@@ -161,14 +161,14 @@ class MayorInfoPage(CustomPage):
 
         self.lfPrediction = tk.LabelFrame(tab, SG)
         self.lfPrediction.setText("Prediction")
-        self.dataPredictionMayor = tk.Text(self.lfPrediction, SG, readOnly=True, scrollAble=True)
+        self.dataPredictionMayor = tk.ScrollableText(self.lfPrediction, SG, readOnly=True)
         self.dataPredictionMayor.setFont(15)
         self.dataPredictionMayor.placeRelative(changeWidth=-5, changeHeight=-20)
         self.lfPrediction.placeRelative(fixY=240, xOffsetRight=50)
 
         self.lfNext = tk.LabelFrame(tab, SG)
         self.lfNext.setText("Next-Election")
-        self.dataNextMayor = tk.Text(self.lfNext, SG, readOnly=True, scrollAble=True)
+        self.dataNextMayor = tk.ScrollableText(self.lfNext, SG, readOnly=True)
         self.dataNextMayor.setFont(15)
         self.dataNextMayor.placeRelative(changeWidth=-5, changeHeight=-20)
         self.lfNext.placeRelative(fixY=240, xOffsetLeft=50)
@@ -209,8 +209,8 @@ class MayorInfoPage(CustomPage):
 
         out += "\n\n§o" + "Minister-Perk" + "\n"
 
-        perkName = ministerPerk["name"]
-        perkDesc = ministerPerk["description"]
+        perkName = ministerPerk["name"] if ministerPerk is not None else "None"
+        perkDesc = ministerPerk["description"] if ministerPerk is not None else "None"
 
         perkDesc = perkDesc.encode('ascii', 'ignore').decode()
         out += f"§g== {perkName} ==\n"
@@ -225,7 +225,7 @@ class MayorInfoPage(CustomPage):
             self.imageDisplay.clearImage()
             self.imageDisplay.setText("No Image!")
 
-        if ministerName.lower() in self.images.keys():
+        if ministerName is not None and ministerName.lower() in self.images.keys():
             self.imageDisplay2.setImage(self.images[ministerName.lower()])
         else:
             self.imageDisplay2.clearImage()
@@ -428,7 +428,7 @@ class ItemInfoPage(CustomPage):
         volPref = self.currentHistoryData["volume_prefix"]
 
         # if flatten is selected -> take flatten prices
-        if self.filterManipulation.getValue():
+        if self.filterManipulation.getState():
             bp = self.currentHistoryData["past_flatten_buy_prices"]
             sp = self.currentHistoryData["past_flatten_sell_prices"]
 
@@ -437,10 +437,10 @@ class ItemInfoPage(CustomPage):
             self.plot2.clear()
             self.plot2.remove()
             self.plot2 = None
-        if self.chBuy.getValue(): self.plot.plot(ts, bp, label="Buy Price", color="red")
-        if self.chSell.getValue(): self.plot.plot(ts, sp, label="Sell Price", color="green")
+        if self.chBuy.getState(): self.plot.plot(ts, bp, label="Buy Price", color="red")
+        if self.chSell.getState(): self.plot.plot(ts, sp, label="Sell Price", color="green")
 
-        if not self.chSell.getValue() and not self.chBuy.getValue() and not self.chBuyV.getValue() and not self.chSellV.getValue():
+        if not self.chSell.getState() and not self.chBuy.getState() and not self.chBuyV.getState() and not self.chSellV.getState():
             self.plot.clear()
             return
 
@@ -448,12 +448,12 @@ class ItemInfoPage(CustomPage):
         self.plot.set_xlabel("Time in h")
         self.plot.set_ylabel(f"Price in {pricePref} coins")
 
-        if self.chBuyV.getValue() or self.chSellV.getValue():
+        if self.chBuyV.getState() or self.chSellV.getState():
             self.plot2:Axes = self.plot.twinx()
             self.plot2.set_ylabel(f"Volume in {volPref}")
 
-            if self.chBuyV.getValue(): self.plot2.plot(ts, bv, label="Buy Volume", color="blue")
-            if self.chSellV.getValue(): self.plot2.plot(ts, sv, label="Sell Volume", color="orange")
+            if self.chBuyV.getState(): self.plot2.plot(ts, bv, label="Buy Volume", color="blue")
+            if self.chSellV.getState(): self.plot2.plot(ts, sv, label="Sell Volume", color="orange")
 
             self.plot2.legend()
 
@@ -831,7 +831,7 @@ class EnchantingBookBazaarProfitPage(CustomPage):
             tk.SimpleDialog.askError(self.master, "Cannot calculate! No API data available!")
             return
 
-        if not self.useBuyOffers.getValue():  # isInstaBuy?
+        if not self.useBuyOffers.getState():  # isInstaBuy?
             self.treeView.setTableHeaders("Using-Book", "Buy-Price-Per-Item", "Total-Buy-Price", "Profit")
         else:
             self.treeView.setTableHeaders("Using-Book", "Buy-Price-Per-Item", "Total-Buy-Price", "Profit", "Others-try-to-buy")
@@ -840,13 +840,13 @@ class EnchantingBookBazaarProfitPage(CustomPage):
         eDataComplete = []
         enchIDToLvl = getDictEnchantmentIDToLevels()
         for currentItem in enchIDToLvl.keys():
-            if self.whiteList is not None and self.useWhiteList.getValue(): # whiteList Active
-                if currentItem not in self.whiteList and not (self.includeUltimate.getValue() and currentItem.startswith("ENCHANTMENT_ULTIMATE")):
+            if self.whiteList is not None and self.useWhiteList.getState(): # whiteList Active
+                if currentItem not in self.whiteList and not (self.includeUltimate.getState() and currentItem.startswith("ENCHANTMENT_ULTIMATE")):
                     continue
             currentItem = enchIDToLvl[currentItem][-1] # get Highest Enchantment
 
 
-            eData = getCheapestEnchantmentData(API.SKYBLOCK_BAZAAR_API_PARSER, currentItem, instaBuy=not self.useBuyOffers.getValue())
+            eData = getCheapestEnchantmentData(API.SKYBLOCK_BAZAAR_API_PARSER, currentItem, instaBuy=not self.useBuyOffers.getState())
             if eData is not None:
                 if self.useSellOffers.getValue(): # insta sell
                     targetBookInstaBuy = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(currentItem).getInstaBuyPrice()
@@ -1082,14 +1082,14 @@ class BazaarCraftProfitPage(CustomPage):
         if API.SKYBLOCK_BAZAAR_API_PARSER is None:
             tk.SimpleDialog.askError(self.master, "Cannot calculate! No API data available!")
             return
-        if not self.showStackProfit.getValue():
+        if not self.showStackProfit.getState():
             factor = 1
             headers = ["Recipe", "Profit-Per-Item", "Ingredients-Buy-Price-Per-Item", "Needed-Item-To-Craft"]
         else:
             factor = 64
             headers = ["Recipe", "Profit-Per-Stack[x64]", "Ingredients-Buy-Price-Per-Stack[x64]", "Needed-Item-To-Craft[x64]"]
 
-        if self.recursiveCraft.getValue():
+        if self.recursiveCraft.getState():
             headers.append("Craft-Depth")
 
         self.treeView.setTableHeaders(headers)
@@ -1153,7 +1153,7 @@ class BazaarCraftProfitPage(CustomPage):
                 prizeToStr(rec.getCraftPrice()),
                 rec.getRequired()
             ]
-            if self.recursiveCraft.getValue():
+            if self.recursiveCraft.getState():
                 content.append(rec.getCraftDepth())
             self.treeView.addEntry(*content)
     def onShow(self, **kwargs):
@@ -1398,7 +1398,7 @@ class BazaarFlipProfitPage(CustomPage):
             titles = ["Item", "Buy-Price", "Sell-Price", "Profit-Per-Item"]
         else:
             titles = ["Item", f"Buy-Price[x{factor}]", f"Sell-Price[x{factor}]", f"Profit-Per-Stack[x{factor}]"]
-        if self.showOthersTry.getValue():
+        if self.showOthersTry.getState():
             titles.extend(["Others-Try-To-Buy", "Others-Try-To-Sell"])
         if self.perMode == "per_hour":
             titles.extend(["Buy-Per-Hour", "Sell-Per-Hour"])
@@ -1421,13 +1421,13 @@ class BazaarFlipProfitPage(CustomPage):
 
             if self.searchE.getValue() != "" and itemID not in validItems: continue
 
-            if itemID.startswith("ENCHANTMENT") and not self.includeEnchantments.getValue(): continue
+            if itemID.startswith("ENCHANTMENT") and not self.includeEnchantments.getState(): continue
 
             item = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(itemID)
             if item is None:
                 print("ERROR", itemID)
                 continue
-            if self.hideLowInstaSell.getValue() and item.getInstaSellWeek() / 168 < 1: continue
+            if self.hideLowInstaSell.getState() and item.getInstaSellWeek() / 168 < 1: continue
             ## Sell price ##
             if self.useSellOffers.getValue(): # use sell Offer
                 itemSellPrice = item.getInstaBuyPrice()
@@ -1507,7 +1507,7 @@ class BazaarFlipProfitPage(CustomPage):
                 prizeToStr(rec["sell"]),
                 prizeToStr(rec["profitPerFlip"]),
             ]
-            if self.showOthersTry.getValue():
+            if self.showOthersTry.getState():
                 input_.extend([f"{rec['buyVolume']} in {rec['buyOrders']} Orders", f"{rec['sellVolume']} in {rec['sellOrders']} Orders"])
             if self.perMode == "per_hour":
                 input_.extend([f"{round(rec['buysPerHour'], 2)}", f"{round(rec['sellsPerHour'], 2)}"])
@@ -1632,7 +1632,7 @@ class ComposterProfitPage(CustomPage):
             ingredientItem = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(name)
 
             ## ingredients price ##
-            if self.useBuyOffers.getValue():  # use buy Offer ingredients
+            if self.useBuyOffers.getState():  # use buy Offer ingredients
                 # print(f"Offer one {name}:", ingredientItem.getInstaSellPrice()+.1)
                 ingredientPrice = [ingredientItem.getInstaSellPrice() + .1]
             else:  # insta buy ingredients
@@ -1651,7 +1651,7 @@ class ComposterProfitPage(CustomPage):
             ingredientItem = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(name)
 
             ## ingredients price ##
-            if self.useBuyOffers.getValue():  # use buy Offer ingredients
+            if self.useBuyOffers.getState():  # use buy Offer ingredients
                 # print(f"Offer one {name}:", ingredientItem.getInstaSellPrice()+.1)
                 ingredientPrice = [ingredientItem.getInstaSellPrice() + .1]
             else:  # insta buy ingredients
@@ -1714,14 +1714,14 @@ class ComposterProfitPage(CustomPage):
 
         ## Result price ##
         compost = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID("COMPOST")
-        if self.useSellOffers.getValue():  # use sell Offer
+        if self.useSellOffers.getState():  # use sell Offer
             compostSellPrice = compost.getInstaBuyPrice()
         else:  # insta sell result
             compostSellPrice = compost.getInstaSellPrice()
         compostSellPrice = applyBazaarTax(compostSellPrice) # add tax
 
         compostE = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID("ENCHANTED_COMPOST")
-        if self.useSellOffers.getValue():  # use sell Offer
+        if self.useSellOffers.getState():  # use sell Offer
             compostESellPrice = compostE.getInstaBuyPrice()
         else:  # insta sell result
             compostESellPrice = compostE.getInstaSellPrice()
@@ -1886,7 +1886,7 @@ class BazaarToAuctionHouseFlipProfitPage(CustomPage):
                 ingredientItem = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(name)
 
                 ## ingredients price ##
-                if self.useBuyOffers.getValue():  # use buy Offer ingredients
+                if self.useBuyOffers.getState():  # use buy Offer ingredients
                     ingredientPrice = [ingredientItem.getInstaSellPrice()+.1] * amount
                 else:  # insta buy ingredients
                     ingredientPrice = ingredientItem.getInstaBuyPriceList(amount)
@@ -2316,13 +2316,13 @@ class NewFlipWindow(tk.Dialog):
     def finish(self):
         if self.isNew: # create New or apply data
             self.page.flips.append(LongTimeFlip(self.page, self.master, self.page.contentFrame, self.data))
-        self.data["items_bought"] = not self.isFlipC.getValue()
-        self.data["finish"] = not self.isFinishedC.getValue()
+        self.data["items_bought"] = not self.isFlipC.getState()
+        self.data["finish"] = not self.isFinishedC.getState()
         if self._finishHook is not None: self._finishHook()
     def readData(self, data):
         self.selectedItem = data["item_id"]
-        self.isFinishedC.setValue(self.data["finished"])
-        self.isFlipC.setValue(not self.data["items_bought"])
+        self.isFinishedC.setState(self.data["finished"])
+        self.isFlipC.setState(not self.data["items_bought"])
         self.treeView.clear()
         for dat in self.data["data"]:
             amount = dat["amount"]
@@ -2468,14 +2468,14 @@ class LongTimeFlipHelperPage(CustomPage):
         totalValue = 0
         exact = True
         for flip in self.flips:
-            flip.updateWidget(self.useSellOffers.getValue())
+            flip.updateWidget(self.useSellOffers.getState())
 
         for flip in placedFlips:
-            value, _exact = flip.getProfit(self.useSellOffers.getValue())
+            value, _exact = flip.getProfit(self.useSellOffers.getState())
             if not _exact: exact = False
             fullProfit += value
 
-            value, _exact = flip.getSellPrice(self.useSellOffers.getValue())
+            value, _exact = flip.getSellPrice(self.useSellOffers.getState())
             if not _exact: exact = False
             totalValue += value
 
@@ -2490,8 +2490,8 @@ class LongTimeFlipHelperPage(CustomPage):
     def onShow(self, **kwargs):
         self.master.updateCurrentPageHook = self.updateView  # hook to update tv on new API-Data available
         if "itemName" in kwargs: # search complete
-            self._menuData["history"].pop(-2) # delete search Page and self
-            self._menuData["history"].pop(-2) # workaround
+            self._history.pop(-2) # delete search Page and self
+            self._history.pop(-2) # workaround
             selected = kwargs["itemName"]
             NewFlipWindow(None, self, self.master, selected, finish=self.finishEdit).show()
         self.placeRelative()
@@ -2507,7 +2507,7 @@ class AuctionHousePage(CustomPage):
         self.isMenuShown = False
         self.menuMode = None # "pet"
 
-        self.tvScroll = tk.ScrollBar(master, SG)
+        self.tvScroll = tk.ScrollBar(self.contentFrame, SG)
 
         self.treeView = tk.TreeView(self.contentFrame, SG)
         self.treeView.setSingleSelect()
@@ -2656,7 +2656,7 @@ class AuctionHousePage(CustomPage):
         out = auctions.copy()
         out = self._filterRarities(out)
         if self.menuMode == "pet":
-            if self.check_filterC.getValue():
+            if self.check_filterC.getState():
                 out = self._filterPets(out)
         return out
 
@@ -2931,7 +2931,7 @@ class AuctionHousePage(CustomPage):
         self.treeView.setBgColorByTag("bin", tk.Color.rgb(138, 90, 12))
         self.treeView.setBgColorByTag("auc", tk.Color.rgb(22, 51, 45))
         self.treeView.setBgColorByTag("own", tk.Color.rgb(26, 156, 17))
-        if self.showRarityC.getValue():
+        if self.showRarityC.getState():
             for k, v in iterDict(RARITY_COLOR_CODE):
                 self.treeView.setFgColorByTag(k, v)
         else:
@@ -3069,7 +3069,7 @@ class PestProfitPage(CustomPage):
         if API.SKYBLOCK_AUCTION_API_PARSER is None:
             tk.SimpleDialog.askError(self.master, "Cannot calculate! No API data available!")
             return
-        isPestsActive = self.pestsActive.getValue()
+        isPestsActive = self.pestsActive.getState()
         if self.selectedPest is None:
             self.noneSelected.placeRelative(changeWidth=-5, changeHeight=-20)
         else:
@@ -3487,7 +3487,7 @@ class AccessoryBuyHelperAccount(tk.Dialog):
         self.nameEntry.setText("Name:")
         if data is not None:
             self.nameEntry.getEntry().setValue(data['name'])
-            self.nameEntry.getEntry().disable()
+            self.nameEntry.getEntry().setDisabled()
 
             self.profile = data["profile"]
 
@@ -3753,13 +3753,13 @@ class AccessoryBuyHelperPage(CustomPage):
 
         self.compareFrame = tk.LabelFrame(self.toolFrame, group=SG)
         self.compareFrame.setText("Compare")
-        self.compareFrame.place(0, 538, 192, 150)
+        self.compareFrame.place(0, 538, 192, 125)
 
-        tk.Label(self.compareFrame, group=SG).setText("Compare Player:").place(0, 0, 192, 25)
-        self.compPlay1 = tk.DropdownMenu(self.compareFrame).place(0, 25, 192, 25)
-        tk.Label(self.compareFrame, group=SG).setText("With Player:").place(0, 50, 192, 25)
-        self.compPlay2 = tk.DropdownMenu(self.compareFrame).place(0, 75, 192, 25)
-        tk.Button(self.compareFrame, group=SG).setCommand(self.compare).setText("Compare ...").place(0, 100, 192, 25)
+        tk.Label(self.compareFrame, group=SG).setText("Compare Player:").place(0, 0, 192-5, 25)
+        self.compPlay1 = tk.DropdownMenu(self.compareFrame).place(0, 25, 192-5, 25)
+        tk.Label(self.compareFrame, group=SG).setText("With Player:").place(0, 50, 192-5, 25)
+        self.compPlay2 = tk.DropdownMenu(self.compareFrame).place(0, 75, 192-5, 25)
+        tk.Button(self.compareFrame, group=SG).setCommand(self.compare).setText("Compare ...").place(0, 100, 192-5, 25)
 
         self.updateAccounts(None)
         self.accessories = None
@@ -3876,7 +3876,7 @@ class AccessoryBuyHelperPage(CustomPage):
         ]
         isPiggyPreset = False
         budget = parsePrice(self.investEntry.getValue())
-        filterNotBuyableCheck = self.filterNotBuyableCheck.getValue()
+        filterNotBuyableCheck = self.filterNotBuyableCheck.getState()
 
         recomb = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID("RECOMBOBULATOR_3000")
         if recomb is None:
@@ -4700,7 +4700,7 @@ class LoadingPage(CustomPage):
 class Window(tk.Tk):
     def __init__(self):
         checkConfigForUpdates()
-        tk.enableRelativePlaceOptimization()
+        #tk.enableRelativePlaceOptimization()
         if Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_off_on_load"]:
             Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"] = False
             Config.SETTINGS_CONFIG.save()
@@ -4811,7 +4811,7 @@ class Window(tk.Tk):
         self.bind(self.mainMenuPage.onScroll, tk.EventType.WHEEL_MOTION)
     def configureWindows(self):
         self.updateIdleTasks()
-        self.withdraw()
+        self.hide()
         from ctypes import windll
         GWL_EXSTYLE = -20
         WS_EX_APPWINDOW = 0x00040000
@@ -4821,7 +4821,7 @@ class Window(tk.Tk):
         style = style & ~WS_EX_TOOLWINDOW
         style = style | WS_EX_APPWINDOW
         res = windll.user32.SetWindowLongW(hwnd, GWL_EXSTYLE, style)
-        self.withdraw()
+        self.hide()
         self._get().after(10, lambda:self._get().wm_deiconify())
         windll.shell32.SetCurrentProcessExplicitAppUserModelID('mycompany.myproduct.subproduct.version')
     def onKeyPress(self, e):

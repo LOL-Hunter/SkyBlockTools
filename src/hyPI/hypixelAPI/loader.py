@@ -36,14 +36,20 @@ class HypixelMayorParser:
     def getMainMayorPerks(self)->list:
         return self._data["mayor"]["perks"]
 
-    def getMinisterName(self)->str:
-        return self._data["mayor"]["minister"]["name"]
+    def getMinisterName(self)->str | None:
+        if "minister" in self._data["mayor"].keys():
+            return self._data["mayor"]["minister"]["name"]
+        return None
 
-    def getMinisterPerk(self)->dict:
-        return self._data["mayor"]["minister"]["perk"]
+    def getMinisterPerk(self)->dict | None:
+        if "minister" in self._data["mayor"].keys():
+            return self._data["mayor"]["minister"]["perk"]
+        return None
 
-    def getMinisterPerkName(self)->str:
-        return self._data["mayor"]["minister"]["perk"]["name"]
+    def getMinisterPerkName(self)->str | None:
+        if "minister" in self._data["mayor"].keys():
+            return self._data["mayor"]["minister"]["perk"]["name"]
+        return None
 
     def hasElectionStarted(self)->bool:
         return "current" in self._data.keys()

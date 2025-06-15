@@ -143,7 +143,7 @@ def analyzeMayors(data:list, currentMinister:str, ministerHasLTI, yearOffset:int
     if not len(data): return None
     lastSpecialName = None
     lastSpecialYear = None
-    currentMinister = currentMinister.lower().capitalize()
+    currentMinister = currentMinister.lower().capitalize() if currentMinister is not None else None
     currentYear = data[-1]["year"] - yearOffset
     currentMayor = data[-1]["winner"]["name"]
     currentPerks = data[-1]["winner"]["perks"]
@@ -200,15 +200,14 @@ def analyzeMayors(data:list, currentMinister:str, ministerHasLTI, yearOffset:int
         perkData[currentMinister]["available_perks"].append({"name":"<Full_Perk>", "description":"<Full_Perk>"})
         perkData[currentMinister]["has_full_perks"] = True
     else:
-        perkData.pop(currentMinister)
+        if currentMinister is not None: perkData.pop(currentMinister)
 
     for may in perkData.keys():
         mayorData = perkData[may]
         if mayorData["available_perks"] == MAYOR_PERK_AMOUNT[may]:
             mayorData["has_full_perks"] = True
     NEXT_SPEC_NAME = MAYOR_SPEC[(MAYOR_SPEC.index(lastSpecialName)+1) % len(MAYOR_SPEC)]
-    if lastSpecialYear+8-currentYear:
-
+    if lastSpecialYear+8-currentYear == 0:
         perkData[NEXT_SPEC_NAME] = {
             "perks": MAYOR_PERK_AMOUNT[NEXT_SPEC_NAME],
             "cycles_without_selected": 0,
