@@ -1189,7 +1189,6 @@ class BazaarFlipProfitPage(CustomPage):
         }
 
         self.settingsWindow = tk.Dialog(master, SG)
-        self.settingsWindow.hide()
         self.settingsWindow.setTitle("Bazaar-Flip-Settings")
         self.settingsWindow.setCloseable(False)
         self.settingsWindow.setWindowSize(500, 500)
@@ -3467,6 +3466,7 @@ class AccessoryBuyHelperAccount(tk.Dialog):
         self.setWindowSize(800, 800)
         self.setMinSize(500, 800)
         self.setCloseable(False)
+        self.setTopmost(False)
 
         if data is None:
             self.edit = False
@@ -3594,6 +3594,10 @@ class AccessoryBuyHelperAccount(tk.Dialog):
 
             self.save()
             self.updateTreeView()
+        if self.nameEntry.getValue() == "":
+            tk.SimpleDialog.askError(self, "Please insert Player name!")
+            return
+        self.nameEntry.setDisabled()
         uuid = tk.SimpleDialog.askString(self, message="uuid:", initialValue=self.profile["uuid"])
         if uuid is None: return
 
@@ -4890,15 +4894,15 @@ class Window(tk.Tk):
 
         sleep(.3)
         if e == "all" or e == "bazaar":
-            BILG.setFg("white")
-            BILG.setText("Requesting Hypixel-API...")
+            BILG.executeCommand("setFg", "white")
+            BILG.executeCommand("setText", "Requesting Hypixel-API...")
             API.SKYBLOCK_BAZAAR_API_PARSER = requestBazaarHypixelAPI(self,
                                                                      Config,
                                                                      saveTo=os.path.join(System.CONFIG_PATH, "skyblock_save", "bazaar.json"))
             updateBazaarInfoLabel(API.SKYBLOCK_BAZAAR_API_PARSER, self.isConfigLoadedFromFile)
         if e == "all" or e == "auction":
-            AILG.setFg("white")
-            AILG.setText("Requesting Hypixel-API...")
+            AILG.executeCommand("setFg", "white")
+            AILG.executeCommand("setText", "Requesting Hypixel-API...")
             API.SKYBLOCK_AUCTION_API_PARSER = requestAuctionHypixelAPI(self,
                                                                        Config,
                                                                        infoLabel=AILG,

@@ -56,11 +56,10 @@ class HypixelMayorParser:
 
     def getCurrentCandidates(self)->list:
         return self._data["current"]["candidates"]
-
-
 class HypixelProfilesParser:
     def __init__(self, rawData: dict):
         if not rawData["success"]: raise CouldNotReadDataPackageException(rawData)
+        if rawData["profiles"] is None: raise CouldNotReadDataPackageException({"cause":"No Profile found at given UUID."})
         self._data = rawData
 
         self._profileIDs = [i["profile_id"] for i in self._data["profiles"]]
@@ -75,9 +74,6 @@ class HypixelProfilesParser:
         return self._serverNames
     def getGameModes(self)->List[str]:
         return self._gameModes
-
-
-
 class HypixelProfileParser:
     def __init__(self, rawData:dict):
         if not rawData["success"]: raise CouldNotReadDataPackageException(rawData)
@@ -108,7 +104,7 @@ class HypixelProfileParser:
                 table = str.maketrans('', '', ascii_lowercase + digits)
                 loreLastTag = loreLastTag.translate(table)
                 # get first Word as Rarity
-                print(loreLastTag)
+                #print(loreLastTag)
                 loreLastTag = loreLastTag.replace("DUNGEON ", "")
                 rarity = "_".join(loreLastTag.strip().split(" ")[0:-1])
 
@@ -133,7 +129,6 @@ class HypixelProfileParser:
                     temp[accID] = data
                 _accData.append(data)
         return _accData
-
 class HypixelBazaarParser:
     def __init__(self, rawData:dict):
         if not rawData["success"]: raise CouldNotReadDataPackageException(rawData)
@@ -165,7 +160,6 @@ class HypixelBazaarParser:
 
     def getLastUpdated(self)->datetime:
         return getTimezone(self._data["lastUpdated"])
-
 class HypixelItemParser:
     def __init__(self, rawData:dict):
         self._data = rawData
@@ -196,7 +190,6 @@ class HypixelItemParser:
         if name in self._byName.keys():
             return self._byName[name]
         return None
-
 class HypixelAuctionParser:
     def __init__(self, rawData:dict):
         self._data = rawData
@@ -256,6 +249,4 @@ class HypixelAuctionParser:
         return self._data["totalAuctions"]
     def getLastUpdated(self)->datetime:
         return getTimezone(self._data["lastUpdated"])
-
-
 

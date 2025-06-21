@@ -195,7 +195,7 @@ def requestBazaarHypixelAPI(master, config, path=None, saveTo=None)->HypixelBaza
         )
         return None
     return parser
-def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=None, infoLabel:tk.Label=None, saveTo:str=None)->HypixelAuctionParser | None:
+def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=None, infoLabel:tk.WidgetGroup | tk.Label=None, saveTo:str=None)->HypixelAuctionParser | None:
     """
 
     @param saveTo:
@@ -218,7 +218,11 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
             parser = HypixelAuctionParser(fileLoader(_os.path.join(path, fileList[0])))
             for i, fileName in enumerate(fileList[1:]):
                 if progBar is not None: progBar.addValue()
-                if infoLabel is not None: infoLabel.setText(f"Fetching Hypixel Auction API... [{i+1}/{len(fileList)}]")
+                if infoLabel is not None:
+                    if isinstance(infoLabel, tk.Label):
+                        infoLabel.setText(f"Fetching Hypixel Auction API... [{i+1}/{len(fileList)}]")
+                    else:
+                        infoLabel.executeCommand("setText", f"Fetching Hypixel Auction API... [{i+1}/{len(fileList)}]")
                 parser.addPage(fileLoader(_os.path.join(path, fileName)))
         else:
             if saveTo is not None:
@@ -250,7 +254,13 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
                     file = JsonConfig.fromDict(data)
                     file.setPath(_os.path.join(saveTo, f"file{str(page).rjust(3, '0')}.json"))
                     file.save()
-                if infoLabel is not None: infoLabel.setText(f"Fetching Hypixel Auction API... [{page+1}/{pages}]")
+                if infoLabel is not None:
+                    if infoLabel is not None:
+                        if isinstance(infoLabel, tk.Label):
+                            infoLabel.setText(f"Fetching Hypixel Auction API... [{page+1}/{pages}]")
+                        else:
+                            infoLabel.executeCommand("setText",f"Fetching Hypixel Auction API... [{page+1}/{pages}]")
+
                 if progBar is not None: progBar.setValue(page+1)
                 parser.addPage(data)
     except APIConnectionError as e:
@@ -357,26 +367,25 @@ def throwCouldNotReadDataPackageException(source:str, master:tk.Tk, event:CouldN
     Constants.WAITING_FOR_API_REQUEST = False
     tk.SimpleDialog.askError(master, event.getMessage(), "SkyBlockTools")
 
-
 def updateBazaarInfoLabel(api:HypixelBazaarParser | None, loaded=False):
     if api is not None:
         ts:datetime = api.getLastUpdated()
         diff = parseTimeDelta(datetime.now()-ts)
 
         if any([diff.minute, diff.day, diff.hour]):
-            BILG.setFg("orange")
+            BILG.executeCommand("setFg", "orange")
         else:
-            BILG.setFg("green")
+            BILG.executeCommand("setFg", "green")
         if loaded:
-            BILG.setFg("cyan")
+            BILG.executeCommand("setFg", "cyan")
 
         _timeStr = parseTimeToStr(diff)
         if not loaded:
-            BILG.setText(f"SkyBlock-Bazaar-API successful! Last request was [{_timeStr}] ago.")
+            BILG.executeCommand("setText", f"SkyBlock-Bazaar-API successful! Last request was [{_timeStr}] ago.")
         else:
-            BILG.setText(f"SkyBlock-Bazaar-API was loaded from config! Request was [{_timeStr}] ago.")
+            BILG.executeCommand("setText", f"SkyBlock-Bazaar-API was loaded from config! Request was [{_timeStr}] ago.")
     else:
-        BILG.setFg("red")
+        BILG.executeCommand("setFg", "red")
         BILG.setText("SkyBlock-Bazaar-API request failed!")
 def updateAuctionInfoLabel(api:HypixelAuctionParser | None, loaded=False):
     if api is not None:
@@ -384,20 +393,20 @@ def updateAuctionInfoLabel(api:HypixelAuctionParser | None, loaded=False):
         diff = parseTimeDelta(datetime.now()-ts)
 
         if any([diff.minute, diff.day, diff.hour]):
-            AILG.setFg("orange")
+            AILG.executeCommand("setFg", "orange")
         else:
-            AILG.setFg("green")
+            AILG.executeCommand("setFg", "green")
         if loaded:
-            AILG.setFg("cyan")
+            AILG.executeCommand("setFg", "cyan")
 
         _timeStr = parseTimeToStr(diff)
         if not loaded:
-            AILG.setText(f"SkyBlock-Auction-API successful! Last request was [{_timeStr}] ago.")
+            AILG.executeCommand("setText", f"SkyBlock-Auction-API successful! Last request was [{_timeStr}] ago.")
         else:
-            AILG.setText(f"SkyBlock-Auction-API was loaded from config! Request was [{_timeStr}] ago.")
+            AILG.executeCommand("setText", f"SkyBlock-Auction-API was loaded from config! Request was [{_timeStr}] ago.")
     else:
-        AILG.setFg("red")
-        AILG.setText("SkyBlock-Auction-API request failed!")
+        AILG.executeCommand("setFg", "red")
+        AILG.executeCommand("setText", "SkyBlock-Auction-API request failed!")
 def modeToBazaarAPIFunc(mode):
     match mode:
         case "hour":
