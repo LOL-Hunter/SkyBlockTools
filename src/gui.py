@@ -305,21 +305,21 @@ class MayorInfoPage(CustomPage):
                 master=self.master,
                 event=e
             )
-            return None
+            return
         except NoAPIKeySetException as e:
             throwNoAPIKeyException(
                 source="Mayor",
                 master=self.master,
                 event=e
             )
-            return None
+            return
         except APITimeoutException as e:
             throwAPITimeoutException(
                 source="Mayor",
                 master=self.master,
                 event=e
             )
-            return None
+            return
         self.currentMayorData = requestMayorHypixelAPI(self.master, Config)
         yearOffset = 0
         if self.currentMayorData is not None and self.mayorHistData is not None:
