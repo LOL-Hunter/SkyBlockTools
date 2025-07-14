@@ -483,7 +483,7 @@ class ItemInfoPage(CustomPage):
         sv = sv if sv is not None else 0
 
         # if the manipulation filter is active that values are used
-        if self.filterManipulation.getValue():
+        if self.filterManipulation.getState():
             bpm = getMedianFromList(self.currentHistoryData['past_flatten_buy_prices'])
             spm = getMedianFromList(self.currentHistoryData['past_flatten_sell_prices'])
             mPref = self.currentHistoryData["flatten_price_prefix"] # get median prefix for flatten mode
@@ -848,46 +848,12 @@ class EnchantingBookBazaarProfitPage(CustomPage):
 
             eData = getCheapestEnchantmentData(API.SKYBLOCK_BAZAAR_API_PARSER, currentItem, instaBuy=not self.useBuyOffers.getState())
             if eData is not None:
-                if self.useSellOffers.getValue(): # insta sell
+                if self.useSellOffers.getState(): # insta sell
                     targetBookInstaBuy = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(currentItem).getInstaBuyPrice()
                 else:
                     targetBookInstaBuy = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(currentItem).getInstaSellPrice()
 
                 targetBookInstaBuy = applyBazaarTax(targetBookInstaBuy) # apply Tax
-
-
-                prods = [
-                    API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID("ENCHANTMENT_ULTIMATE_BANK_5"),
-                    API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID("ENCHANTMENT_ULTIMATE_BANK_4"),
-                    API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID("ENCHANTMENT_ULTIMATE_BANK_3"),
-                    API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID("ENCHANTMENT_ULTIMATE_BANK_2"),
-                    API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID("ENCHANTMENT_ULTIMATE_BANK_1"),
-                ]
-
-                # == For Test Reason ==
-
-                """ for productFrom in prods:
-                    print(f"== {productFrom.getID()} ==")
-                    print(f"Volume:", productFrom.getBuyVolume(), "are Selling", )
-                    print(f"Volume:", productFrom.getSellVolume(), "are Buying", )
-                    targetBookInstaBuy__ = productFrom.getInstaBuyPrice()
-                    targetBookInstaSell = productFrom.getInstaSellPrice()
-
-                    print("Insta-Buy: ", round(targetBookInstaBuy__, 0))
-                    print("Insta-Sell: ", round(targetBookInstaSell, 0))
-                    if targetBookBuyOffer := productFrom.getSellOrders():
-                        print("Buy-Order: ", round(targetBookBuyOffer[0].getPricePerUnit(), 0))
-                    else:
-                        print("Buy-Order: ", None)
-
-                    if targetBookSellOrder := productFrom.getBuyOrders():
-                        print("Sell-Offer: ", round(targetBookSellOrder[0].getPricePerUnit(), 0))
-                    else:
-                        print("Sell-Offer: ", None)
-
-                    # print("InstaBuyTest",  productFrom.getInstaBuyPriceList(1)[0])
-                    # print("InstaSellTest", productFrom.getInstaSellPriceList(1)[0])
-                """
 
                 eData = [BookCraft(d, targetBookInstaBuy) for d in eData]  # convert so sortable BookCraft instances
                 eData.sort()
@@ -896,7 +862,7 @@ class EnchantingBookBazaarProfitPage(CustomPage):
 
         eDataComplete.sort()
         for bookCraft in eDataComplete:
-            if not self.useBuyOffers.getValue():
+            if not self.useBuyOffers.getState():
                 if bookCraft.getFromAmount() is None: continue
                 self.treeView.addEntry(
                     f"{bookCraft.getShowAbleIDFrom()} [x{bookCraft.getFromAmount()}] -> {bookCraft.getShowAbleIDTo()}",
@@ -944,18 +910,18 @@ class EnchantingBookBazaarCheapestPage(CustomPage):
             tk.SimpleDialog.askError(self.master, "Cannot calculate! No API data available!")
             return
 
-        if not self.useBuyOffers.getValue(): # isInstaBuy?
+        if not self.useBuyOffers.getState(): # isInstaBuy?
             self.treeView.setTableHeaders("Using-Book", "Buy-Price-Per-Item", "Total-Buy-Price", "Saved-Coins")
         else:
             self.treeView.setTableHeaders("Using-Book", "Buy-Price-Per-Item", "Total-Buy-Price", "Saved-Coins", "Others-try-to-buy")
 
-        eData = getCheapestEnchantmentData(API.SKYBLOCK_BAZAAR_API_PARSER, self.currentItem, instaBuy=not self.useBuyOffers.getValue())
+        eData = getCheapestEnchantmentData(API.SKYBLOCK_BAZAAR_API_PARSER, self.currentItem, instaBuy=not self.useBuyOffers.getState())
         if eData is not None:
             targetBookInstaBuy = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(self.currentItem).getInstaBuyPrice()
             eData = [BookCraft(d, targetBookInstaBuy) for d in eData] # convert so sortable BookCraft instances
             eData.sort()
             for bookCraft in eData:
-                if not self.useBuyOffers.getValue():
+                if not self.useBuyOffers.getState():
                     if bookCraft.getFromAmount() is None: continue
                     self.treeView.addEntry(
                         bookCraft.getShowAbleIDFrom()+f" [x{bookCraft.getFromAmount()}]",
@@ -1112,7 +1078,7 @@ class BazaarCraftProfitPage(CustomPage):
             requiredItemString = "("
 
             ## Result price ##
-            if self.useSellOffers.getValue(): # use sell Offer
+            if self.useSellOffers.getState(): # use sell Offer
                 resultPrice = resultItem.getInstaBuyPrice()
             else: # insta sell result
                 resultPrice = resultItem.getInstaSellPrice()
@@ -1131,7 +1097,7 @@ class BazaarCraftProfitPage(CustomPage):
                 ingredientItem = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(name)
 
                 ## ingredients price ##
-                if self.useBuyOffers.getValue():  # use buy Offer ingredients
+                if self.useBuyOffers.getState():  # use buy Offer ingredients
                     ingredientPrice = [ingredientItem.getInstaSellPrice()+.1] * amount
                 else:  # insta buy ingredients
                     ingredientPrice = ingredientItem.getInstaBuyPriceList(amount)
@@ -1403,7 +1369,7 @@ class BazaarFlipProfitPage(CustomPage):
             titles.extend(["Buy-Per-Hour", "Sell-Per-Hour"])
         if self.perMode == "per_week":
             titles.extend(["Buy-Per-Week", "Sell-Per-Week"])
-        if self.showFlipRatingHour.getValue():
+        if self.showFlipRatingHour.getState():
             titles.append("Flip-Rating")
         titles.append("Average Buy Order")
         self.treeView.setTableHeaders(titles)
@@ -1428,14 +1394,14 @@ class BazaarFlipProfitPage(CustomPage):
                 continue
             if self.hideLowInstaSell.getState() and item.getInstaSellWeek() / 168 < 1: continue
             ## Sell price ##
-            if self.useSellOffers.getValue(): # use sell Offer
+            if self.useSellOffers.getState(): # use sell Offer
                 itemSellPrice = item.getInstaBuyPrice()
             else: # insta sell
                 itemSellPrice = item.getInstaSellPrice()
             itemSellPrice = applyBazaarTax(itemSellPrice) * factor
             if not itemSellPrice: continue # sell is zero
             ## Buy price ##
-            if self.useBuyOffers.getValue():
+            if self.useBuyOffers.getState():
                 itemBuyPrice = [item.getInstaSellPrice() + .1] * factor
             else:  # insta buy ingredients
                 itemBuyPrice = item.getInstaBuyPriceList(factor)
@@ -1512,7 +1478,7 @@ class BazaarFlipProfitPage(CustomPage):
                 input_.extend([f"{round(rec['buysPerHour'], 2)}", f"{round(rec['sellsPerHour'], 2)}"])
             if self.perMode == "per_week":
                 input_.extend([f"{rec['buysPerWeek']}", f"{rec['sellsPerWeek']}"])
-            if self.showFlipRatingHour.getValue():
+            if self.showFlipRatingHour.getState():
                 input_.append(f"{prizeToStr(rec['flipRating'], hideCoins=True)}")
 
 
@@ -1544,8 +1510,6 @@ class BazaarFlipProfitPage(CustomPage):
         self.placeRelative()
         self.updateTreeView()
         self.placeContentFrame()
-    def onHide(self):
-        self.settingsWindow.hide()
 class ComposterProfitPage(CustomPage):
     def __init__(self, master):
         super().__init__(master, pageTitle="Composter-Profit", buttonText="Composter Profit")
@@ -3118,7 +3082,7 @@ class PestProfitPage(CustomPage):
                 if singleDropItemID in BazaarItemID: # Bazaar Item!
                     item = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(singleDropItemID)
 
-                    if self.useSellOffers.getValue():  # use sell Offer
+                    if self.useSellOffers.getState():  # use sell Offer
                         itemSellPrice = item.getInstaBuyPrice()
                     else:  # insta sell
                         itemSellPrice = item.getInstaSellPrice()
@@ -3181,7 +3145,7 @@ class PestProfitPage(CustomPage):
 
             item = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(product)
 
-            if self.useSellOffers.getValue():  # use sell Offer
+            if self.useSellOffers.getState():  # use sell Offer
                 itemSellPrice = item.getInstaBuyPrice()
             else:  # insta sell
                 itemSellPrice = item.getInstaSellPrice()
