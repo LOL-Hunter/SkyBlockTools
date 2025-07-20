@@ -203,6 +203,14 @@ sData = [
         "icon": "CRAFTING_PLUS"
     },
 
+    ### BOTTOM ###
+    {
+        "x": TOP_START[1]+GAP*0,
+        "y": 2+GAP*0,
+        "command": "p leave",
+        "icon": "extra:cross",
+        "anchorBottom": True,
+    },
 ]
 
 
