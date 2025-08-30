@@ -1,4 +1,4 @@
-from hyPI._parsers import Recipe as _Recipe
+from ..parser import Recipe as _Recipe
 from pysettings.jsonConfig import JsonConfig as _JsonConfig
 from pysettings import iterDict
 import os

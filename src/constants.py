@@ -70,7 +70,26 @@ MAYOR_SPEC = [
     "Scorpius",
     "Derpy",
 ]
-
+COLOR_CODE_MAP = {
+    "0": "#000000",
+    "1": "#0000AA",
+    "2": "#00AA00",
+    "3": "#00AAAA",
+    "4": "#AA0000",
+    "5": "#AA00AA",
+    "6": "#FFAA00",
+    "7": "#AAAAAA",
+    "8": "#555555",
+    "9": "#5555FF",
+    "a": "#55FF55",
+    "b": "#55FFFF",
+    "c": "#FF5555",
+    "d": "#FF55FF",
+    "e": "#FFFF55",
+    "f": "#FFFFFF",
+    "l": ("Arial", 10, "bold"),
+    "m": ("Arial", 10, "overstrike")
+}
 MAYOR_PERK_AMOUNT = {
     "Diana": 4,
     "Paul": 3,

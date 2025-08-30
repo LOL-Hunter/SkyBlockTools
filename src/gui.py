@@ -11,15 +11,15 @@ from pyperclip import copy as copyStr
 from pytz import timezone
 
 from hyPI.APIError import APIConnectionError, NoAPIKeySetException, APITimeoutException
-from hyPI._parsers import MayorData, BazaarHistoryProduct, BaseAuctionProduct, BINAuctionProduct, NORAuctionProduct, getMayorTimezone
+from hyPI.parser import BazaarHistoryProduct, BaseAuctionProduct, BINAuctionProduct, NORAuctionProduct, getMayorTimezone
 from hyPI.hypixelAPI.loader import HypixelBazaarParser
+from hyPI.hypixelAPI.loader import HypixelMayorParser
 from hyPI.recipeAPI import RecipeAPI
 from hyPI.skyCoflnetAPI import SkyConflnetAPI
-from hyPI.hypixelAPI.loader import HypixelMayorParser
 
 from logger import MsgText
 from jsonConfig import JsonConfig
-from widgets import CompleterEntry, CustomPage, CustomMenuPage, TrackerWidget, APIRequest
+from widgets import CompleterEntry, CustomPage, CustomMenuPage, TrackerWidget, APIRequest, ItemToolTip
 from bazaarAnalyzer import updateBazaarAnalyzer, BazaarAnalyzer
 from analyzer import getPlotData, getCheapestEnchantmentData, analyzeMayors, simulateElections
 from images import IconLoader
@@ -254,8 +254,11 @@ class MayorInfoPage(CustomPage):
             self.lfPrediction.setText(f"Prediction [year-{currYear + 2}]")
             out = ""
             for sorter in self.electionSorters:
-                perc = (sorter["votes"] / self.allVotes) * 100
-                out += f"§c === {sorter['name']} ({round(perc, 2)}%) ===\n"
+                if self.allVotes:
+                    perc = (sorter["votes"] / self.allVotes) * 100
+                    out += f"§c === {sorter['name']} ({round(perc, 2)}%) ===\n"
+                else:
+                    out += f"§c === {sorter['name']} (HIDDEN) ===\n"
                 for perk in sorter["perks"]:
                     out += f"\t§g{perk['name']}\n"
             self.dataNextMayor.clear()
@@ -274,8 +277,6 @@ class MayorInfoPage(CustomPage):
         if data["has_full_perks"]:
             return "§y"
         return "§c"
-
-
     def getLocalizedNow(self)->datetime:
         return timezone("Europe/Berlin").localize(datetime.now())
     def updateTimer(self):
@@ -335,12 +336,12 @@ class MayorInfoPage(CustomPage):
                     self.electionSorters.append(
                         Sorter(
                             sortKey="votes",
-                            votes=candidate["votes"],
+                            votes=candidate["votes"] if "votes" in candidate.keys() else 0,
                             name=candidate["name"],
                             perks=candidate["perks"]
                         )
                     )
-                    self.allVotes += candidate["votes"]
+                    self.allVotes += candidate["votes"] if "votes" in candidate.keys() else 0
                 self.electionSorters.sort()
 
                 winner = self.electionSorters[0]
@@ -2164,6 +2165,7 @@ class NewFlipWindow(tk.Dialog):
 
         self.disableWidgets()
         self.treeView = tk.TreeView(self, SG)
+        self.treeView.setSingleSelect()
         self.treeView.onSingleSelectEvent(self.onSelect)
         self.treeView.setTableHeaders("Amount", "Price-Per-Item", "Price")
         self.treeView.placeRelative(fixY=200)
@@ -2236,7 +2238,7 @@ class NewFlipWindow(tk.Dialog):
             self.addAmountE.setEnabled()
             self.addAmountB.setEnabled()
     def deleteSelectedFlip(self):
-        selectedIndex = self.treeView.getSelectedIndex()[0]
+        selectedIndex = self.treeView.getSelectedIndex()
         if selectedIndex == -1: return
         self.enableWidgets()
         self.clear()
@@ -2264,7 +2266,7 @@ class NewFlipWindow(tk.Dialog):
         self.addAmountE.clear()
         self.priceE.clear()
     def newFlip(self):
-        self.treeView.addEntry("", "", "")
+        self.treeView.addEntry("0", "0", "0")
         self.treeView.setItemSelectedByIndex(-1, clearFirst=True)
         self.data["data"].append(
             {
@@ -2416,6 +2418,7 @@ class LongTimeFlipHelperPage(CustomPage):
     def deleteEntry(self, e:LongTimeFlip):
         self.flips.remove(e)
         e.destroy()
+        self.updateView()
     def finishEdit(self):
         self.saveToFile()
         self.updateView()
@@ -2465,10 +2468,13 @@ class AuctionHousePage(CustomPage):
     def __init__(self, master):
         super().__init__(master, pageTitle="Auction House", buttonText="Auction House")
         self.selectedItem = None
+        self.window = master
         self.shownAuctions = []
         self.showOwnAuctions = False
         self.isMenuShown = False
         self.menuMode = None # "pet"
+        self.lastSelected = None
+        self.itemToolTip = None
 
         self.tvScroll = tk.ScrollBar(self.contentFrame, SG)
 
@@ -2478,6 +2484,7 @@ class AuctionHousePage(CustomPage):
         self.treeView.setTableHeaders("Name", "Lowest BIN")
         self.treeView.onDoubleSelectEvent(self.onDoubleClick)
         self.treeView.bind(self.onRClick, tk.EventType.RIGHT_CLICK)
+        self.treeView.bind(self.onLClick, tk.EventType.LEFT_CLICK_RELEASE)
         self.treeView.bind(self.onBtn, tk.EventType.MOUSE_PREV)
         self.treeView.placeRelative(changeHeight=-25, changeWidth=-2)
 
@@ -2629,6 +2636,7 @@ class AuctionHousePage(CustomPage):
         self.clearMenu()
         auct = self.shownAuctions[index]
         self.selectedItem = auct.getID()
+        print(self.selectedItem)
         self.showOwnAuctions = False
         self.updateTreeView()
     def copyURL(self):
@@ -2817,7 +2825,7 @@ class AuctionHousePage(CustomPage):
                     self.treeView.addEntry(
                         metaSorter["name"] + (f" (Contains active Auction)" if metaSorter['name'] in ownAuctionIDs else ""),
                         prizeToStr(metaSorter["lowest_bid"]),
-                        parseTimeFromSec(metaSorter["ending"]),
+                        "ENDED" if metaSorter["ending"] <= 0 else parseTimeFromSec(metaSorter["ending"]),
                         prizeToStr(metaSorter["active_auctions"], hideCoins=True),
                         tag=("own", metaSorter['auctClass'].getRarity()) if metaSorter['name'] in ownAuctionIDs else ("auc", metaSorter['auctClass'].getRarity())
                     )
@@ -2901,7 +2909,12 @@ class AuctionHousePage(CustomPage):
             for k, v in iterDict(RARITY_COLOR_CODE):
                 self.treeView.setFgColorByTag(k, "white")
 
+    def closeToolTip(self):
+        if self.itemToolTip is not None:
+            self.itemToolTip.close()
+            self.itemToolTip = None
     def onBtn(self):
+        self.closeToolTip()
         self.clearMenu()
         if self.selectedItem is not None:
             self.selectedItem = None
@@ -2911,6 +2924,24 @@ class AuctionHousePage(CustomPage):
         else:
             self.showOwnAuctions = True
         self.updateTreeView()
+    def onLClick(self, e:tk.Event):
+        if self.selectedItem is None and not self.showOwnAuctions:
+            return
+        selectedItem = self.treeView.getSelectedIndex()
+        if selectedItem is None: return
+        if self.lastSelected == selectedItem:
+            self.treeView.clearSelection()
+            self.treeView.update()
+            if self.itemToolTip is not None:
+                self.itemToolTip.close()
+                self.itemToolTip = None
+            self.lastSelected = None
+            return
+        self.lastSelected = selectedItem
+        if not len(self.shownAuctions): return
+        self.closeToolTip()
+        self.itemToolTip = ItemToolTip(self.master, self.shownAuctions[selectedItem])
+        self.itemToolTip.open()
     def onRClick(self, e:tk.Event):
         if self.showOwnAuctions:
             self.ownContextM.open(e)
@@ -2927,6 +2958,8 @@ class AuctionHousePage(CustomPage):
         self.placeRelative()
         self.updateTreeView()
         self.placeContentFrame()
+    def onHide(self):
+        self.closeToolTip()
 class PestProfitPage(CustomPage):
     def __init__(self, master):
         super().__init__(master, pageTitle="Pest Profit Page", buttonText="Pest Profit")
@@ -4337,7 +4370,7 @@ class BoosterCookieBitsProfit(CustomPage):
 
             bzProduct = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(itemID)
             if bzProduct is not None:
-                if self.useSellOffers.getValue():  # use sell Offer
+                if self.useSellOffers.getState():  # use sell Offer
                     itemSellPrice = bzProduct.getInstaBuyPrice()
                 else:  # insta sell
                     itemSellPrice = bzProduct.getInstaSellPrice()

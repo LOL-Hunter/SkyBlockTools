@@ -1,18 +1,14 @@
-import uuid
 from pysettings import iterDict
 from pysettings.text import MsgText
-from typing import Dict, List, Tuple, Any
+from typing import Dict, List
 from datetime import datetime
-from hyPI.APIError import *
-from hyPI._parsers import ProductWithOrders, BINAuctionProduct, NORAuctionProduct, convertAuctionNameToID, Item
-from traceback import format_exc
-from time import time
+from ..APIError import *
+from ..parser import ProductWithOrders, BINAuctionProduct, NORAuctionProduct, convertAuctionNameToID, Item
 from base64 import b64decode
 from nbt.nbt import NBTFile
 from io import BytesIO
 from string import digits, ascii_lowercase
-import json
-from datetime import datetime as dt
+
 
 def getTimezone(tz)->datetime:
     unixTime = tz/1000
@@ -200,11 +196,10 @@ class HypixelAuctionParser:
         self._decode(rawData["auctions"])
     def _decode(self, data:list):
         for auctData in data:
-
             try:
                 itemData = convertAuctionNameToID(auctData)
             except Exception as e:
-                MsgText.warning(f"Could not parse Item name: {ascii(auctData['item_name'])} | ERR: ({e})")
+                MsgText.warning(f"Could not parse Item name: {ascii(auctData['item_name'])} | ERR: ({e.__class__.__name__}: {e})")
                 continue
             if auctData["bin"]:
                 _bin = BINAuctionProduct(auctData, itemData)
@@ -249,4 +244,3 @@ class HypixelAuctionParser:
         return self._data["totalAuctions"]
     def getLastUpdated(self)->datetime:
         return getTimezone(self._data["lastUpdated"])
-

@@ -4,11 +4,13 @@ from traceback import format_exc
 from threading import Thread
 from webbrowser import open as openURL
 from time import time, sleep
+from random import choice
 
 from hyPI.skyCoflnetAPI import SkyConflnetAPI
+from hyPI.parser import BaseAuctionProduct
 from hyPI.APIError import APIConnectionError, NoAPIKeySetException
 
-from constants import STYLE_GROUP as SG, AUCT_INFO_LABEL_GROUP as AILG, BAZAAR_INFO_LABEL_GROUP as BILG
+from constants import STYLE_GROUP as SG, AUCT_INFO_LABEL_GROUP as AILG, COLOR_CODE_MAP,  BAZAAR_INFO_LABEL_GROUP as BILG, RARITY_COLOR_CODE
 from analyzer import getPlotData
 from constants import Constants, ConfigFile
 from skyMath import getMedianFromList
@@ -473,6 +475,109 @@ class APIRequest:
         self._page.placeContentFrame()
         self._tkMaster.updateDynamicWidgets()
         self._tkMaster.update()
+
+class _Text(tk.Text):
+    def addStrf(self, text:str, customColorMap=None):
+        colors = {'D':tk.Color.DEFAULT,
+                  'W':tk.Color.WHITE,
+                  'B':tk.Color.BLACK,
+                  'r':tk.Color.RED,
+                  'g':tk.Color.GREEN,
+                  'b':tk.Color.BLUE,
+                  'c':tk.Color.CYAN,
+                  'y':tk.Color.YELLOW,
+                  'm':tk.Color.MAGENTA,
+                  'o':tk.Color.ORANGE} if customColorMap is None else customColorMap
+        _text = text
+        oldColor = None
+        for i in colors.keys():
+            _text = _text.replace("\xa7"+i, "")
+        content = self.getText()
+        self.addText(_text)  # text without colorsmarkers
+
+        line = _line = content.count("\n")  # 1
+        firstMarkerChar = len(content.split("\n")[-1]) + len(text.split("\xa7")[0])
+
+        for i, textSection in enumerate(text.split("\xa7")[1:]):
+            firstMarker = str(line) + "." + str(firstMarkerChar)
+            line += textSection.count("\n")
+            if _line != line:  # clear fist marker at line change
+                firstMarkerChar = 0
+                _line = line
+            if textSection.count("\n") > 0:  # section -> mehrere zeilen
+                _textSectionLastLength = len(textSection.split("\n")[-1])  # section enthält keine Farbe
+            else:
+                _textSectionLastLength = len(textSection.split("\n")[-1]) - 1  # section nur 1 zeile (dann farbe entfernen)
+            secondMarker = str(line) + "." + str(firstMarkerChar + _textSectionLastLength)
+            if textSection[0] in colors.keys():  # check if tag is a valid color
+                _id = "".join([choice(tk.ascii_lowercase) for _ in range(30)])
+
+                # color end marker must ignore font tags
+                if isinstance(colors[textSection[0]], tuple): # font
+                    self._widget.tag_add(_id, firstMarker, secondMarker)
+                    self._widget.tag_config(_id, foreground=oldColor, font=colors[textSection[0]])
+                else:
+                    self._widget.tag_add(_id, firstMarker, secondMarker)
+                    oldColor = tk.remEnum(colors[textSection[0]])
+                    self._widget.tag_config(_id, foreground=oldColor)
+            else:
+                print(f"'{textSection}' has no valid color tag.")
+            firstMarkerChar = int(secondMarker.split(".")[1])
+
+class ItemToolTip(tk.Toplevel):
+    def __init__(self, master:tk.Tk, item:BaseAuctionProduct):
+        super().__init__(master, group=SG)
+        self._item = item
+        self.setPositionOnScreen(master.getMousePositionRelativeToScreen().change(15, -20))
+
+        self._text = _Text(self, group=SG)
+
+        self._generate()
+
+        self._text.place(0, 0, 400, 600)
+        self.setWindowSize(400, 600)
+
+        self.overrideredirect()
+
+    def __del__(self):
+        super().destroy()
+
+    def open(self):
+        self.show()
+
+    def close(self):
+        self.destroy()
+
+    def _generate(self):
+        displayName = self._item.getDisplayName()
+
+        self._text.addText(self._removeStarsFromName(displayName), tags="rarity")
+        self._text.addText(self._genStars(self._item.getStars()), tags="star")
+        if self._item.getStars() > 5:
+            self._text.addText(self._genMasterStars(self._item.getStars()), tags="master_star")
+        self._text.addText("\n")
+        self._text.addStrf(self._item.getLore().replace("\xa7k", "\xa7").replace("\xa7r", "")+" ", COLOR_CODE_MAP)
+
+        self._text.setFgColorByTag("rarity", RARITY_COLOR_CODE[self._item.getRarity()])
+        self._text.setFgColorByTag("star", "#FFAA00")
+        self._text.setFgColorByTag("master_star", "#AA0000")
+
+    def _removeStarsFromName(self, name:str)->str:
+        name = name.replace("\u272a", "")  # star
+        name = name.replace("\u278a", "")  # star 1
+        name = name.replace("\u278b", "")  # star 2
+        name = name.replace("\u278c", "")  # star 3
+        name = name.replace("\u278d", "")  # star 4
+        return name.replace("\u278e", "")  # star 5
+    def _genStars(self, amount:int)->str:
+        star = "\u272a"
+        if amount <= 5:
+            return star * amount
+        return star * 5
+    def _genMasterStars(self, amount:int)->str:
+        mStars = ["\u278a", "\u278b", "\u278c", "\u278d", "\u278e"]
+        return mStars[(amount % 5)-1]
+
 
 
 
