@@ -27,6 +27,14 @@ class System:
 BazaarItemID: [str] = [] # creation on runtime
 AuctionItemID: [str] = [] # creation on runtime
 
+MASTER_STARS = [
+    "FIRST_MASTER_STAR",
+    "SECOND_MASTER_STAR",
+    "THIRD_MASTER_STAR",
+    "FOURTH_MASTER_STAR",
+    "FIFTH_MASTER_STAR",
+]
+
 ALL_ENCHANTMENT_IDS = []
 
 MAGIC_POWDER = {
@@ -47,8 +55,8 @@ RARITY_COLOR_CODE = {
     "RARE":"#5555FF",
     "EPIC":"#AA00AA",
     "LEGENDARY":"#FFAA00",
-    "DIVINE":"#55FFFF",
     "MYTHIC":"#FF55FF",
+    "DIVINE":"#55FFFF",
     "SPECIAL":"#AA0000",
     "VERY_SPECIAL":"#AA0000",
     "ULTIMATE":"#AA0000",

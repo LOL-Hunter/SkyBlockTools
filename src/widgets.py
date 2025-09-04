@@ -11,7 +11,7 @@ from hyPI.parser import BaseAuctionProduct
 from hyPI.APIError import APIConnectionError, NoAPIKeySetException
 
 from constants import STYLE_GROUP as SG, AUCT_INFO_LABEL_GROUP as AILG, COLOR_CODE_MAP,  BAZAAR_INFO_LABEL_GROUP as BILG, RARITY_COLOR_CODE
-from analyzer import getPlotData
+from analyzer import getPlotData, calculateEstimatedItemValue
 from constants import Constants, ConfigFile
 from skyMath import getMedianFromList
 from logger import TextColor
@@ -549,6 +549,9 @@ class ItemToolTip(tk.Toplevel):
         self.destroy()
 
     def _generate(self):
+        print(calculateEstimatedItemValue(self._item, False)[1])
+        print(calculateEstimatedItemValue(self._item, True)[1])
+
         displayName = self._item.getDisplayName()
 
         self._text.addText(self._removeStarsFromName(displayName), tags="rarity")

@@ -8,12 +8,13 @@ from base64 import b64decode
 from nbt.nbt import NBTFile
 from io import BytesIO
 
+
+# TimeZone calculation
 def getHypTimezone(tz)->dt:
     unixTime = tz/1000
     time_zone = timezone(Config.TARGET_TIME_ZONE)
     time = dt.fromtimestamp(unixTime)
     return time_zone.localize(time) + timedelta(hours=2)
-
 def getTimezone(tz:str)->dt | None:
     if tz is None: return None
     time_zone = timezone(Config.TARGET_TIME_ZONE)
@@ -23,14 +24,13 @@ def getTimezone(tz:str)->dt | None:
         tz = tz[:-1] + ".000"
     time = dt.fromisoformat(tz)
     return time_zone.localize(time) + timedelta(hours=2)
-
 def getMayorTimezone(tz:str)->dt | None:
     if tz is None: return None
     time_zone = timezone("Europe/Berlin")
     tz = tz.replace(" +00:00", "")
     time = dt.strptime(tz, "%m/%d/%Y %H:%M:%S")
     return time_zone.localize(time) + timedelta(hours=2)
-
+# id parsing
 def convertAuctionNameToID(data:dict)->dict:
     check = lambda id_, def_: extra[id_].value if id_ in extra.keys() else def_
     isPresent = lambda id_: id_ in extra.keys()
@@ -74,14 +74,14 @@ def convertAuctionNameToID(data:dict)->dict:
     scrolls = []
     if "ability_scroll" in extra.keys():
         for i in extra["ability_scroll"]:
-            scrolls.append(i)
-    unlockedEmptySlots = []
+            scrolls.append(i.value)
+    unlockedSlots = []
     appliedGemstones = []
     if "gems" in extra.keys():
         gemData = extra["gems"]
         if "unlocked_slots" in gemData.keys():
             for slot in gemData["unlocked_slots"]:
-                unlockedEmptySlots.append(slot.value)
+                unlockedSlots.append(slot.value)
         temp = {}
         for slot in gemData.keys(): # FINE_JASPER_GEM
             if slot == "unlocked_slots": continue
@@ -186,14 +186,14 @@ def convertAuctionNameToID(data:dict)->dict:
         "skin": check("skin", None),
         # gemstones
         "applied_gem_stones": appliedGemstones,
-        "unlocked_unused_slots":unlockedEmptySlots,
+        "unlocked_slots":unlockedSlots,
         # misc
         "year_obtained": check("yearObtained", None),
         "cake_year": check("new_years_cake", None),
         "dye": check("dye_item", None),
     }
 
-#sky coflnet
+# SkyCoflNet-History
 class BazaarHistoryProduct:
     def __init__(self, data):
         self._data = data
@@ -216,13 +216,6 @@ class BazaarHistoryProduct:
     def getSellMovingWeek(self): return self._data.get("sellMovingWeek", None)
 
     def getTimestamp(self)->dt: return getTimezone(self._data.get("timestamp", None))
-class BazaarProduct:
-    def __init__(self, data):
-        self._data = data
-    def getBuyPrice(self): return self._data["buy"]
-    def getSellPrice(self): return self._data["sell"]
-    def getAvailableItems(self): return self._data["available"]
-    def getTimestamp(self)->dt: return getTimezone(self._data["updatedAt"])
 class BazaarHistory:
     def __init__(self, data, range_):
         #if isinstance(data, Error):
@@ -230,16 +223,12 @@ class BazaarHistory:
         self._range = range_
         self._data = data
         self._slots = self._parseTimeSlots(data)
-
     def __getitem__(self, item):
         return self._slots[item]
-
-    def _parseTimeSlots(self, l:list)->List[BazaarHistoryProduct]:
-        return [BazaarHistoryProduct(i) for i in l]
-
+    def _parseTimeSlots(self, dlist:list)->List[BazaarHistoryProduct]:
+        return [BazaarHistoryProduct(i) for i in dlist]
     def getTimeSlots(self)->List[BazaarHistoryProduct]:
         return self._slots
-
     def getTimeSlotAT(self, tstamp)->BazaarHistoryProduct:
         pass
 class AuctionHistoryProduct:
@@ -263,14 +252,7 @@ class AuctionHistory:
         return self._slots
     def getTimeSlotAT(self, tstamp)->BazaarHistoryProduct:
         pass
-class AuctionProduct:
-    def __init__(self, data):
-        self._data = data
-    def getBuyPrice(self): return self._data["buy"]
-    def getSellPrice(self): return self._data["sell"]
-    def getAvailableItems(self): return self._data["available"]
-    def getTimestamp(self)->dt: return getTimezone(self._data["updatedAt"])
-
+# SkyCoflNet-MayorData
 class MayorPerk:
     def __init__(self, data):
         self._data = data
@@ -325,7 +307,7 @@ class MayorHistory:
 
     def getData(self)->dict:
         return self._data
-
+# Recipe-API
 class Recipe:
     """
     A1 A2 A3
@@ -385,9 +367,8 @@ class Recipe:
         return self.ID
     def getWikiUrl(self):
         return self._data.get("wiki", None)
-
-# hypixel
-class Order:
+# hypixel (bazzar)
+class BazaarOrder:
     def __init__(self, data):
         self._data = data
     def getAmount(self)->int:
@@ -396,7 +377,7 @@ class Order:
         return self._data["pricePerUnit"]
     def getOrders(self)->int:
         return self._data["orders"]
-class Product:
+class BazaarProduct:
     def __init__(self, id_, data):
         self._id = id_
         self._data = data
@@ -408,7 +389,7 @@ class Product:
         @return:
         """
         if "quick_status" in self._data.keys(): return self._data["quick_status"]["buyVolume"]
-    def getInstaBuyPrice(self)->float:
+    def getInstaBuyPrice(self):
         return None
     def getWeightedBuyPrice(self)->float:
         if "quick_status" in self._data.keys(): return self._data["quick_status"]["buyPrice"]
@@ -419,7 +400,7 @@ class Product:
         How many can I sell?
         """
         if "quick_status" in self._data.keys(): return self._data["quick_status"]["sellVolume"]
-    def getInstaSellPrice(self) -> float:
+    def getInstaSellPrice(self):
         return None
     def getWeightedSellPrice(self) -> float:
         #the weighted average of the top 2% of orders by volume.
@@ -430,16 +411,16 @@ class Product:
         if "quick_status" in self._data.keys(): return self._data["quick_status"]["buyMovingWeek"]
     def getInstaSellWeek(self) -> int:
         if "quick_status" in self._data.keys(): return self._data["quick_status"]["sellMovingWeek"]
-class ProductWithOrders(Product):
+class BazaarProductWithOrders(BazaarProduct):
     def __init__(self, id_, data):
         super().__init__(id_, data)
         self._sellOrders = self._parseOrders(self._data["sell_summary"])
         self._buyOrders = self._parseOrders(self._data["buy_summary"])
-    def _parseOrders(self, l:list)->List[Order]:
-        return [Order(i) for i in l]
-    def getSellOrders(self)->List[Order]:
+    def _parseOrders(self, l:list)->List[BazaarOrder]:
+        return [BazaarOrder(i) for i in l]
+    def getSellOrders(self)->List[BazaarOrder]:
         return self._sellOrders#[::-1]
-    def getBuyOrders(self)->List[Order]:
+    def getBuyOrders(self)->List[BazaarOrder]:
         return self._buyOrders#[::-1]
     def getInstaSellPrice(self) -> float:
         price = self.getInstaSellPriceList(1)
@@ -479,11 +460,7 @@ class ProductWithOrders(Product):
                 _list.extend([price] * remaining)
                 break
         return _list
-class AuctionBid:
-    def __init__(self, data):
-        self._data = data
-    def getPrice(self):
-        return self._data["amount"]
+# hypixel (auction)
 class BaseAuctionProduct:
     def __init__(self, auctData:dict, itemData:dict):
         self._itemData = itemData
@@ -535,7 +512,7 @@ class BaseAuctionProduct:
         return self._itemData["shiny"]
     def getPotatoBookCount(self)->int:
         return self._itemData["hot_potato_count"]
-    def getPlarvoidCount(self)->int:
+    def getPolarvoidCount(self)->int:
         return self._itemData["polarvoid_count"]
     def getFarmingForDummiesCount(self)->int:
         return self._itemData["farming_for_dummies_count"]
@@ -657,8 +634,8 @@ class BaseAuctionProduct:
     # gemstones
     def getAppliedGemstones(self)->List[str]:
         return self._itemData["applied_gem_stones"]
-    def getEmptyUnlockedSlots(self)->List[str]:
-        return self._itemData["unlocked_unused_slots"]
+    def getUnlockedSlots(self)->List[str]:
+        return self._itemData["unlocked_slots"]
     # misc
     def getYearObtained(self)->int | None:
         return self._itemData["year_obtained"]
@@ -677,7 +654,6 @@ class BaseAuctionProduct:
         pass
     def getBidAmount(self)->int:
         pass
-
 class BINAuctionProduct(BaseAuctionProduct):
     def __init__(self, auctData:dict, itemData:dict):
         super().__init__(auctData, itemData)
@@ -694,6 +670,7 @@ class NORAuctionProduct(BaseAuctionProduct):
         return self._auctData["highest_bid_amount"]
     def getBidAmount(self):
         return len(self._auctData["bids"])
+# hypixel (item API)
 class Item: # Hypixel ItemInstance
     def __init__(self, data:dict):
         self._data = data
@@ -707,3 +684,7 @@ class Item: # Hypixel ItemInstance
         return self._data.get("tier", None)
     def getCategory(self)->str | None:
         return self._data.get("category", None)
+    def getUpgradeCosts(self):
+        return self._data.get("upgrade_costs", None)
+    def getGemstoneSlots(self):
+        return self._data.get("gemstone_slots", None)

@@ -1,4 +1,3 @@
-import os
 import time as t
 import pyfiglet as py
 import termcolor as c

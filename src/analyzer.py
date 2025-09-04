@@ -1,9 +1,16 @@
+from typing import Tuple, Union
+
 from hyPI.hypixelAPI.loader import HypixelBazaarParser
+from hyPI.parser import BaseAuctionProduct, BINAuctionProduct
+from hyPI.constants import MODIFIER
 from hyPI import getEnchantmentIDLvl
+
 from random import randint
-from skyMath import getMedianExponent, parsePrizeList
-from skyMisc import getDictEnchantmentIDToLevels
-from constants import MAYOR_NORMAL, MAYOR_SPEC, MAYOR_PERK_AMOUNT
+from skyMath import getMedianExponent, parsePrizeList, applyBazaarTax
+from skyMisc import getDictEnchantmentIDToLevels, prizeToStr, getLBin, enchBookConvert
+from constants import MAYOR_NORMAL, MAYOR_SPEC, MAYOR_PERK_AMOUNT, API, ConfigFile, MASTER_STARS
+from logger import MsgText
+
 
 def getPlotData(itemId:str, func):
     hist = func(itemId)
@@ -47,8 +54,6 @@ def getPlotData(itemId:str, func):
         "price_prefix":pricePref,
         "volume_prefix":volumePref,
     }
-
-
 def getCheapestEnchantmentData(parser:HypixelBazaarParser, inputEnchantment:str, instaBuy=False) -> list | None:
     inputEnchantment = inputEnchantment.name if hasattr(inputEnchantment, "value") else inputEnchantment
 
@@ -110,7 +115,6 @@ def getCheapestEnchantmentData(parser:HypixelBazaarParser, inputEnchantment:str,
             singleDict["book_from_id"] = single
         returnList.append(singleDict)
     return returnList
-
 def simulateElections(data:dict, n=100_000):
     mayorPool = list(data["next_perks"].keys())
     _data = {}
@@ -137,8 +141,6 @@ def simulateElections(data:dict, n=100_000):
             if times <= 0: break
             _data[mayor]["chances"].append(times / n)
     return _data
-
-
 def analyzeMayors(data:list, currentMinister:str, ministerHasLTI, yearOffset:int=0):
     if not len(data): return None
     lastSpecialName = None
@@ -222,3 +224,174 @@ def analyzeMayors(data:list, currentMinister:str, ministerHasLTI, yearOffset:int
         "next_special_in_years":lastSpecialYear+8-currentYear,
         "next_perks":perkData,
     }
+def calculateUpgradesPrice(item: BaseAuctionProduct, isOrder: bool) -> tuple[float, str]:
+    desc = ""
+    def getPrice(id_: str | int, amount: int=1, ignore=False, addStr=""):
+        nonlocal desc
+        price = None
+        if not amount: return 0
+        if type(id_) is str:
+            bzProduct = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(id_)
+            if bzProduct is not None:
+                if isOrder:  # use buy Offer
+                    itemSellPrice = bzProduct.getInstaSellPrice()
+                else:  # insta buy
+                    itemSellPrice = bzProduct.getInstaBuyPrice()
+                price = applyBazaarTax(itemSellPrice) * amount
+        else: price = id_
+
+        if price is None:
+            if not ignore: desc += f"{addStr}{id_}(x{amount}): 0 (ERROR)\n"
+            return 0.0
+        desc += f"{addStr}{id_}(x{amount}): {prizeToStr(price)}\n"
+        return price
+
+    upgradePrice = 0.0
+    if item.isRecombUsed(): upgradePrice += getPrice("RECOMBOBULATOR_3000")
+    enchPrice = 0
+    for ench in item.getEnchantments():
+        if not ench.startswith("ENCHANTMENT_ULTIMATE"):
+            c = getPrice(ench, ignore=False, addStr="\t")
+            upgradePrice += c
+            enchPrice += c
+            continue
+
+        *name, ultLvl = ench.split("_")
+
+        name = "_".join(name)
+        lowestUltLvl = int(ultLvl)
+        while True:
+            if API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(f"{name}_{lowestUltLvl-1}") is None:
+                break
+            lowestUltLvl -= 1
+        amount = enchBookConvert(lowestUltLvl, int(ultLvl))
+        id_ = f"{name}_{lowestUltLvl}"
+        bzProduct = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(id_)
+        if bzProduct is not None:
+            if isOrder:  # use buy Offer
+                itemSellPrice = bzProduct.getInstaSellPrice()
+            else:  # insta buy
+                itemSellPrice = bzProduct.getInstaBuyPrice()
+            price = applyBazaarTax(itemSellPrice) * amount
+            desc += f"\t{id_}: {prizeToStr(price)}(x{amount})\n"
+            upgradePrice += price
+    desc += f"Enchantments: {prizeToStr(enchPrice)}\n"
+
+    if item.getStars() > 0:
+        itemConf = API.SKYBLOCK_ITEM_API_PARSER.getItemByID(item.getID())
+        if itemConf is None or itemConf.getUpgradeCosts() is None:
+            desc += f"Stars: Could not Calculate! (ItemAPI missing)\n"
+        else:
+            stars = item.getStars()
+            for upgrades in itemConf.getUpgradeCosts():
+                if not stars: break
+                for upgrade in upgrades:
+                    amount = 0
+                    if "amount" in upgrade.keys():
+                        amount = upgrade["amount"]
+                    upgItemID = None
+                    if upgrade["type"] == "ITEM":
+                        upgItemID = upgrade["item_id"]
+                    elif upgrade["type"] == "ESSENCE":
+                        upgItemID = "ESSENCE_"+upgrade["essence_type"]
+                    if upgItemID is None:
+                        MsgText.error(f"Could not calculate StarPrice: ItemAPI[unknown type {upgrade['type']}]")
+                    else:
+                        upgradePrice += getPrice(upgItemID, amount=amount, ignore=False)
+                stars -= 1
+            if stars > 0:
+                for i in range(stars):
+                    upgradePrice += getPrice(MASTER_STARS[i], ignore=False)
+
+    for gem in item.getAppliedGemstones():
+        upgradePrice += getPrice(gem, ignore=False)
+    if item.getStars() > 0:
+        itemConf = API.SKYBLOCK_ITEM_API_PARSER.getItemByID(item.getID())
+        if itemConf is None or itemConf.getGemstoneSlots() is None:
+            desc += f"Gem-Unlocks: Could not Calculate! (ItemAPI missing)\n"
+        else:
+            gemstoneUnlockCost = 0
+            unlockedGemstoneSlots = item.getUnlockedSlots()
+            for slot in itemConf.getGemstoneSlots():
+                slotType = slot["slot_type"]
+
+                for unlSlot in unlockedGemstoneSlots:
+                    if unlSlot.split("_")[0] == slotType:
+
+                        for cost in slot["costs"]:
+                            if cost["type"] == "COINS":
+                                gemstoneUnlockCost += getPrice(cost["coins"], addStr="\t")
+                            elif cost["type"] == "ITEM":
+                                gemstoneUnlockCost += getPrice(cost["item_id"], amount=cost["amount"], addStr="\t")
+                            else:
+                                MsgText.error(f"Could not calculate GemstoneUnlock Price: ItemAPI[unknown type {cost['type']}]")
+                        break
+            desc += f"Gemstone Unlock: {prizeToStr(gemstoneUnlockCost)}\n"
+            upgradePrice += gemstoneUnlockCost
+    if item.isReforged():
+        reforge = item.getReforge()
+        if reforge in MODIFIER.keys():
+            reforgeStone = MODIFIER[reforge]
+            if reforgeStone != "BLACKSMITH":
+                upgradePrice += getPrice(reforgeStone, ignore=False)
+        else:
+            MsgText.warning(f"calculateUpgradesPrice() -> Reforge {reforge} not found!")
+    if item.isWoodenSingularityUsed(): upgradePrice += getPrice("WOOD_SINGULARITY", ignore=False)
+    if item.isShiny(): upgradePrice += getPrice(100_000_000, ignore=False)
+    potatoAmount = item.getPotatoBookCount()
+    if potatoAmount > 10:
+        upgradePrice += getPrice("FUMING_POTATO_BOOK", amount=potatoAmount-10, ignore=False)
+        potatoAmount = 10
+    upgradePrice += getPrice("HOT_POTATO_BOOK", amount=potatoAmount, ignore=False)
+    upgradePrice += getPrice("POLARVOID_BOOK", amount=item.getPolarvoidCount(), ignore=False)
+    upgradePrice += getPrice("FARMING_FOR_DUMMIES", amount=item.getFarmingForDummiesCount(), ignore=False)
+    upgradePrice += getPrice("TRANSMISSION_TUNER", amount=item.getTransmissionTunedCount(), ignore=False)
+    if item.isEtherwarpApplied():
+        #TODO impl
+        pass
+    upgradePrice += getPrice("MANA_DISINTEGRATOR", amount=item.getManaDisintegratorCount(), ignore=False)
+    if item.isArtOfPeaceApplied(): upgradePrice += getPrice("THE_ART_OF_PEACE", ignore=False)
+    upgradePrice += getPrice("WET_BOOK", amount=item.getWetBookCount(), ignore=False)
+    upgradePrice += getPrice("BOOKWORM_BOOK", amount=item.getBookWormCount(), ignore=False)
+    upgradePrice += getPrice("THE_ART_OF_WAR", amount=item.getArtOfWarCount(), ignore=False)
+    upgradePrice += getPrice("JALAPENO_BOOK", amount=item.getJalapenoCount(), ignore=False)
+    if item.getPowerAbilityScroll() is not None:
+        upgradePrice += getPrice(item.getPowerAbilityScroll(), ignore=False)
+    for scroll in item.getAbilityScrolls():
+        upgradePrice += getPrice(scroll, ignore=False)
+    if item.isBookOfStatsApplied():
+        upgradePrice += getPrice("BOOK_OF_STATS", amount=item.getJalapenoCount(), ignore=False)
+    return upgradePrice, desc
+def calculateEstimatedItemValue(item: BaseAuctionProduct, isOrder: bool, lowestBinPrice:float=None)->Tuple[Union[float, None], str]:
+    itemID = item.getID()
+    basePrice = None
+    mode = ""
+    remTxt = ""
+    # get average price from Config
+    if ConfigFile.AVERAGE_PRICE is not None:
+        if itemID in ConfigFile.AVERAGE_PRICE.keys():
+            mode = "avg"
+            basePrice = ConfigFile.AVERAGE_PRICE[itemID]
+    # else take LBin
+    if basePrice is None:
+        if lowestBinPrice is None:
+            lowestBin = getLBin(itemID)
+        else:
+            lowestBin = lowestBinPrice
+        if lowestBin is None: return None, "LowestBin is None"
+        if not isinstance(lowestBin, BINAuctionProduct): return None, "lowestBin is not instance BINAuctionProduct!"
+        basePrice = lowestBin.getPrice()
+        upgradesPriceLBIN, _ = calculateUpgradesPrice(lowestBin, isOrder)
+        if upgradesPriceLBIN:
+            remTxt = f"\t(-{prizeToStr(upgradesPriceLBIN)})\n"
+            basePrice -= upgradesPriceLBIN
+        mode = "lbin"
+    desc = f"BasePrice({mode}): {prizeToStr(basePrice)}\n{remTxt}"
+    upgradesPrice, desc2 = calculateUpgradesPrice(item, isOrder)
+    desc += desc2
+
+    basePrice += upgradesPrice
+
+    desc += f"\nEstimatedTotal: {prizeToStr(basePrice)}"
+
+    return basePrice, desc

@@ -1,11 +1,13 @@
 # -*- coding: iso-8859-15 -*-
 import tksimple as tk
+from math import log
 import os as _os
 
 from hyPI.APIError import APIConnectionError, NoAPIKeySetException, APITimeoutException, CouldNotReadDataPackageException
 from hyPI.hypixelAPI import HypixelAPIURL, APILoader, fileLoader
 from hyPI.hypixelAPI.loader import HypixelBazaarParser, HypixelAuctionParser, HypixelItemParser, HypixelProfileParser, HypixelProfilesParser, HypixelMayorParser
 from hyPI.skyCoflnetAPI import SkyConflnetAPI
+from hyPI.parser import BINAuctionProduct
 from hyPI import getEnchantmentIDLvl
 
 from jsonConfig import JsonConfig
@@ -195,7 +197,7 @@ def requestBazaarHypixelAPI(master, config, path=None, saveTo=None)->HypixelBaza
         )
         return None
     return parser
-def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=None, infoLabel:tk.WidgetGroup | tk.Label=None, saveTo:str=None)->HypixelAuctionParser | None:
+def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=None, infoLabel:tk.WidgetGroup | tk.Label=None, saveTo:str=None, fileNr:int=None, useParser=None)->HypixelAuctionParser | None:
     """
 
     @param saveTo:
@@ -215,35 +217,42 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
             if progBar is not None:
                 progBar.setValue(0)
                 progBar.setValues(len(fileList))
-            parser = HypixelAuctionParser(fileLoader(_os.path.join(path, fileList[0])))
-            for i, fileName in enumerate(fileList[1:]):
+            parser = HypixelAuctionParser()
+            for i, fileName in enumerate(fileList):
                 if progBar is not None: progBar.addValue()
                 if infoLabel is not None:
                     if isinstance(infoLabel, tk.Label):
-                        infoLabel.setText(f"Fetching Hypixel Auction API... [{i+1}/{len(fileList)}]")
+                        infoLabel.setText(f"Fetching Hypixel Auction API... [{i}/{len(fileList)}]")
                     else:
-                        infoLabel.executeCommand("setText", f"Fetching Hypixel Auction API... [{i+1}/{len(fileList)}]")
-                parser.addPage(fileLoader(_os.path.join(path, fileName)))
+                        infoLabel.executeCommand("setText", f"Fetching Hypixel Auction API... [{i}/{len(fileList)}]")
+                parser.addPage(fileLoader(_os.path.join(path, fileName)), i)
         else:
-            if saveTo is not None:
+            if saveTo is not None and fileNr is None:
                 TextColor.printStrf("§INFO§gDeleting old Auction-House config files...")
                 for file in _os.listdir(saveTo):
                     delPath = _os.path.join(saveTo, file)
                     _os.remove(delPath)
             TextColor.printStrf("§INFO§cRequesting 'AUCTION_DATA' from Hypixel-API")
-            parser = HypixelAuctionParser(
-                APILoader(HypixelAPIURL.AUCTION_URL,
-                          config.SETTINGS_CONFIG["api_key"],
-                          name=config.SETTINGS_CONFIG["player_name"])
-            )
-            if saveTo is not None:
-                file = JsonConfig.fromDict(parser._data)
-                file.setPath(_os.path.join(saveTo, "file000.json"))
-                file.save()
+            if useParser is None:
+                assert fileNr is None, "Using New Parser and requesting only one page!"
+                parser = HypixelAuctionParser()
+            else:
+                parser = useParser
+            if fileNr is None or fileNr == 0:
+                data = APILoader(HypixelAPIURL.AUCTION_URL,
+                                 config.SETTINGS_CONFIG["api_key"],
+                                 name=config.SETTINGS_CONFIG["player_name"])
+                parser.addPage(data, 0)
+
+                if saveTo is not None:
+                    file = JsonConfig.fromDict(data)
+                    file.setPath(_os.path.join(saveTo, "file000.json"))
+                    file.save()
 
             pages = parser.getPages()
             if progBar is not None: progBar.setValues(pages)
-            for page in range(1, pages):
+            if fileNr == 0: return
+            for page in rangeIfSinleNone(1, pages, fileNr):
                 Constants.WAITING_FOR_API_REQUEST = True
                 TextColor.printStrf(f"§INFO§cRequesting 'AUCTION_DATA' from Hypixel-API [{page+1}]")
                 data = APILoader(HypixelAPIURL.AUCTION_URL,
@@ -260,9 +269,8 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
                             infoLabel.setText(f"Fetching Hypixel Auction API... [{page+1}/{pages}]")
                         else:
                             infoLabel.executeCommand("setText",f"Fetching Hypixel Auction API... [{page+1}/{pages}]")
-
                 if progBar is not None: progBar.setValue(page+1)
-                parser.addPage(data)
+                parser.addPage(data, page)
     except APIConnectionError as e:
         throwAPIConnectionException(
             source="Hypixel Auction API",
@@ -556,6 +564,30 @@ def addPetsToAuctionHouse():
     ALL_ENCHANTMENT_IDS.clear()
     ALL_ENCHANTMENT_IDS.extend([i for i in BazaarItemID if i.startswith("enchantment".upper())])
     return i
+def getLBin(itemID:str)->BINAuctionProduct | None:
+    binAuctions = API.SKYBLOCK_AUCTION_API_PARSER.getBINAuctionByID(itemID)
+    if binAuctions is None: return None
+    if not len(binAuctions): return None
+    sorters = []
+    for auct in binAuctions:
+        sorters.append(
+            Sorter(
+                sortKey="bin_price",
+
+                bin_price=auct.getPrice(),
+                auctClass=auct,
+            )
+        )
+    sorters.sort()
+    return sorters[-1]["auctClass"]
+def enchBookConvert(from_:int, to:int)->int:
+    if from_ == to: return 1
+    if from_ > to: return 0
+    return 2**(to - from_)
+def rangeIfSinleNone(from_:int, to_:int, single: int | None):
+    if single is None:
+        return range(from_, to_)
+    return [single]
 
 class Sorter:
     def __init__(self, sort=None, sortKey=None, **kwargs):

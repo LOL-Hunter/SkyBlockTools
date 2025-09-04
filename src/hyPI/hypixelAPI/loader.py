@@ -3,7 +3,7 @@ from pysettings.text import MsgText
 from typing import Dict, List
 from datetime import datetime
 from ..APIError import *
-from ..parser import ProductWithOrders, BINAuctionProduct, NORAuctionProduct, convertAuctionNameToID, Item
+from ..parser import BazaarProductWithOrders, BINAuctionProduct, NORAuctionProduct, convertAuctionNameToID, Item
 from base64 import b64decode
 from nbt.nbt import NBTFile
 from io import BytesIO
@@ -13,7 +13,6 @@ from string import digits, ascii_lowercase
 def getTimezone(tz)->datetime:
     unixTime = tz/1000
     return datetime.fromtimestamp(unixTime)
-
 
 class HypixelMayorParser:
     def __init__(self, rawData: dict):
@@ -130,7 +129,7 @@ class HypixelBazaarParser:
         if not rawData["success"]: raise CouldNotReadDataPackageException(rawData)
         self._data = rawData
         self._product_IDs = []
-        self._products:Dict[str, ProductWithOrders] = {} # id<str> : product <Product>
+        self._products:Dict[str, BazaarProductWithOrders] = {} # id<str> : product <Product>
         self._parseProducts()
 
     def getRawData(self):
@@ -140,12 +139,12 @@ class HypixelBazaarParser:
         for product_ID, product_data in iterDict(self._data["products"]):
             if ":" in product_ID: product_ID = product_ID.replace(":", "-")
             self._product_IDs.append(product_ID)
-            self._products[product_ID] = ProductWithOrders(product_ID, product_data)
+            self._products[product_ID] = BazaarProductWithOrders(product_ID, product_data)
 
-    def getProducts(self)->List[ProductWithOrders]:
+    def getProducts(self)->List[BazaarProductWithOrders]:
         return list(self._products.values())
 
-    def getProductByID(self, id_:str)->ProductWithOrders | None:
+    def getProductByID(self, id_:str)-> BazaarProductWithOrders | None:
         id_ = id_.value if hasattr(id_, "value") else id_
         if id_ not in self._products.keys():
             return None
@@ -186,14 +185,16 @@ class HypixelItemParser:
         if name in self._byName.keys():
             return self._byName[name]
         return None
-class HypixelAuctionParser:
-    def __init__(self, rawData:dict):
+class HypixelAuctionPage:
+    def __init__(self, rawData:dict, page:int):
         self._data = rawData
+        self._page = page
         self._binAucts = []
         self._binByID = {}
         self._norAucts = []
         self._norByID = {}
         self._decode(rawData["auctions"])
+
     def _decode(self, data:list):
         for auctData in data:
             try:
@@ -215,29 +216,71 @@ class HypixelAuctionParser:
                 else:
                     self._norByID[itemData["id"]] = [_auc]
                 self._norAucts.append(_auc)
-    def addPage(self, rawData:dict):
-        if "auctions" in rawData.keys():
-            self._decode(rawData["auctions"])
-            return
-        MsgText.warning(f"Auction House page: \"{rawData['cause']}\"")
-    def getBinAuctions(self)->List[BINAuctionProduct]:
-        return self._binAucts
-    def getAuctions(self)->List[NORAuctionProduct]:
-        return self._norAucts
-    def getBINAuctionByID(self, id_:str)->List[BINAuctionProduct]:
-        id_ = id_.value if hasattr(id_, "value") else id_
+
+    def getBINAuctionByID(self, id_: str) -> List[BINAuctionProduct]:
         if id_ in self._binByID:
             return self._binByID[id_]
         return []
-    def getAuctionByID(self, id_:str)->List[NORAuctionProduct]:
-        id_ = id_.value if hasattr(id_, "value") else id_
+    def getAuctionByID(self, id_: str) -> List[BINAuctionProduct]:
         if id_ in self._norByID:
             return self._norByID[id_]
         return []
+class HypixelAuctionParser:
+    def __init__(self):
+        self._data = None
+        self._pages = {}
+    def addPage(self, rawData:dict, page:int):
+        if "auctions" in rawData.keys():
+            self._pages[page] = HypixelAuctionPage(rawData, page)
+            self._data = {
+                "page": rawData["page"],
+                "totalPages": rawData["totalPages"],
+                "totalAuctions": rawData["totalAuctions"],
+                "lastUpdated": rawData["lastUpdated"],
+            }
+            return
+        MsgText.warning(f"Auction House page: \"{rawData['cause']}\"")
+    def getBinAuctions(self)->List[BINAuctionProduct]:
+        temp = []
+        for page in self._pages.values():
+            temp.extend(page._binAucts)
+        return temp
+    def getAuctions(self)->List[NORAuctionProduct]:
+        temp = []
+        for page in self._pages.values():
+            temp.extend(page._norAucts)
+        return temp
+    def getBINAuctionByID(self, id_:str)->List[BINAuctionProduct]:
+        temp = []
+        for i, page in zip(list(self._pages.keys())[1:], list(self._pages.values())[1:]):
+            aucts = page.getBINAuctionByID(id_)
+            temp.extend(aucts)
+        return temp
+    def getAuctionByID(self, id_:str)->List[NORAuctionProduct]:
+        temp = []
+        for page in self._pages.values():
+            temp.extend(page.getAuctionByID(id_))
+        return temp
     def getBinTypeAndAuctions(self)-> tuple[list[str], list[BINAuctionProduct]]:
-        return list(self._binByID.keys()), list(self._binByID.values())
+        temp = {}
+        for page in self._pages.values():
+            for id_ in page._binByID.keys():
+                aucts = page._binByID[id_]
+                if id_ in temp.keys():
+                    temp[id_].extend(aucts)
+                    continue
+                temp[id_] = aucts.copy()
+        return list(temp.keys()), list(temp.values())
     def getAucTypeAndAuctions(self)-> tuple[list[str], list[NORAuctionProduct]]:
-        return list(self._norByID.keys()), list(self._norByID.values())
+        temp = {}
+        for page in self._pages.values():
+            for id_ in page._norByID.keys():
+                aucts = page._norByID[id_]
+                if id_ in temp.keys():
+                    temp[id_].extend(aucts)
+                    continue
+                temp[id_] = aucts.copy()
+        return list(temp.keys()), list(temp.values())
     def getPages(self)->int:
         return self._data["totalPages"]
     def getTotalAuctions(self)->int:
