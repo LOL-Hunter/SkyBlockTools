@@ -433,7 +433,7 @@ def parseTimeToStr(d)->str:
             out += f"{t}{i} "
             av = True
     return out
-def parsePrice(raw:str)-> float | None:
+def parsePriceFromStr(raw:str)-> float | None:
     if raw == "" or raw.count(".") > 1:
         return None # type: ignore
     raw = raw.replace(" ", "")
@@ -443,7 +443,7 @@ def parsePrice(raw:str)-> float | None:
     if (not raw[-1].lower() in allKeys.keys())or not raw[:-1].replace(".","").isdigit() or raw[0].lower() in allKeys.keys():
         return None # type: ignore
     return 10**allKeys[raw[-1].lower()]*float(raw[:-1])
-def prizeToStr(inputPrize:int | float | None, hideCoins=False, forceSign=False)->str | None:
+def parsePrizeToStr(inputPrize: int | float | None, hideCoins=False, forceSign=False)-> str | None:
     if inputPrize is None: return None
     exponent = 0
     neg = inputPrize < 0
@@ -580,6 +580,21 @@ def getLBin(itemID:str)->BINAuctionProduct | None:
         )
     sorters.sort()
     return sorters[-1]["auctClass"]
+def getLBinList(itemID: str) -> list | None:
+    binAuctions = API.SKYBLOCK_AUCTION_API_PARSER.getBINAuctionByID(itemID)
+    if binAuctions is None: return None
+    sorters = []
+    for auct in binAuctions:
+        sorters.append(
+            Sorter(
+                sortKey="bin_price",
+
+                bin_price=auct.getPrice(),
+                auctClass=auct,
+            )
+        )
+    sorters.sort()
+    return sorters
 def enchBookConvert(from_:int, to:int)->int:
     if from_ == to: return 1
     if from_ > to: return 0

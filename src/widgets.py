@@ -476,7 +476,7 @@ class APIRequest:
         self._tkMaster.updateDynamicWidgets()
         self._tkMaster.update()
 
-class _Text(tk.Text):
+class TipText(tk.Text):
     def addStrf(self, text:str, customColorMap=None):
         colors = {'D':tk.Color.DEFAULT,
                   'W':tk.Color.WHITE,
@@ -524,63 +524,57 @@ class _Text(tk.Text):
                 print(f"'{textSection}' has no valid color tag.")
             firstMarkerChar = int(secondMarker.split(".")[1])
 
-class ItemToolTip(tk.Toplevel):
-    def __init__(self, master:tk.Tk, item:BaseAuctionProduct):
-        super().__init__(master, group=SG)
-        self._item = item
-        self.setPositionOnScreen(master.getMousePositionRelativeToScreen().change(15, -20))
-
-        self._text = _Text(self, group=SG)
-
-        self._generate()
-
-        self._text.place(0, 0, 400, 600)
-        self.setWindowSize(400, 600)
-
-        self.overrideredirect()
-
-    def __del__(self):
-        super().destroy()
-
-    def open(self):
-        self.show()
-
-    def close(self):
-        self.destroy()
-
-    def _generate(self):
-        print(calculateEstimatedItemValue(self._item, False)[1])
-        print(calculateEstimatedItemValue(self._item, True)[1])
-
-        displayName = self._item.getDisplayName()
-
-        self._text.addText(self._removeStarsFromName(displayName), tags="rarity")
-        self._text.addText(self._genStars(self._item.getStars()), tags="star")
-        if self._item.getStars() > 5:
-            self._text.addText(self._genMasterStars(self._item.getStars()), tags="master_star")
-        self._text.addText("\n")
-        self._text.addStrf(self._item.getLore().replace("\xa7k", "\xa7").replace("\xa7r", "")+" ", COLOR_CODE_MAP)
-
-        self._text.setFgColorByTag("rarity", RARITY_COLOR_CODE[self._item.getRarity()])
-        self._text.setFgColorByTag("star", "#FFAA00")
-        self._text.setFgColorByTag("master_star", "#AA0000")
-
-    def _removeStarsFromName(self, name:str)->str:
+def fillToolTipText(text:TipText, item:BaseAuctionProduct):
+    def _removeStarsFromName(name:str)->str:
         name = name.replace("\u272a", "")  # star
         name = name.replace("\u278a", "")  # star 1
         name = name.replace("\u278b", "")  # star 2
         name = name.replace("\u278c", "")  # star 3
         name = name.replace("\u278d", "")  # star 4
         return name.replace("\u278e", "")  # star 5
-    def _genStars(self, amount:int)->str:
+    def _genStars(amount:int)->str:
         star = "\u272a"
         if amount <= 5:
             return star * amount
         return star * 5
-    def _genMasterStars(self, amount:int)->str:
+    def _genMasterStars(amount:int)->str:
         mStars = ["\u278a", "\u278b", "\u278c", "\u278d", "\u278e"]
         return mStars[(amount % 5)-1]
 
+    displayName = item.getDisplayName()
 
+    text.addText(_removeStarsFromName(displayName), tags="rarity")
+    text.addText(_genStars(item.getStars()), tags="star")
+    if item.getStars() > 5:
+        text.addText(_genMasterStars(item.getStars()), tags="master_star")
+    text.addText("\n")
+    text.addStrf(item.getLore().replace("\xa7k", "\xa7").replace("\xa7r", "") + " ", COLOR_CODE_MAP)
 
+    text.setFgColorByTag("rarity", RARITY_COLOR_CODE[item.getRarity()])
+    text.setFgColorByTag("star", "#FFAA00")
+    text.setFgColorByTag("master_star", "#AA0000")
+    
+    
+
+class ItemToolTip(tk.Toplevel):
+    def __init__(self, master:tk.Tk, item:BaseAuctionProduct):
+        super().__init__(master, group=SG)
+        self._item = item
+        self.setPositionOnScreen(master.getMousePositionRelativeToScreen().change(15, -20))
+
+        self._text = TipText(self, group=SG)
+
+        fillToolTipText(self._text, self._item)
+
+        self._text.place(0, 0, 400, 600)
+        self.setWindowSize(400, 600)
+
+        self.overrideredirect()
+    def __del__(self):
+        super().destroy()
+    def open(self):
+        self.show()
+    def close(self):
+        self.destroy()
+        
 

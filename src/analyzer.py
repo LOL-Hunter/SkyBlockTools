@@ -7,8 +7,8 @@ from hyPI import getEnchantmentIDLvl
 
 from random import randint
 from skyMath import getMedianExponent, parsePrizeList, applyBazaarTax
-from skyMisc import getDictEnchantmentIDToLevels, prizeToStr, getLBin, enchBookConvert
-from constants import MAYOR_NORMAL, MAYOR_SPEC, MAYOR_PERK_AMOUNT, API, ConfigFile, MASTER_STARS
+from skyMisc import getDictEnchantmentIDToLevels, parsePrizeToStr, getLBin, enchBookConvert
+from constants import MAYOR_NORMAL, MAYOR_SPEC, MAYOR_PERK_AMOUNT, API, ConfigFile, MASTER_STARS, ENCHANTMENT_UPGRADES
 from logger import MsgText
 
 
@@ -224,8 +224,9 @@ def analyzeMayors(data:list, currentMinister:str, ministerHasLTI, yearOffset:int
         "next_special_in_years":lastSpecialYear+8-currentYear,
         "next_perks":perkData,
     }
-def calculateUpgradesPrice(item: BaseAuctionProduct, isOrder: bool) -> tuple[float, str]:
-    desc = ""
+def calculateUpgradesPrice(item: BaseAuctionProduct, isOrder: bool) -> tuple[float, str, dict]:
+    desc = "\n"
+    data = {}
     def getPrice(id_: str | int, amount: int=1, ignore=False, addStr=""):
         nonlocal desc
         price = None
@@ -243,22 +244,30 @@ def calculateUpgradesPrice(item: BaseAuctionProduct, isOrder: bool) -> tuple[flo
         if price is None:
             if not ignore: desc += f"{addStr}{id_}(x{amount}): 0 (ERROR)\n"
             return 0.0
-        desc += f"{addStr}{id_}(x{amount}): {prizeToStr(price)}\n"
+        desc += f"{addStr}{id_}{' coins' if type(id_) is int else ''}(x{amount}): {parsePrizeToStr(price)}\n"
         return price
 
     upgradePrice = 0.0
     if item.isRecombUsed(): upgradePrice += getPrice("RECOMBOBULATOR_3000")
     enchPrice = 0
+    if len(item.getEnchantments()):
+        desc += "\nEnchantments:"
+
     for ench in item.getEnchantments():
+        *name, ultLvl = ench.split("_")
+        name = "_".join(name)
         if not ench.startswith("ENCHANTMENT_ULTIMATE"):
+            if ench in ENCHANTMENT_UPGRADES.keys():
+                c = getPrice(ENCHANTMENT_UPGRADES[ench], ignore=False, addStr="\t")
+                upgradePrice += c
+                enchPrice += c
+                ench = f"{name}_{int(ultLvl)-1}"
             c = getPrice(ench, ignore=False, addStr="\t")
             upgradePrice += c
             enchPrice += c
             continue
 
-        *name, ultLvl = ench.split("_")
 
-        name = "_".join(name)
         lowestUltLvl = int(ultLvl)
         while True:
             if API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(f"{name}_{lowestUltLvl-1}") is None:
@@ -273,11 +282,16 @@ def calculateUpgradesPrice(item: BaseAuctionProduct, isOrder: bool) -> tuple[flo
             else:  # insta buy
                 itemSellPrice = bzProduct.getInstaBuyPrice()
             price = applyBazaarTax(itemSellPrice) * amount
-            desc += f"\t{id_}: {prizeToStr(price)}(x{amount})\n"
+            desc += f"\t{id_}: {parsePrizeToStr(price)}(x{amount})\n"
             upgradePrice += price
-    desc += f"Enchantments: {prizeToStr(enchPrice)}\n"
+    desc += f"Total: {parsePrizeToStr(enchPrice)}\n\n"
 
+    if enchPrice < 200_000 and item.isRecombUsed() and item.getPotatoBookCount() == 0 and not item.getAppliedGemstones():
+        data["auto_recombed"] = True
+
+    starPrice = 0
     if item.getStars() > 0:
+        desc += f"Stars: "
         itemConf = API.SKYBLOCK_ITEM_API_PARSER.getItemByID(item.getID())
         if itemConf is None or itemConf.getUpgradeCosts() is None:
             desc += f"Stars: Could not Calculate! (ItemAPI missing)\n"
@@ -297,37 +311,47 @@ def calculateUpgradesPrice(item: BaseAuctionProduct, isOrder: bool) -> tuple[flo
                     if upgItemID is None:
                         MsgText.error(f"Could not calculate StarPrice: ItemAPI[unknown type {upgrade['type']}]")
                     else:
-                        upgradePrice += getPrice(upgItemID, amount=amount, ignore=False)
+                        starPrice += getPrice(upgItemID, amount=amount, ignore=False, addStr="\t")
                 stars -= 1
             if stars > 0:
                 for i in range(stars):
-                    upgradePrice += getPrice(MASTER_STARS[i], ignore=False)
+                    starPrice += getPrice(MASTER_STARS[i], ignore=False, addStr="\t")
+    desc += f"Total: {parsePrizeToStr(enchPrice)}\n\n"
+    upgradePrice += starPrice
+
+    if len(item.getAppliedGemstones()):
+        desc += "Applied Gemstones:\n"
 
     for gem in item.getAppliedGemstones():
-        upgradePrice += getPrice(gem, ignore=False)
-    if item.getStars() > 0:
-        itemConf = API.SKYBLOCK_ITEM_API_PARSER.getItemByID(item.getID())
-        if itemConf is None or itemConf.getGemstoneSlots() is None:
-            desc += f"Gem-Unlocks: Could not Calculate! (ItemAPI missing)\n"
-        else:
-            gemstoneUnlockCost = 0
-            unlockedGemstoneSlots = item.getUnlockedSlots()
-            for slot in itemConf.getGemstoneSlots():
-                slotType = slot["slot_type"]
+        upgradePrice += getPrice(gem, ignore=False, addStr="\t")
 
-                for unlSlot in unlockedGemstoneSlots:
-                    if unlSlot.split("_")[0] == slotType:
+    itemConf = API.SKYBLOCK_ITEM_API_PARSER.getItemByID(item.getID())
+    if itemConf is None or itemConf.getGemstoneSlots() is None:
+        desc += f"Gem-Unlocks: Could not Calculate! (ItemAPI missing)\n"
+    else:
+        desc += "Unlocked Gemstones:\n"
+        gemstoneUnlockCost = 0
+        unlockedGemstoneSlots = item.getUnlockedSlots()
 
-                        for cost in slot["costs"]:
-                            if cost["type"] == "COINS":
-                                gemstoneUnlockCost += getPrice(cost["coins"], addStr="\t")
-                            elif cost["type"] == "ITEM":
-                                gemstoneUnlockCost += getPrice(cost["item_id"], amount=cost["amount"], addStr="\t")
-                            else:
-                                MsgText.error(f"Could not calculate GemstoneUnlock Price: ItemAPI[unknown type {cost['type']}]")
-                        break
-            desc += f"Gemstone Unlock: {prizeToStr(gemstoneUnlockCost)}\n"
-            upgradePrice += gemstoneUnlockCost
+        for slot in itemConf.getGemstoneSlots():
+            slotType = slot["slot_type"]
+
+            for unlSlot in unlockedGemstoneSlots:
+                if unlSlot.split("_")[0] == slotType:
+                    if "costs" not in slot.keys():
+                        #MsgText.error(f"Item {item.getID()} has no 'gemstone cost'!"+str(slot))
+                        continue
+
+                    for cost in slot["costs"]:
+                        if cost["type"] == "COINS":
+                            gemstoneUnlockCost += getPrice(cost["coins"], addStr="\t")
+                        elif cost["type"] == "ITEM":
+                            gemstoneUnlockCost += getPrice(cost["item_id"], amount=cost["amount"], addStr="\t")
+                        else:
+                            MsgText.error(f"Could not calculate GemstoneUnlock Price: ItemAPI[unknown type {cost['type']}]")
+                    break
+        desc += f"Total: {parsePrizeToStr(gemstoneUnlockCost)}\n\n"
+        upgradePrice += gemstoneUnlockCost
     if item.isReforged():
         reforge = item.getReforge()
         if reforge in MODIFIER.keys():
@@ -335,9 +359,9 @@ def calculateUpgradesPrice(item: BaseAuctionProduct, isOrder: bool) -> tuple[flo
             if reforgeStone != "BLACKSMITH":
                 upgradePrice += getPrice(reforgeStone, ignore=False)
         else:
-            MsgText.warning(f"calculateUpgradesPrice() -> Reforge {reforge} not found!")
+            if reforge != "NONE": MsgText.warning(f"calculateUpgradesPrice() -> Reforge {reforge} not found on item {item.getID()}!")
     if item.isWoodenSingularityUsed(): upgradePrice += getPrice("WOOD_SINGULARITY", ignore=False)
-    if item.isShiny(): upgradePrice += getPrice(100_000_000, ignore=False)
+    #if item.isShiny(): upgradePrice += getPrice(100_000_000, ignore=False)
     potatoAmount = item.getPotatoBookCount()
     if potatoAmount > 10:
         upgradePrice += getPrice("FUMING_POTATO_BOOK", amount=potatoAmount-10, ignore=False)
@@ -361,11 +385,42 @@ def calculateUpgradesPrice(item: BaseAuctionProduct, isOrder: bool) -> tuple[flo
         upgradePrice += getPrice(scroll, ignore=False)
     if item.isBookOfStatsApplied():
         upgradePrice += getPrice("BOOK_OF_STATS", amount=item.getJalapenoCount(), ignore=False)
-    return upgradePrice, desc
-def calculateEstimatedItemValue(item: BaseAuctionProduct, isOrder: bool, lowestBinPrice:float=None)->Tuple[Union[float, None], str]:
+    if "MIDAS" in item.getID():
+        payed = 0
+        if item.getMidasWinningBid() is not None:
+            payed += item.getMidasWinningBid()
+        if item.getMidasPricePayed() is not None:
+            payed += item.getMidasPricePayed()
+        MIDAS_SWORD_MAX = 50_000_000
+        STARRED_MIDAS_SWORD_MAX = 250_000_000
+        MIDAS_STAFF_MAX = 100_000_000
+        STARRED_MIDAS_STAFF_MAX = 500_000_000
+
+        VALUE = 0
+        VALUE_STARRED = 0
+
+        if "MIDAS_STAFF" in item.getID():
+            VALUE = MIDAS_STAFF_MAX
+            VALUE_STARRED = STARRED_MIDAS_STAFF_MAX
+        elif "MIDAS_SWORD" in item.getID():
+            VALUE = MIDAS_SWORD_MAX
+            VALUE_STARRED = STARRED_MIDAS_SWORD_MAX
+        else:
+            MsgText.error(f"Item {item.getID()} is no midas staff or sword! Could not calc payed.")
+
+        if item.getID().startswith("STARRED_"):
+            payed = VALUE_STARRED if payed > VALUE_STARRED else payed
+        else:
+            payed = VALUE if payed > VALUE else payed
+
+        desc += f"Midas-Payed: {parsePrizeToStr(payed)}\n"
+        upgradePrice += payed
+    return upgradePrice, desc, data
+def calculateEstimatedItemValue(item: BaseAuctionProduct, isOrder: bool, lowestBinPrice:float | BINAuctionProduct=None)->Tuple[Union[float, None], str, dict]:
     itemID = item.getID()
     basePrice = None
     mode = ""
+    data = {}
     remTxt = ""
     # get average price from Config
     if ConfigFile.AVERAGE_PRICE is not None:
@@ -378,20 +433,28 @@ def calculateEstimatedItemValue(item: BaseAuctionProduct, isOrder: bool, lowestB
             lowestBin = getLBin(itemID)
         else:
             lowestBin = lowestBinPrice
-        if lowestBin is None: return None, "LowestBin is None"
-        if not isinstance(lowestBin, BINAuctionProduct): return None, "lowestBin is not instance BINAuctionProduct!"
-        basePrice = lowestBin.getPrice()
-        upgradesPriceLBIN, _ = calculateUpgradesPrice(lowestBin, isOrder)
+        if lowestBin is None: return None, "LowestBin is None", {}
+
+        if isinstance(lowestBin, float):
+            basePrice = lowestBin
+            upgradesPriceLBIN = 0
+        elif isinstance(lowestBin, BINAuctionProduct):
+            basePrice = lowestBin.getPrice()
+            upgradesPriceLBIN, *_ = calculateUpgradesPrice(lowestBin, isOrder)
+        else:
+            return None, "lowestBin is not instance BINAuctionProduct or float!", {}
+
         if upgradesPriceLBIN:
-            remTxt = f"\t(-{prizeToStr(upgradesPriceLBIN)})\n"
+            remTxt = f"\t(-{parsePrizeToStr(upgradesPriceLBIN)})\n"
             basePrice -= upgradesPriceLBIN
         mode = "lbin"
-    desc = f"BasePrice({mode}): {prizeToStr(basePrice)}\n{remTxt}"
-    upgradesPrice, desc2 = calculateUpgradesPrice(item, isOrder)
+    desc = f"BasePrice({mode}): {parsePrizeToStr(basePrice)}\n{remTxt}"
+    upgradesPrice, desc2, _data = calculateUpgradesPrice(item, isOrder)
     desc += desc2
+    data.update(_data)
 
     basePrice += upgradesPrice
 
-    desc += f"\nEstimatedTotal: {prizeToStr(basePrice)}"
+    desc += f"\nEstimatedTotal: {parsePrizeToStr(basePrice)}"
 
-    return basePrice, desc
+    return basePrice, desc, data

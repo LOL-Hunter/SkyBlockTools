@@ -20,25 +20,25 @@ class SkyConflnetAPI:
     def getBazaarHistoryHour(item: str) -> BazaarHistory:
         item = item.value if hasattr(item, "value") else item
         packet = _request(SkyCoflnetAPIURL.GET_URL_BAZAAR_HIST_HOUR(item))
-        return BazaarHistory(packet, range_="hour")
+        return BazaarHistory(packet, _range="hour")
 
     @staticmethod
     def getBazaarHistoryDay(item: str) -> BazaarHistory:
         item = item.value if hasattr(item, "value") else item
         packet = _request(SkyCoflnetAPIURL.GET_URL_BAZAAR_HIST_DAY(item))
-        return BazaarHistory(packet, range_="day")
+        return BazaarHistory(packet, _range="day")
 
     @staticmethod
     def getBazaarHistoryWeek(item: str) -> BazaarHistory:
         item = item.value if hasattr(item, "value") else item
         packet = _request(SkyCoflnetAPIURL.GET_URL_BAZAAR_HIST_WEEK(item))
-        return BazaarHistory(packet, range_="week")
+        return BazaarHistory(packet, _range="week")
 
     @staticmethod
     def getBazaarHistoryComplete(item: str) -> BazaarHistory:
         item = item.value if hasattr(item, "value") else item
         packet = _request(SkyCoflnetAPIURL.GET_URL_BAZAAR_HIST_COMPLETE(item))
-        return BazaarHistory(packet, range_="complete")
+        return BazaarHistory(packet, _range="complete")
 
 
 
@@ -47,25 +47,25 @@ class SkyConflnetAPI:
     def getAuctionHistoryDay(item: str) -> AuctionHistory:
         item = item.value if hasattr(item, "value") else item
         packet = _request(SkyCoflnetAPIURL.GET_URL_ITEM_HIST_DAY(item))
-        return AuctionHistory(packet, range_="day")
+        return AuctionHistory(packet, _range="day")
 
     @staticmethod
     def getAuctionHistoryWeek(item: str) -> AuctionHistory:
         item = item.value if hasattr(item, "value") else item
         packet = _request(SkyCoflnetAPIURL.GET_URL_ITEM_HIST_WEEK(item))
-        return AuctionHistory(packet, range_="week")
+        return AuctionHistory(packet, _range="week")
 
     @staticmethod
     def getAuctionHistoryMonth(item: str) -> AuctionHistory:
         item = item.value if hasattr(item, "value") else item
         packet = _request(SkyCoflnetAPIURL.GET_URL_ITEM_HIST_MONTH(item))
-        return AuctionHistory(packet, range_="month")
+        return AuctionHistory(packet, _range="month")
 
     @staticmethod
     def getAuctionHistoryComplete(item: str) -> AuctionHistory:
         item = item.value if hasattr(item, "value") else item
         packet = _request(SkyCoflnetAPIURL.GET_URL_ITEM_HIST_COMPLETE(item))
-        return AuctionHistory(packet, range_="complete")
+        return AuctionHistory(packet, _range="complete")
 
     @staticmethod
     def getMayorData(days=200) -> list:

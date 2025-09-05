@@ -19,13 +19,14 @@ from hyPI.skyCoflnetAPI import SkyConflnetAPI
 
 from logger import MsgText
 from jsonConfig import JsonConfig
-from widgets import CompleterEntry, CustomPage, CustomMenuPage, TrackerWidget, APIRequest, ItemToolTip
+from widgets import CompleterEntry, CustomPage, CustomMenuPage, TrackerWidget, APIRequest, ItemToolTip, TipText, fillToolTipText
 from bazaarAnalyzer import updateBazaarAnalyzer, BazaarAnalyzer
-from analyzer import getPlotData, getCheapestEnchantmentData, analyzeMayors, simulateElections, calculateEstimatedItemValue
+from analyzer import getPlotData, getCheapestEnchantmentData, analyzeMayors, simulateElections, calculateEstimatedItemValue, calculateUpgradesPrice
 from images import IconLoader
 from constants import (
     VERSION,
     System,
+    NPC_BUYABLE_PET_ITEMS,
     RARITY_COLOR_CODE,
     LOAD_STYLE,
     STYLE_GROUP as SG,
@@ -34,6 +35,8 @@ from constants import (
     API,
     Color,
     Constants,
+    CUSTOM_PET_XP_MAX,
+    PET_XP_MAX,
     MAGIC_POWDER,
     BazaarItemID,
     AuctionItemID,
@@ -62,9 +65,10 @@ from skyMisc import (
     parseTimeDelta,
     parseTimeToStr,
     parseTimeFromSec,
-    prizeToStr,
-    parsePrice,
+    parsePrizeToStr,
+    parsePriceFromStr,
     getLBin,
+    getLBinList,
     search,
     Sorter,
     _map,
@@ -497,14 +501,14 @@ class ItemInfoPage(CustomPage):
         out = f"§c== Info ==\n"
         out += f"§yMeasured-At:\n  §y{latestTimestamp.split('-')[-1].replace('(', '').replace(')', '')}\n\n"
         out += f"§c== Price x{amount}==\n"
-        out += f"§rInsta-Buy-Price:\n§r  {prizeToStr(bp * amount)}\n"
-        out += f"§gInsta-Sell-Price:\n§g  {prizeToStr(sp * amount)}\n\n"
+        out += f"§rInsta-Buy-Price:\n§r  {parsePrizeToStr(bp * amount)}\n"
+        out += f"§gInsta-Sell-Price:\n§g  {parsePrizeToStr(sp * amount)}\n\n"
         out += f"§c== Average-Price ==\n(over last {self.selectedMode})\n"
         out += f"§rAverage-Buy-Price:\n§r  {str(round(bpm, 2))} {mPref} coins\n"
         out += f"§gAverage-Sell-Price:\n§g  {str(round(spm, 2))} {mPref} coins\n\n"
         out += f"§c== Volume ==\n"
-        out += f"§rInsta-Buy-Volume:\n§r  {prizeToStr(bv)}\n"
-        out += f"§gInsta-Sell-Volume:\n§g  {prizeToStr(sv)}\n"
+        out += f"§rInsta-Buy-Volume:\n§r  {parsePrizeToStr(bv)}\n"
+        out += f"§gInsta-Sell-Volume:\n§g  {parsePrizeToStr(sv)}\n"
         self.dataText.setStrf(out)
     def _flattenPrices(self, bp, sp):
         bp = getFlattenList(bp)
@@ -777,7 +781,7 @@ class AlchemyXPCalculatorPage(CustomPage):
         for s in sorters:
             self.treeView.addEntry(
                 s["itemID"],
-                prizeToStr(s["cost"]),
+                parsePrizeToStr(s["cost"]),
                 s["brews"]
             )
     def onShow(self, **kwargs):
@@ -868,9 +872,9 @@ class EnchantingBookBazaarProfitPage(CustomPage):
                 if bookCraft.getFromAmount() is None: continue
                 self.treeView.addEntry(
                     f"{bookCraft.getShowAbleIDFrom()} [x{bookCraft.getFromAmount()}] -> {bookCraft.getShowAbleIDTo()}",
-                    prizeToStr(bookCraft.getFromPriceSingle(round_=2)),
-                    prizeToStr(bookCraft.getFromPrice()),
-                    prizeToStr(bookCraft.getSavedCoins()),
+                    parsePrizeToStr(bookCraft.getFromPriceSingle(round_=2)),
+                    parsePrizeToStr(bookCraft.getFromPrice()),
+                    parsePrizeToStr(bookCraft.getSavedCoins()),
                     image=self.eBookImage
                 )
             else:
@@ -879,10 +883,10 @@ class EnchantingBookBazaarProfitPage(CustomPage):
 
                 self.treeView.addEntry(
                     f"{bookCraft.getShowAbleIDFrom()} [x{bookCraft.getFromAmount()}] -> {bookCraft.getShowAbleIDTo()}",
-                    prizeToStr(bookCraft.getFromPriceSingle(round_=2)),
-                    prizeToStr(bookCraft.getFromPrice()),
-                    prizeToStr(bookCraft.getSavedCoins()),
-                    prizeToStr(bookCraft.getFromSellVolume(), hideCoins=True),
+                    parsePrizeToStr(bookCraft.getFromPriceSingle(round_=2)),
+                    parsePrizeToStr(bookCraft.getFromPrice()),
+                    parsePrizeToStr(bookCraft.getSavedCoins()),
+                    parsePrizeToStr(bookCraft.getFromSellVolume(), hideCoins=True),
                     image=self.eBookImage
                 )
     def onShow(self, **kwargs):
@@ -927,9 +931,9 @@ class EnchantingBookBazaarCheapestPage(CustomPage):
                     if bookCraft.getFromAmount() is None: continue
                     self.treeView.addEntry(
                         bookCraft.getShowAbleIDFrom()+f" [x{bookCraft.getFromAmount()}]",
-                        prizeToStr(bookCraft.getFromPriceSingle(round_=2)),
-                        prizeToStr(bookCraft.getFromPrice()),
-                        prizeToStr(bookCraft.getSavedCoins()),
+                        parsePrizeToStr(bookCraft.getFromPriceSingle(round_=2)),
+                        parsePrizeToStr(bookCraft.getFromPrice()),
+                        parsePrizeToStr(bookCraft.getSavedCoins()),
                         image=self.eBookImage
                     )
                 else:
@@ -938,10 +942,10 @@ class EnchantingBookBazaarCheapestPage(CustomPage):
 
                     self.treeView.addEntry(
                         bookCraft.getShowAbleIDFrom() + f" [x{bookCraft.getFromAmount()}]",
-                        prizeToStr(bookCraft.getFromPriceSingle(round_=2)),
-                        prizeToStr(bookCraft.getFromPrice()),
-                        prizeToStr(bookCraft.getSavedCoins()),
-                        prizeToStr(bookCraft.getFromSellVolume(), hideCoins=True),
+                        parsePrizeToStr(bookCraft.getFromPriceSingle(round_=2)),
+                        parsePrizeToStr(bookCraft.getFromPrice()),
+                        parsePrizeToStr(bookCraft.getSavedCoins()),
+                        parsePrizeToStr(bookCraft.getFromSellVolume(), hideCoins=True),
                         image=self.eBookImage
                     )
     def onShow(self, **kwargs):
@@ -1117,8 +1121,8 @@ class BazaarCraftProfitPage(CustomPage):
         for rec in recipeList:
             content = [
                 rec.getID(),
-                prizeToStr(rec.getProfit()),
-                prizeToStr(rec.getCraftPrice()),
+                parsePrizeToStr(rec.getProfit()),
+                parsePrizeToStr(rec.getCraftPrice()),
                 rec.getRequired()
             ]
             if self.recursiveCraft.getState():
@@ -1470,9 +1474,9 @@ class BazaarFlipProfitPage(CustomPage):
         for rec in itemList:
             input_ = [
                 rec["ID"],
-                prizeToStr(rec["buy"]),
-                prizeToStr(rec["sell"]),
-                prizeToStr(rec["profitPerFlip"]),
+                parsePrizeToStr(rec["buy"]),
+                parsePrizeToStr(rec["sell"]),
+                parsePrizeToStr(rec["profitPerFlip"]),
             ]
             if self.showOthersTry.getState():
                 input_.extend([f"{rec['buyVolume']} in {rec['buyOrders']} Orders", f"{rec['sellVolume']} in {rec['sellOrders']} Orders"])
@@ -1481,13 +1485,13 @@ class BazaarFlipProfitPage(CustomPage):
             if self.perMode == "per_week":
                 input_.extend([f"{rec['buysPerWeek']}", f"{rec['sellsPerWeek']}"])
             if self.showFlipRatingHour.getState():
-                input_.append(f"{prizeToStr(rec['flipRating'], hideCoins=True)}")
+                input_.append(f"{parsePrizeToStr(rec['flipRating'], hideCoins=True)}")
 
 
             colorTag = "none"
             if rec["averageBuyPrice"] != "":
-                price = prizeToStr(rec["averageBuyPrice"])
-                diff = prizeToStr(rec["averagePriceToBuyDiff"])
+                price = parsePrizeToStr(rec["averageBuyPrice"])
+                diff = parsePrizeToStr(rec["averagePriceToBuyDiff"])
                 if rec["averagePriceToBuyDiff"] > 0:
                     colorTag = "good"
                     diff = "+" + diff
@@ -1715,20 +1719,20 @@ class ComposterProfitPage(CustomPage):
         self.textT.clear()
         text = f"Matter-Type: {matterType['name']}\n"
         text += f"Matter-Required-Full-Tank: {int(data['matter_cap']/self.organic_matter_data[matterType['name']])}\n"
-        text += f"Matter-Tank: {prizeToStr(data['matter_cap'], True)}\n"
+        text += f"Matter-Tank: {parsePrizeToStr(data['matter_cap'], True)}\n"
         text += f"Fuel-Type: {fuelType['name']}\n"
         text += f"Fuel-Required-Full-Tank: {int(data['fuel_cap']/self.fuel_data[fuelType['name']])}\n"
-        text += f"Fuel-Tank: {prizeToStr(data['fuel_cap'], True)}\n"
+        text += f"Fuel-Tank: {parsePrizeToStr(data['fuel_cap'], True)}\n"
         text += f"Time-Per-Compost: {parseTimeFromSec(data['duration_seconds'])}\n\n"
         text += f"===== PROFIT =====\n"
-        text += f"Single-Profit(no mul drop): {prizeToStr(singleProfit)}\n"
-        text += f"Stack-Profit(x64): {prizeToStr(singleProfit*64)} (~{prizeToStr(singleProfit * self.addMultipleChance(data['multiple_drop_percentage'], 64))} per)\n"
-        text += f"Profit-Enchanted-Compost(x1 compost): {prizeToStr(enchantedSingleCost)}\n"
-        text += f"Profit-Enchanted-Compost(x160 compost): {prizeToStr(enchantedSingleCostA)}\n\n"
+        text += f"Single-Profit(no mul drop): {parsePrizeToStr(singleProfit)}\n"
+        text += f"Stack-Profit(x64): {parsePrizeToStr(singleProfit * 64)} (~{parsePrizeToStr(singleProfit * self.addMultipleChance(data['multiple_drop_percentage'], 64))} per)\n"
+        text += f"Profit-Enchanted-Compost(x1 compost): {parsePrizeToStr(enchantedSingleCost)}\n"
+        text += f"Profit-Enchanted-Compost(x160 compost): {parsePrizeToStr(enchantedSingleCostA)}\n\n"
         text += f"== OFFLINE ==\n"
         text += f"Compost-With-Full-Tanks: {compostFull} (upgrade: {upgrade})\n"
         text += f"Duration-With-Full-Tanks: {parseTimeFromSec(data['duration_seconds'] * compostFull)}\n"
-        text += f"Full-Composter-Profit: ~{prizeToStr(singleProfit*self.addMultipleChance(data['multiple_drop_percentage'], compostFull))}\n"
+        text += f"Full-Composter-Profit: ~{parsePrizeToStr(singleProfit * self.addMultipleChance(data['multiple_drop_percentage'], compostFull))}\n"
         self.textT.setStrf(text)
     def onShow(self, **kwargs):
         self.master.updateCurrentPageHook = self.updateTreeView  # hook to update tv on new API-Data available
@@ -1870,9 +1874,9 @@ class BazaarToAuctionHouseFlipProfitPage(CustomPage):
         for rec in recipeList:
             self.treeView.addEntry(
                 rec["resultID"],
-                prizeToStr(rec.get()), # profit
-                prizeToStr(rec["craftCost"]),
-                prizeToStr(rec["lowestBin"]),
+                parsePrizeToStr(rec.get()), # profit
+                parsePrizeToStr(rec["craftCost"]),
+                parsePrizeToStr(rec["lowestBin"]),
                 rec["reqItemsStr"]
             )
     def onShow(self, **kwargs):
@@ -1993,10 +1997,10 @@ class LongTimeFlip(tk.Frame):
             averagePriceToBuyDiff = averageBuyPrice - sellPricePer
             if averagePriceToBuyDiff > 0:
                 self.expectedSellPrice.setFg("red")
-                self.expectedSellPrice.setText(f"Expected Price: +{prizeToStr(averagePriceToBuyDiff)}")
+                self.expectedSellPrice.setText(f"Expected Price: +{parsePrizeToStr(averagePriceToBuyDiff)}")
             else:
                 self.expectedSellPrice.setFg("green")
-                self.expectedSellPrice.setText(f"Expected Price: {prizeToStr(averagePriceToBuyDiff)}")
+                self.expectedSellPrice.setText(f"Expected Price: {parsePrizeToStr(averagePriceToBuyDiff)}")
         else:
             self.expectedSellPrice.setFg("white")
             self.expectedSellPrice.setText("Expected Price: null")
@@ -2010,18 +2014,18 @@ class LongTimeFlip(tk.Frame):
             self._setBg(tk.Color.rgb(138, 90, 12))
             self.profitL2.setFg(Color.COLOR_WHITE)
             profit = sellPrice - buyPrice
-            self.spendL.setText(f"Coins Spend: {prizeToStr(self.getPriceSpend())} (Price Per: ~{prizeToStr(buyPricePer)})")
-            self.sellNowL.setText(f"Sell now{star}: {prizeToStr(sellPrice)} (Price Per: ~{prizeToStr(sellPricePer)})")
-            self.profitL.setText(f"Profit: {prizeToStr(profit)}")
-            self.profitL2.setText(f"Invest: {prizeToStr(buyPrice)}")
+            self.spendL.setText(f"Coins Spend: {parsePrizeToStr(self.getPriceSpend())} (Price Per: ~{parsePrizeToStr(buyPricePer)})")
+            self.sellNowL.setText(f"Sell now{star}: {parsePrizeToStr(sellPrice)} (Price Per: ~{parsePrizeToStr(sellPricePer)})")
+            self.profitL.setText(f"Profit: {parsePrizeToStr(profit)}")
+            self.profitL2.setText(f"Invest: {parsePrizeToStr(buyPrice)}")
         else:
             self.profitL2.setFg("green")
             self._setBg(tk.Color.rgb(22, 51, 45))
             profit = sellPrice - buyPrice
-            self.spendL.setText(f"Worth at Start: {prizeToStr(buyPrice)} (Price Per: ~{prizeToStr(buyPricePer)})")
-            self.sellNowL.setText(f"Sell now{star}: {prizeToStr(sellPrice)} (Price Per: ~{prizeToStr(sellPricePer)})")
-            self.profitL.setText(f"Profit: {prizeToStr(profit)}")
-            self.profitL2.setText(f"Sell: {prizeToStr(sellPrice)}")
+            self.spendL.setText(f"Worth at Start: {parsePrizeToStr(buyPrice)} (Price Per: ~{parsePrizeToStr(buyPricePer)})")
+            self.sellNowL.setText(f"Sell now{star}: {parsePrizeToStr(sellPrice)} (Price Per: ~{parsePrizeToStr(sellPricePer)})")
+            self.profitL.setText(f"Profit: {parsePrizeToStr(profit)}")
+            self.profitL2.setText(f"Sell: {parsePrizeToStr(sellPrice)}")
         if profit > 0:
             self.profitL.setFg("green")
         else:
@@ -2224,7 +2228,7 @@ class NewFlipWindow(tk.Dialog):
         data["price"] = price
         data["amount"] = amount
 
-        self.treeView.setEntry(prizeToStr(amount, True), prizeToStr(price), prizeToStr(amount*price), index=selectedIndex)
+        self.treeView.setEntry(parsePrizeToStr(amount, True), parsePrizeToStr(price), parsePrizeToStr(amount * price), index=selectedIndex)
     def onSelect(self):
         self.enableWidgets()
         if self.treeView.getSelectedIndex() is None: return
@@ -2293,7 +2297,7 @@ class NewFlipWindow(tk.Dialog):
         for dat in self.data["data"]:
             amount = dat["amount"]
             price = dat["price"]
-            self.treeView.addEntry(prizeToStr(amount, True), prizeToStr(price), prizeToStr(amount*price))
+            self.treeView.addEntry(parsePrizeToStr(amount, True), parsePrizeToStr(price), parsePrizeToStr(amount * price))
 class LongTimeFlipHelperPage(CustomPage):
     def __init__(self, master):
         super().__init__(master,
@@ -2448,8 +2452,8 @@ class LongTimeFlipHelperPage(CustomPage):
 
         self.master.updateDynamicWidgets()
         star = "*" if not exact else ""
-        self.fullProfitL.setText(f"Profit{star}: {prizeToStr(fullProfit)}")
-        self.totalValueL.setText(f"Total-Value{star}: {prizeToStr(totalValue)}")
+        self.fullProfitL.setText(f"Profit{star}: {parsePrizeToStr(fullProfit)}")
+        self.totalValueL.setText(f"Total-Value{star}: {parsePrizeToStr(totalValue)}")
         if fullProfit > 0:
             self.fullProfitL.setFg("green")
         else:
@@ -2586,7 +2590,7 @@ class AuctionHousePage(CustomPage):
                     sum_ += auc.getPrice()
                 elif isinstance(auc, NORAuctionProduct):
                     sum_ += auc.getHighestBid()
-            self.own_sumL.setText(f"+ {prizeToStr(sum_)}")
+            self.own_sumL.setText(f"+ {parsePrizeToStr(sum_)}")
             self.ownAuctionF.placeRelative(changeWidth=-5, changeHeight=-5-50)
         elif self.selectedItem is not None:
             if not len(auctions): return
@@ -2668,7 +2672,6 @@ class AuctionHousePage(CustomPage):
         if sel is None: return
         auction = self.shownAuctions[sel]
         copyStr(f"/viewauction {auction.getAuctionID()}")
-
     def placeMainWidgets(self):
         self.searchL.placeRelative(fixHeight=25, stickDown=True, fixWidth=75, fixX=150)
         self.searchE.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=250)
@@ -2690,7 +2693,6 @@ class AuctionHousePage(CustomPage):
         elif self.colorMode == "Estimated Price":
             tags.append(estimPrice)
         return tuple(tags)
-
     def renderOwnAuctions(self):
         ownAuctionUUIDs: dict = Config.SETTINGS_CONFIG["auction_creator_uuids"]
         self.searchBtn.setText("< Back")
@@ -2719,7 +2721,7 @@ class AuctionHousePage(CustomPage):
                 self.shownAuctions.append(auct["auctClass"])
                 self.treeView.addEntry(
                     auct["display_name"],
-                    prizeToStr(auct["bin_price"]),
+                    parsePrizeToStr(auct["bin_price"]),
                     "ENDED" if auct["ending_in"] <= 0 else parseTimeFromSec(auct["ending_in"]),
                     tag=("own", auct['auctClass'].getRarity()) if auct["isOwn"] else (
                     "bin", auct['auctClass'].getRarity())
@@ -2751,9 +2753,9 @@ class AuctionHousePage(CustomPage):
                 self.shownAuctions.append(auct["auctClass"])
                 self.treeView.addEntry(
                     auct["display_name"],
-                    prizeToStr(auct["price"]),
+                    parsePrizeToStr(auct["price"]),
                     "ENDED" if auct["ending_in"] <= 0 else parseTimeFromSec(auct["ending_in"]),
-                    prizeToStr(auct["bids"], hideCoins=True),
+                    parsePrizeToStr(auct["bids"], hideCoins=True),
                     tag=("own", auct['auctClass'].getRarity()) if auct["isOwn"] else (
                     "auc", auct['auctClass'].getRarity())
                 )
@@ -2811,9 +2813,9 @@ class AuctionHousePage(CustomPage):
                 self.shownAuctions.append(metaSorter["auctClass"])
                 self.treeView.addEntry(
                     metaSorter["name"] + (f" (Contains active Auction)" if metaSorter['name'] in ownAuctionIDs else ""),
-                    prizeToStr(metaSorter["lowest_bin"]),
-                    prizeToStr(metaSorter["highest_bin"]),
-                    prizeToStr(metaSorter["active_auctions"], hideCoins=True),
+                    parsePrizeToStr(metaSorter["lowest_bin"]),
+                    parsePrizeToStr(metaSorter["highest_bin"]),
+                    parsePrizeToStr(metaSorter["active_auctions"], hideCoins=True),
                     tag=("own", metaSorter['auctClass'].getRarity()) if metaSorter['name'] in ownAuctionIDs else (
                     "bin", metaSorter['auctClass'].getRarity())
                 )
@@ -2859,9 +2861,9 @@ class AuctionHousePage(CustomPage):
                 self.shownAuctions.append(metaSorter["auctClass"])
                 self.treeView.addEntry(
                     metaSorter["name"] + (f" (Contains active Auction)" if metaSorter['name'] in ownAuctionIDs else ""),
-                    prizeToStr(metaSorter["lowest_bid"]),
+                    parsePrizeToStr(metaSorter["lowest_bid"]),
                     "ENDED" if metaSorter["ending"] <= 0 else parseTimeFromSec(metaSorter["ending"]),
-                    prizeToStr(metaSorter["active_auctions"], hideCoins=True),
+                    parsePrizeToStr(metaSorter["active_auctions"], hideCoins=True),
                     tag=("own", metaSorter['auctClass'].getRarity()) if metaSorter['name'] in ownAuctionIDs else (
                     "auc", metaSorter['auctClass'].getRarity())
                 )
@@ -2880,7 +2882,7 @@ class AuctionHousePage(CustomPage):
                 pName = None
                 if auct.getCreatorUUID() in ownAuctionUUIDs.keys():  # own Auction
                     pName = ownAuctionUUIDs[auct.getCreatorUUID()]
-                estimatedPrice, desc = calculateEstimatedItemValue(auct, not self.estmUseOfferC.getState(), lowestBin)
+                estimatedPrice, desc, data = calculateEstimatedItemValue(auct, not self.estmUseOfferC.getState(), lowestBin)
                 estimatedPriceDiff = "Could not be calculated!"
                 if estimatedPrice is not None:
                     estimatedPriceDiff = estimatedPrice - auct.getPrice()
@@ -2911,9 +2913,9 @@ class AuctionHousePage(CustomPage):
 
                 self.treeView.addEntry(
                     auct["display_name"],
-                    prizeToStr(auct["bin_price"]),
+                    parsePrizeToStr(auct["bin_price"]),
                     "ENDED" if auct["ending_in"] <= 0 else parseTimeFromSec(auct["ending_in"]),
-                    prizeToStr(auct["estimated_price_diff"], forceSign=True),
+                    parsePrizeToStr(auct["estimated_price_diff"], forceSign=True),
                     tag=self.getTags(auct["auctClass"].getRarity(), type_, estimatedPrice_),
                 )
             self.treeView.see(-1)
@@ -2944,9 +2946,9 @@ class AuctionHousePage(CustomPage):
                 self.shownAuctions.append(auct["auctClass"])
                 self.treeView.addEntry(
                     auct["display_name"],
-                    prizeToStr(auct["price"]),
+                    parsePrizeToStr(auct["price"]),
                     "ENDED" if auct["ending_in"] <= 0 else parseTimeFromSec(auct["ending_in"]),
-                    prizeToStr(auct["bids"], hideCoins=True),
+                    parsePrizeToStr(auct["bids"], hideCoins=True),
                     tag=("own", auct['auctClass'].getRarity()) if auct["isOwn"] else (
                     "auc", auct['auctClass'].getRarity())
                 )
@@ -2970,9 +2972,6 @@ class AuctionHousePage(CustomPage):
             self.treeView.setFgColorByTag(k, v)
         self.treeView.setFgColorByTag("good_price", "green")
         self.treeView.setFgColorByTag("bad_price", "red")
-
-
-
     def closeToolTip(self):
         if self.itemToolTip is not None:
             self.itemToolTip.close()
@@ -3108,17 +3107,17 @@ class PestProfitPage(CustomPage):
 
         self.commonList.add(f"{sorter['itemID']}")
         self.commonList.add(f"Amount-Per-Pest: {sorter['amount']}")
-        self.commonList.add(f"Sell-Price: {prizeToStr(sorter['profitCommonSingle'])}")
-        self.commonList.add(f"Sell-Price-x{sorter['amount']}: {prizeToStr(sorter['profitCommon'])}")
+        self.commonList.add(f"Sell-Price: {parsePrizeToStr(sorter['profitCommonSingle'])}")
+        self.commonList.add(f"Sell-Price-x{sorter['amount']}: {parsePrizeToStr(sorter['profitCommon'])}")
 
-        self.fullProfit.setText(f"Profit per Pest: {prizeToStr(sorter['profit'])}")
+        self.fullProfit.setText(f"Profit per Pest: {parsePrizeToStr(sorter['profit'])}")
 
         for sorter in sorter["profitRareSorter"]:
             self.rareList.add(f"{sorter['itemID']}")
             self.rareList.add(f"Chance: {round(sorter['raw_chance'], 2)}% -> {round(sorter['chance'], 2)}%")
             self.rareList.add(f"Average-Pests: {round(sorter['rawAverageNeededPestsForARareDrop'], 2)} -> {round(sorter['averageNeededPestsForARareDrop'], 2)}")
-            self.rareList.add(f"Sell-Price: {prizeToStr(sorter['profit_full'])}")
-            self.rareList.add(f"Sell-Price / Pest: {prizeToStr(sorter['profit'])}")
+            self.rareList.add(f"Sell-Price: {parsePrizeToStr(sorter['profit_full'])}")
+            self.rareList.add(f"Sell-Price / Pest: {parsePrizeToStr(sorter['profit'])}")
             self.rareList.add(f"")
             self.rareList.add(f"")
     def updateTreeView(self):
@@ -3267,7 +3266,7 @@ class PestProfitPage(CustomPage):
         for sorter in metaSorters:
             self.treeView.addEntry(
                 sorter["pestName"],
-                prizeToStr(sorter["profit"])
+                parsePrizeToStr(sorter["profit"])
             )
     def onShow(self, **kwargs):
         self.master.updateCurrentPageHook = self.onSelect  # hook to update tv on new API-Data available
@@ -3396,7 +3395,7 @@ class MagicFindCalculatorPage(CustomPage):
 
         newChance = baseChance * (1+(magicFind/100)+add)
 
-        self.toKillE.setText(f"Actions till drop: {prizeToStr(round(1/newChance, 2), True)}")
+        self.toKillE.setText(f"Actions till drop: {parsePrizeToStr(round(1 / newChance, 2), True)}")
         self.chanceE.setText(f"Chance: {round(newChance*100, 5)}%")
     def onShow(self, **kwargs):
         self.master.updateCurrentPageHook = self.onUpdate  # hook to update tv on new API-Data available
@@ -3461,9 +3460,9 @@ class ItemPriceTrackerPage(CustomPage):
             if sorter["ID"].startswith("ENCHANTMENT_") and filterEnchantments: continue
             self.manipulationTrackers.treeView.addEntry(
                 sorter["ID"],
-                prizeToStr(sorter["buyOrderPrice"], True),
-                prizeToStr(sorter["sellOrderPrice"], True),
-                prizeToStr(sorter["priceDifference"], True) + ("" if sorter["priceDifferenceChance"] == 0 else f" ({prizeToStr(sorter['priceDifferenceChance'], True, True)})"),
+                parsePrizeToStr(sorter["buyOrderPrice"], True),
+                parsePrizeToStr(sorter["sellOrderPrice"], True),
+                parsePrizeToStr(sorter["priceDifference"], True) + ("" if sorter["priceDifferenceChance"] == 0 else f" ({parsePrizeToStr(sorter['priceDifferenceChance'], True, True)})"),
                 parseTimeFromSec(time()-_time),
 
                 tag=sorter["manipulatedState"]
@@ -3486,9 +3485,9 @@ class ItemPriceTrackerPage(CustomPage):
             if sorter["ID"].startswith("ENCHANTMENT_") and filterEnchantments: continue
             self.crashTrackers.treeView.addEntry(
                 sorter["ID"],
-                prizeToStr(sorter["buyOrderPrice"], True),
-                prizeToStr(sorter["sellOrderPrice"], True),
-                prizeToStr(sorter["priceDifference"], True) + ("" if sorter["priceDifferenceChance"] == 0 else f" ({prizeToStr(sorter['priceDifferenceChance'], True, True)})"),
+                parsePrizeToStr(sorter["buyOrderPrice"], True),
+                parsePrizeToStr(sorter["sellOrderPrice"], True),
+                parsePrizeToStr(sorter["priceDifference"], True) + ("" if sorter["priceDifferenceChance"] == 0 else f" ({parsePrizeToStr(sorter['priceDifferenceChance'], True, True)})"),
                 parseTimeFromSec(time() - _time),
                 tag=sorter["crashedState"]
             )
@@ -3940,7 +3939,7 @@ class AccessoryBuyHelperPage(CustomPage):
             "PIGGY_BANK"
         ]
         isPiggyPreset = False
-        budget = parsePrice(self.investEntry.getValue())
+        budget = parsePriceFromStr(self.investEntry.getValue())
         filterNotBuyableCheck = self.filterNotBuyableCheck.getState()
 
         recomb = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID("RECOMBOBULATOR_3000")
@@ -4035,7 +4034,7 @@ class AccessoryBuyHelperPage(CustomPage):
             for i, sorter in enumerate(sorters[::-1][remaingSlots+1:]):
                 jacobusSlotPrice = self.jacobusPricesConfig[data["jacobus"] + 1 + i//2] / 2
                 sorter["price"] = sorter["price"]+jacobusSlotPrice
-                sorter["action"] += f" & buy Slot ({prizeToStr(jacobusSlotPrice)})"
+                sorter["action"] += f" & buy Slot ({parsePrizeToStr(jacobusSlotPrice)})"
                 sorter["pricePerMP"] = sorter["price"] / sorter["powder"]
                 sorter["slots"] = (1, jacobusSlotPrice)
 
@@ -4133,7 +4132,7 @@ class AccessoryBuyHelperPage(CustomPage):
                 slotPrice += acc["slots"][1]
             if budget is not None and costAll > budget: break # TODO recomb price not included
 
-            self.treeView.addEntry(acc["id"], acc["action"], prizeToStr(acc["price"]), prizeToStr(acc["pricePerMP"]))
+            self.treeView.addEntry(acc["id"], acc["action"], parsePrizeToStr(acc["price"]), parsePrizeToStr(acc["pricePerMP"]))
 
         if not powderAll:
             self.powderPlusLabel.setFg(Color.COLOR_WHITE)
@@ -4141,9 +4140,9 @@ class AccessoryBuyHelperPage(CustomPage):
             self.powderPlusLabel.setFg(tk.Color.GREEN)
 
         self.powderPlusLabel.setText(f"Powder Gain: +{powderAll}")
-        self.recombLabel.setText(f"Recombs: +{recombCount} ({prizeToStr(recombPrice*recombCount)})")
-        self.slotsLabel.setText(f"Slots: +{slotCount} ({prizeToStr(slotPrice)})")
-        self.totalLabel.setText(f"Total: {prizeToStr(costAll)}")
+        self.recombLabel.setText(f"Recombs: +{recombCount} ({parsePrizeToStr(recombPrice * recombCount)})")
+        self.slotsLabel.setText(f"Slots: +{slotCount} ({parsePrizeToStr(slotPrice)})")
+        self.totalLabel.setText(f"Total: {parsePrizeToStr(costAll)}")
         self.newTotalPowderLabel.setText(f"New Total Powder: {powderAll+powderAllOld}")
     def onShow(self, **kwargs):
         self.master.updateCurrentPageHook = self.updateHelper  # hook to update tv on new API-Data available
@@ -4171,7 +4170,7 @@ class MedalTransferProfitPage(CustomPage):
         self.ticketAvgLabel = tk.Label(self.contentFrame, SG).setTextOrientation()
         self.ticketAvgLabel.setFont(16)
         if "JACOBS_TICKET" in ConfigFile.AVERAGE_PRICE.keys():
-            self.ticketAvgLabel.setText(prizeToStr(ConfigFile.AVERAGE_PRICE["JACOBS_TICKET"]))
+            self.ticketAvgLabel.setText(parsePrizeToStr(ConfigFile.AVERAGE_PRICE["JACOBS_TICKET"]))
         else:
             self.ticketAvgLabel.setText("None")
         self.ticketAvgLabel.placeRelative(fixWidth=200, fixHeight=25, fixY=75)
@@ -4229,7 +4228,7 @@ class MedalTransferProfitPage(CustomPage):
             tk.SimpleDialog.askError(self.master, "Another API-Request is still running!")
     def updatePrice(self):
         if "JACOBS_TICKET" in ConfigFile.AVERAGE_PRICE.keys():
-            self.ticketAvgLabel.setText(prizeToStr(ConfigFile.AVERAGE_PRICE["JACOBS_TICKET"]))
+            self.ticketAvgLabel.setText(parsePrizeToStr(ConfigFile.AVERAGE_PRICE["JACOBS_TICKET"]))
         else:
             self.ticketAvgLabel.setText("None")
         self.updateTreeView()
@@ -4244,7 +4243,7 @@ class MedalTransferProfitPage(CustomPage):
             tk.SimpleDialog.askError(self.master, "Could not parse Ticket Prices!")
             return
         ticketPrice = ticket.getInstaSellPrice() + .1
-        self.ticketLabel.setText(prizeToStr(ticketPrice))
+        self.ticketLabel.setText(parsePrizeToStr(ticketPrice))
         if "JACOBS_TICKET" in ConfigFile.AVERAGE_PRICE.keys():
             if ConfigFile.AVERAGE_PRICE["JACOBS_TICKET"] > ticketPrice:
                 self.ticketLabel.setFg("green")
@@ -4306,7 +4305,7 @@ class MedalTransferProfitPage(CustomPage):
             )
         sorters.sort()
         for sorter in sorters:
-            self.treeView.addEntry(sorter["id"], sorter["strPrice"], prizeToStr(sorter["profit"]), prizeToStr(sorter["profitPerMedal"]), prizeToStr(sorter["lbPrice"]))
+            self.treeView.addEntry(sorter["id"], sorter["strPrice"], parsePrizeToStr(sorter["profit"]), parsePrizeToStr(sorter["profitPerMedal"]), parsePrizeToStr(sorter["lbPrice"]))
     def onShow(self, **kwargs):
         self.placeRelative()
         self.placeContentFrame()
@@ -4377,8 +4376,8 @@ class ForgeProfitTrackerPage(CustomPage):
             self.treeView.addEntry(
                 sorter["outputID"],
                 sorter["inputStr"],
-                prizeToStr(sorter["buyPrice"]),
-                prizeToStr(sorter["sellPrice"]),
+                parsePrizeToStr(sorter["buyPrice"]),
+                parsePrizeToStr(sorter["sellPrice"]),
                 parseTimeFromSec(sorter["forgeTime"])
             )
     def onShow(self, **kwargs):
@@ -4472,14 +4471,479 @@ class BoosterCookieBitsProfit(CustomPage):
         for sorter in sorters:
             self.treeView.addEntry(
                 sorter["ID"],
-                prizeToStr(sorter["COINS_PER_BIT"]),
-                prizeToStr(sorter["COOKIE_PROFIT"]),
-                prizeToStr(sorter["SELL_PRICE"]),
+                parsePrizeToStr(sorter["COINS_PER_BIT"]),
+                parsePrizeToStr(sorter["COOKIE_PROFIT"]),
+                parsePrizeToStr(sorter["SELL_PRICE"]),
                 str(round(sorter["SELL_AMOUNT"], 1)),
                 tag=sorter["SHOP_TYPE"],
             )
         self.treeView.setBgColorByTag("AUCTION", tk.Color.rgb(138, 90, 12))
         self.treeView.setBgColorByTag("BAZAAR", tk.Color.rgb(22, 51, 45))
+    def onShow(self, **kwargs):
+        self.placeRelative()
+        self.placeContentFrame()
+        self.master.updateCurrentPageHook = self.updateTreeview
+        self.updateTreeview()
+class BinSniperPage(CustomPage):
+    def __init__(self, master):
+        super().__init__(master, pageTitle="Bin-Sniper", buttonText="Bin Sniper")
+        self.sorters = None
+        self.buyCap = None
+        self.isSideBarOpen = False
+        self.analyzedPetsSet = set()
+        self.flaggedLbinItems = []
+
+        self.treeview = tk.TreeView(self.contentFrame, SG)
+        self.treeview.setSingleSelect()
+        self.treeview.onSingleSelectEvent(self.onSelectEvent)
+        self.treeview.setTableHeaders("Item-ID", "Auctions", "Price", "Estim-Price", "Diff", "Diff-%")
+
+        self.tvRClickMenu = tk.ContextMenu(self.treeview, SG)
+        tk.Button(self.tvRClickMenu).setText("Request Average Price").setCommand(self.requestAverage)
+        self.tvRClickMenu.create()
+
+        self.sideBarFrame = tk.Frame(self.contentFrame, SG)
+
+        self.tabContr = tk.Notebook(self.sideBarFrame, SG)
+        self.infoFrame = self.tabContr.createNewTab("Item-Info")
+        self.estimFrame = self.tabContr.createNewTab("Estim-Price-Info")
+        self.otherAucFrame = self.tabContr.createNewTab("Other-Auctions")
+        self.settingsFrame = self.tabContr.createNewTab("Settings")
+        self.tabContr.placeRelative()
+        # item Info
+        self.toolTipText = TipText(self.infoFrame, SG, readOnly=True)
+        self.toolTipText.placeRelative()
+        # estm Price
+        self.estmPriceText = tk.Text(self.estimFrame, SG, readOnly=True)
+        self.estmPriceText.placeRelative()
+
+        self.infoOpenBtn = tk.Button(self.contentFrame, SG)
+        self.infoOpenBtn.setCommand(self.toggleSideBarFrame)
+
+        self.closeSideBarBtn = tk.Button(self.sideBarFrame, SG)
+        self.closeSideBarBtn.setCommand(self.closeSideBarFrame)
+        self.closeSideBarBtn.setText("X")
+        self.closeSideBarBtn.setFg("red")
+        self.closeSideBarBtn.placeRelative(stickRight=True, fixWidth=25, fixHeight=25)
+        # other auc
+        self.otherAucTreeView = tk.TreeView(self.otherAucFrame, SG)
+        self.otherAucTreeView.setTableHeaders("Display-Name", "BIN-Price", "Ending-In", "Estimated-Price")
+        self.otherAucTreeView.placeRelative()
+
+        # settings
+        self.isInstaBuySelect = tk.Checkbutton(self.settingsFrame, SG)
+        self.isInstaBuySelect.setText("Use Insta Buy")
+        self.isInstaBuySelect.onSelectEvent(self.updateTreeview)
+        self.isInstaBuySelect.place(0, 0, 250, 25)
+
+        self.filterAutoRecomb = tk.Checkbutton(self.settingsFrame, SG)
+        self.filterAutoRecomb.setText("Filter Auto Recomb")
+        self.filterAutoRecomb.onSelectEvent(self.updateTreeview)
+        self.filterAutoRecomb.place(250, 0, 250, 25)
+
+        self.capBuyPrice = tk.TextEntry(self.settingsFrame, SG)
+        self.capBuyPrice.setText("Cap Buy-Price:")
+        self.capBuyPrice.place(0, 25, 200, 25)
+
+        self.capBuySet = tk.Button(self.settingsFrame, SG)
+        self.capBuySet.setText("Set")
+        self.capBuySet.setCommand(self.buyCapSet)
+        self.capBuySet.place(200, 25, 50, 25)
+
+        self.blacklistFrame = tk.LabelFrame(self.settingsFrame, SG)
+        self.blacklistFrame.setText("Blacklist")
+        self.blacklistFrame.place(0, 150, 500, 325+20)
+
+        self.blacklistList = tk.Listbox(self.blacklistFrame, SG)
+        self.blacklistList.place(0, 0, 495, 300)
+        self.updateBlacklistBox()
+
+        self.blacklistAdd = tk.Button(self.blacklistFrame, SG)
+        self.blacklistAdd.setCommand(self.addSelectedToBlacklist)
+        self.blacklistAdd.setText("Add Selected")
+        self.blacklistAdd.place(0, 300, 163, 25)
+
+        self.blacklistRem = tk.Button(self.blacklistFrame, SG)
+        self.blacklistRem.setCommand(self.removeSelectedFromBlacklist)
+        self.blacklistRem.setText("Remove Selected")
+        self.blacklistRem.place(163, 300, 163, 25)
+
+        self.blacklistEn = tk.Checkbutton(self.blacklistFrame, SG)
+        self.blacklistEn.setText("Enable")
+        self.blacklistEn.onSelectEvent(self.updateTreeview)
+        self.blacklistEn.setSelected()
+        self.blacklistEn.place(163*2, 300, 163, 25)
+
+        self.closeSideBarFrame()
+    def addSelectedToBlacklist(self):
+        sel = self.treeview.getSelectedIndex()
+        if sel is None: return
+        sorter = self.sorters[sel]
+        id_ = sorter["id"]
+        if id_ in Config.SETTINGS_CONFIG["bin_sniper_blacklist"]:
+            return
+        self.blacklistEn.setState(False)
+        Config.SETTINGS_CONFIG["bin_sniper_blacklist"].append(id_)
+        Config.SETTINGS_CONFIG.save()
+        self.updateBlacklistBox()
+    def removeSelectedFromBlacklist(self):
+        sel = self.blacklistList.getSelectedItem()
+        if sel is None: return
+        self.blacklistEn.setState(False)
+        if sel not in Config.SETTINGS_CONFIG["bin_sniper_blacklist"]:
+            return
+        self.blacklistEn.setState(False)
+        Config.SETTINGS_CONFIG["bin_sniper_blacklist"].remove(sel)
+        Config.SETTINGS_CONFIG.save()
+        self.updateBlacklistBox()
+    def updateBlacklistBox(self):
+        self.blacklistList.clear()
+        self.blacklistList.addAll(Config.SETTINGS_CONFIG["bin_sniper_blacklist"])
+    def buyCapSet(self):
+        self.buyCap = None
+        value = self.capBuyPrice.getValue()
+        if value == "": return
+        price = parsePriceFromStr(value)
+        if price is None: return
+        self.buyCap = price
+        self.updateTreeview()
+    def toggleSideBarFrame(self):
+        self.isSideBarOpen = not self.isSideBarOpen
+        if not self.isSideBarOpen:
+            self.closeSideBarFrame()
+            return
+        self.openSideBarFrame()
+    def openSideBarFrame(self):
+        self.sideBarFrame.placeRelative(fixWidth=500, stickRight=True)
+        self.infoOpenBtn.setText(">")
+        self.infoOpenBtn.placeRelative(stickRight=True, fixHeight=50, fixWidth=25, changeX=-500, centerY=True)
+        self.treeview.placeRelative(changeWidth=-500)
+        self.contentFrame.updateRelativePlace()
+    def closeSideBarFrame(self):
+        self.sideBarFrame.placeForget()
+        self.infoOpenBtn.setText("<")
+        self.infoOpenBtn.placeRelative(stickRight=True, fixHeight=50, fixWidth=25, centerY=True)
+        self.treeview.placeRelative()
+    def updateTreeview(self):
+        self.otherAucTreeView.clear()
+        self.toolTipText.clear()
+        self.estmPriceText.clear()
+        self.treeview.clear()
+        self.flaggedLbinItems = []
+        petItemCache = {}
+        if API.SKYBLOCK_AUCTION_API_PARSER is None:
+            tk.SimpleDialog.askError(self.master, "Cannot calculate! No API data available!")
+            return
+        if API.SKYBLOCK_BAZAAR_API_PARSER is None:
+            tk.SimpleDialog.askError(self.master, "Cannot calculate! No API data available!")
+            return
+        recombPrice = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID("RECOMBOBULATOR_3000")
+        if recombPrice is None:
+            tk.SimpleDialog.askError(self.master, "Cannot calculate! Recomb-Price is None")
+            return
+        isOrder = not self.isInstaBuySelect.getState()
+        hideAutoRecomb = not self.filterAutoRecomb.getState()
+        isBlacklist = self.blacklistEn.getState()
+        if isOrder:
+            recombPrice = recombPrice.getInstaSellPrice()
+        else:
+            recombPrice = recombPrice.getInstaBuyPrice()
+
+        sorters = []
+        for id_, aucts in zip(*API.SKYBLOCK_AUCTION_API_PARSER.getBinTypeAndAuctions()):
+
+            if len(aucts) < 5: continue
+
+            lbin, lbinPrice = self.getCustomLbinPrice(id_, isOrder)
+            if lbinPrice is None: continue
+            for auction in aucts:
+                if auction.isPet():
+                    sorters.extend(self.analyzePets(auction.getID(), False, petItemCache)) # add force later
+                    continue
+
+                estimPrice, desc, data = calculateEstimatedItemValue(auction, isOrder, lbinPrice)
+                price = auction.getPrice()
+                if estimPrice is None:
+                    MsgText.warning(f"Estim Price for {auction.getID()} is None. Skip")
+                    continue
+                if estimPrice - price < 0: continue
+
+                if isBlacklist and id_ in Config.SETTINGS_CONFIG["bin_sniper_blacklist"]: continue
+                if self.buyCap is not None and price > self.buyCap: continue
+
+                autoRecomb = "auto_recombed" in data.keys()
+                if autoRecomb and price + recombPrice + 200_000 < estimPrice:
+                    autoRecomb = False
+                if autoRecomb and hideAutoRecomb:
+                    continue
+
+                sorters.append(
+                    Sorter(
+                        sortKey="diff",
+
+                        lowestBin=lbinPrice,
+                        desc=desc,
+                        id=auction.getID(),
+                        estim=estimPrice,
+                        price=price,
+                        diff=estimPrice - price,
+                        diffPerc=round((estimPrice/price)*100, 1),
+                        clazz=auction,
+                        auctions=len(aucts),
+
+                        autoRecombed=autoRecomb
+                    )
+                )
+        sorters.sort()
+        self.sorters = sorters
+        for sorter in sorters:
+            self.treeview.addEntry(
+                sorter["clazz"].getDisplayName(),
+                sorter["auctions"],
+                parsePrizeToStr(sorter["price"]),
+                parsePrizeToStr(sorter["estim"]),
+                parsePrizeToStr(sorter["diff"], forceSign=True),
+                str(sorter["diffPerc"]) + " %",
+                #tag="auto_recombed" if sorter["autoRecombed"] else ""
+            )
+        #self.treeview.setBgColorByTag("auto_recombed", "green")
+    def onSelectEvent(self, e:tk.Event):
+        self.otherAucTreeView.clear()
+        sel = self.treeview.getSelectedIndex()
+        if sel is None: return
+        sorter = self.sorters[sel]
+        self.toolTipText.clear()
+        fillToolTipText(self.toolTipText, sorter["clazz"])
+        self.estmPriceText.clear()
+        self.estmPriceText.addText(sorter["desc"])
+
+        lowestBin = sorter["lowestBin"]
+        binAuctions = API.SKYBLOCK_AUCTION_API_PARSER.getBINAuctionByID(sorter["id"])
+
+        sorters = []
+        for auct in binAuctions:
+            estimatedPrice, desc, data = calculateEstimatedItemValue(auct, not self.isInstaBuySelect.getState(), lowestBin)
+            estimatedPriceDiff = "Could not be calculated!"
+            if estimatedPrice is not None:
+                estimatedPriceDiff = estimatedPrice - auct.getPrice()
+            sorters.append(
+                Sorter(
+                    sortKey="bin_price",
+
+                    display_name=auct.getDisplayName(),
+                    bin_price=auct.getPrice(),
+                    ending_in=parseTimeDelta(auct.getEndIn()).toSeconds(),
+                    auctClass=auct,
+                    estimated_price=estimatedPrice,
+                    estimated_price_diff=estimatedPriceDiff,
+                    uuid=auct.getUUID(),
+                )
+            )
+
+        sorters.sort()
+
+        for auct in sorters:
+
+            tags = [auct["auctClass"].getRarity()]
+            if auct["uuid"] == sorter["clazz"].getUUID():
+                tags.append("this")
+
+            self.otherAucTreeView.addEntry(
+                auct["display_name"],
+                parsePrizeToStr(auct["bin_price"]),
+                "ENDED" if auct["ending_in"] <= 0 else parseTimeFromSec(auct["ending_in"]),
+                parsePrizeToStr(auct["estimated_price_diff"], forceSign=True),
+                tag=tuple(tags),
+            )
+        for k, v in iterDict(RARITY_COLOR_CODE):
+            self.otherAucTreeView.setFgColorByTag(k, v)
+        self.otherAucTreeView.setBgColorByTag("this", "green")
+    def analyzePets(self, id_:str, force:bool=False, petItemsCache:dict=None)->List[Sorter]:
+        if petItemsCache is None: petItemsCache = {}
+        def getPetItemPrice(itemID:str | None)->float:
+            if itemID is None: return 0
+            if itemID in petItemsCache.keys():
+                return petItemsCache[itemID]
+            if itemID in NPC_BUYABLE_PET_ITEMS:
+                return NPC_BUYABLE_PET_ITEMS[itemID]
+            lbin = getLBin(itemID)
+            if lbin is None: 
+                MsgText.warning(f"Could not get PetItem price {itemID}. Using Zero.")
+                return 0
+            price = lbin.getPrice()
+            petItemsCache[itemID] = price
+            return price
+        def capPetXP(xp:float, itemID:str, rarity:str)->float:
+            if itemID in CUSTOM_PET_XP_MAX.keys():
+                maxXP = CUSTOM_PET_XP_MAX[itemID]
+            else:
+                maxXP = PET_XP_MAX[rarity]
+            if xp < maxXP:
+                return xp
+            return maxXP
+
+        if id_ in self.analyzedPetsSet and not force:
+            return []
+        self.analyzedPetsSet.add(id_)
+
+        rarityToPetMap = {}
+        for auction in API.SKYBLOCK_AUCTION_API_PARSER.getBINAuctionByID(id_):
+            rarity = auction.getPetRarity()
+            if rarity not in rarityToPetMap.keys():
+                rarityToPetMap[rarity] = []
+            rarityToPetMap[rarity].append(
+                Sorter(
+                    sortKey="pet_lvl",
+
+                    lowestBin=None,
+                    desc="",
+                    id=auction.getID(),
+                    price=auction.getPrice(),
+                    estim=None,
+                    diff=None, #estimPrice - price
+                    diffPerc=None, #round((estimPrice / price) * 100, 1)
+                    clazz=auction,
+                    auctions=None,
+
+                    pet_lvl=auction.getPetLevel(),
+
+                    autoRecombed=False,
+                )
+            )
+        for pets in rarityToPetMap.values():
+            pets.sort()
+        for rarity, pets in iterDict(rarityToPetMap):
+            if len(pets) < 3:
+                MsgText.warning(f"Cannot calc Estm Value from pet {id_} with rarity {rarity} only [{len(pets)}] active Auctions. Skip.")
+                continue
+            smallestLvl = None
+            biggestLvl = None
+            for pet in pets:
+                pet["auctions"] = len(pets)
+                if biggestLvl is None or pet["clazz"].getPetLevel() > biggestLvl["clazz"].getPetLevel():
+                    biggestLvl = pet
+                if smallestLvl is None or pet["clazz"].getPetLevel() < smallestLvl["clazz"].getPetLevel():
+                    smallestLvl = pet
+
+            smallestPrice = smallestLvl["clazz"].getPrice() - getPetItemPrice(smallestLvl["clazz"].getPetItem())
+            biggestPrice = biggestLvl["clazz"].getPrice() - getPetItemPrice(biggestLvl["clazz"].getPetItem())
+            smallestLvlXP = capPetXP(smallestLvl["clazz"].getPetExp(), id_, rarity)
+            biggestLvlXP = capPetXP(biggestLvl["clazz"].getPetExp(), id_, rarity)
+            for pet in pets:
+                if biggestLvl != smallestLvl:
+                    estimCost = _map(
+                        capPetXP(pet["clazz"].getPetExp(), id_, rarity),
+                        smallestLvlXP,
+                        biggestLvlXP,
+                        smallestPrice,
+                        biggestPrice
+                    )
+                else:
+                    estimCost = smallestPrice
+                petItemPrice = getPetItemPrice(pet["clazz"].getPetItem())
+                estimCost += petItemPrice
+                
+                pet["desc"] = f"{pet['id']} [{pet['clazz'].getPetLevel()}] ({pet['clazz'].getPetRarity()})\n\nBase-Pet: {smallestLvl['clazz'].getID()}[{smallestLvl['clazz'].getPetLevel()}]"
+                pet["desc"] += f"\t{parsePrizeToStr(smallestLvl['clazz'].getPrice())}\n"
+                if smallestLvl['clazz'].getPetItem() is not None:
+                    pet["desc"] += f"PetItem: {smallestLvl['clazz'].getPetItem()}"
+                    pet["desc"] += f"\t{parsePrizeToStr(getPetItemPrice(smallestLvl['clazz'].getPetItem()))}\n"
+                pet["desc"] += f"Base-Total: {parsePrizeToStr(smallestPrice)}\n\n"
+
+                pet["desc"] += f"Highest-Pet: {biggestLvl['clazz'].getID()} [{biggestLvl['clazz'].getPetLevel()}]"
+                pet["desc"] += f"\t{parsePrizeToStr(biggestLvl['clazz'].getPrice())}\n"
+                if biggestLvl['clazz'].getPetItem() is not None:
+                    pet["desc"] += f"PetItem: {biggestLvl['clazz'].getPetItem()}"
+                    pet["desc"] += f"\t{parsePrizeToStr(getPetItemPrice(biggestLvl['clazz'].getPetItem()))}\n"
+                pet["desc"] += f"Base-Total: {parsePrizeToStr(biggestPrice)}\n\n\n"
+
+                pet["desc"] += f"This-Pet: {pet['clazz'].getID()} [{pet['clazz'].getPetLevel()}]"
+                pet["desc"] += f"\t{parsePrizeToStr(estimCost - petItemPrice)}\n"
+                if pet['clazz'].getPetItem() is not None:
+                    pet["desc"] += f"PetItem: {pet['clazz'].getPetItem()}"
+                    pet["desc"] += f"\t+{parsePrizeToStr(getPetItemPrice(pet['clazz'].getPetItem()))}\n"
+                pet["desc"] += f"Total: {parsePrizeToStr(estimCost)}\n\n"
+                    
+                pet["estim"] = estimCost
+                pet["diff"] = estimCost - pet["price"]
+                pet["diffPerc"] = round((estimCost / pet["price"]) * 100, 1)
+        temp = []
+        for pets in rarityToPetMap.values():
+            temp.extend(pets)
+        return temp
+    def getCustomLbinPrice(self, itemID:str, isOrder:bool) -> Tuple[BINAuctionProduct, float] | Tuple[None, None]:
+        # get average from file if available
+        if itemID in ConfigFile.AVERAGE_PRICE.keys():
+            return None, ConfigFile.AVERAGE_PRICE[itemID]
+
+        lBinList = getLBinList(itemID)
+
+        if len(lBinList) < 5:
+            MsgText.warning(f"LBIN from {itemID} cannot be calculated! Too few Data! Skipping.")
+            return None, None
+
+        lowestBin1 = lBinList[-1]["bin_price"] - calculateUpgradesPrice(lBinList[-1]["auctClass"], isOrder)[0]
+        lowestBin2 = lBinList[-2]["bin_price"] - calculateUpgradesPrice(lBinList[-2]["auctClass"], isOrder)[0]
+        lowestBin3 = lBinList[-3]["bin_price"] - calculateUpgradesPrice(lBinList[-3]["auctClass"], isOrder)[0]
+        # if negative ignore upgrades
+        if lowestBin1 < 0 or lowestBin2 < 0 or lowestBin3 < 0:
+            lowestBin1 = lBinList[-1]["bin_price"]
+            lowestBin2 = lBinList[-2]["bin_price"]
+            lowestBin3 = lBinList[-3]["bin_price"]
+        # flag if cannot determine which price
+        if lowestBin1 * 1.5 < lowestBin2 or lowestBin2 * 1.5 < lowestBin3:
+            self.flaggedLbinItems.append(itemID)
+            print(itemID, len(self.flaggedLbinItems))
+            return None, None
+
+        return lBinList[-1]["auctClass"], lowestBin1
+    def requestAverage(self):
+        def request():
+            try:
+                historyData = SkyConflnetAPI.getAuctionHistoryWeek(id_)._data
+                Constants.WAITING_FOR_API_REQUEST = True
+            except APIConnectionError as e:
+                throwAPIConnectionException(
+                    source="SkyCoflnet",
+                    master=self.master,
+                    event=e
+                )
+                Constants.WAITING_FOR_API_REQUEST = False
+                return None
+            except NoAPIKeySetException as e:
+                throwNoAPIKeyException(
+                    source="SkyCoflnet",
+                    master=self.master,
+                    event=e
+                )
+                Constants.WAITING_FOR_API_REQUEST = False
+                return None
+            except APITimeoutException as e:
+                throwAPITimeoutException(
+                    source="SkyCoflnet",
+                    master=self.master,
+                    event=e
+                )
+                Constants.WAITING_FOR_API_REQUEST = False
+                return None
+            temp = []
+            for entry in historyData:
+                temp.append(entry["min"])
+            temp.sort()
+            ConfigFile.AVERAGE_PRICE[id_] = getMedianFromList(temp)
+            print("Add")
+            self.master.runTask(self.updateTreeview).start()
+            self.master.runTask(self.saveAverage).start()
+
+        if not Constants.WAITING_FOR_API_REQUEST:
+            selected = self.treeview.getSelectedIndex()
+            if selected is None: return
+            id_ = self.sorters[selected]["clazz"].getID()
+
+            Constants.WAITING_FOR_API_REQUEST = True
+            Thread(target=request).start()
+    def saveAverage(self):
+        ConfigFile.AVERAGE_PRICE.saveConfig()
     def onShow(self, **kwargs):
         self.placeRelative()
         self.placeContentFrame()
@@ -4803,6 +5267,7 @@ class Window(tk.Tk):
                 ItemPriceTrackerPage(self),
                 PestProfitPage(self),
                 MayorInfoPage(self),
+                BinSniperPage(self),
                 BazaarFlipProfitPage(self),
                 AlchemyXPCalculatorPage(self),
                 BazaarCraftProfitPage(self),

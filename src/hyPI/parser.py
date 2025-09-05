@@ -187,6 +187,9 @@ def convertAuctionNameToID(data:dict)->dict:
         # gemstones
         "applied_gem_stones": appliedGemstones,
         "unlocked_slots":unlockedSlots,
+        # midas
+        "winning_bid": check("winning_bid", None),
+        "additional_coins": check("additional_coins", None),
         # misc
         "year_obtained": check("yearObtained", None),
         "cake_year": check("new_years_cake", None),
@@ -217,10 +220,10 @@ class BazaarHistoryProduct:
 
     def getTimestamp(self)->dt: return getTimezone(self._data.get("timestamp", None))
 class BazaarHistory:
-    def __init__(self, data, range_):
+    def __init__(self, data, _range):
         #if isinstance(data, Error):
 
-        self._range = range_
+        self._range = _range
         self._data = data
         self._slots = self._parseTimeSlots(data)
     def __getitem__(self, item):
@@ -240,9 +243,9 @@ class AuctionHistoryProduct:
     def getVolume(self): return self._data["volume"]
     def getTimestamp(self)->dt: return getTimezone(self._data["time"])
 class AuctionHistory:
-    def __init__(self, data, range_):
+    def __init__(self, data, _range):
         self._data = data
-        self._range = range_
+        self._range = _range
         self._slots = self._parseTimeSlots(data)
     def __getitem__(self, item):
         return self._slots[item]
@@ -557,6 +560,8 @@ class BaseAuctionProduct:
         return self._itemData["candy_used"]
     def getPetExp(self)->float:
         return self._itemData["exp"]
+    def getPetRarity(self)->str:
+        return self._itemData["pet_rarity"]
     # stats
     def isBookOfStatsApplied(self)->bool:
         return self._itemData["isStatsBook"]
@@ -636,6 +641,11 @@ class BaseAuctionProduct:
         return self._itemData["applied_gem_stones"]
     def getUnlockedSlots(self)->List[str]:
         return self._itemData["unlocked_slots"]
+    # midas
+    def getMidasWinningBid(self)->float | None:
+        return self._itemData["winning_bid"]
+    def getMidasPricePayed(self)->float | None:
+        return self._itemData["additional_coins"]
     # misc
     def getYearObtained(self)->int | None:
         return self._itemData["year_obtained"]
@@ -645,7 +655,8 @@ class BaseAuctionProduct:
         return self._itemData["dye"]
     def getDyeDonated(self)->str | None:
         return self._itemData["dye_donated"]
-
+    def getUUID(self):
+        return self._auctData["uuid"]
 
 
     def getPrice(self)->float:
@@ -661,6 +672,10 @@ class BINAuctionProduct(BaseAuctionProduct):
         return self.getPrice() > other.getPrice()
     def getPrice(self):
         return self._auctData["starting_bid"]
+
+
+
+
 class NORAuctionProduct(BaseAuctionProduct):
     def __init__(self, auctData: dict, itemData: dict):
         super().__init__(auctData, itemData)

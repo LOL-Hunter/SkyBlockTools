@@ -86,7 +86,8 @@ class Config:
         },
         "auction_creator_uuids":{},
         "accessories":{},
-        "player_rank": "New_Player"
+        "player_rank": "New_Player",
+        "bin_sniper_blacklist":[]
     })
     SETTINGS_CONFIG.load("settings.json")
     SettingValue.CONFIG = SETTINGS_CONFIG
