@@ -228,8 +228,8 @@ try:
         b = i.split(b"\\\"")[2]
         if b == b"":
             continue
-        print(b)
-    print(b64decode(oldData))
+        #print(b)
+    #print(b64decode(oldData))
 except: pass
 
 list_ = []
@@ -237,10 +237,10 @@ list_ = []
 for d in sData:
     _data = data.copy()
     _data.update(d)
-    print(_data)
+    #print(_data)
     jsStr = dumps(_data, indent=2)
     jsStr = jsStr.replace("\"", "\\\"")
-    print(repr(jsStr))
+    #print(repr(jsStr))
     list_.append(jsStr)
 
 jsBytes = str(list_).encode().replace(b"\'", b"\"").replace(b"\\\\", b"\\")
@@ -253,8 +253,8 @@ jsBytes = str(list_).encode().replace(b"\'", b"\"").replace(b"\\\\", b"\\")
 
 
 bytes_ = b'NEUBUTTONS/' + jsBytes
-print(bytes_)
+#print(bytes_)
 b64Enc = b64encode(bytes(bytes_))
-
+print(b64Enc.decode())
 copy(b64Enc.decode())
 

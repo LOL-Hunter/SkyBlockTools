@@ -4492,11 +4492,23 @@ class BinSniperPage(CustomPage):
         self.isSideBarOpen = False
         self.analyzedPetsSet = set()
         self.flaggedLbinItems = []
+        self.isLoading = False
+
+        self.sortKey = "lowestBin"
+        self.sortDirec = False
 
         self.treeview = tk.TreeView(self.contentFrame, SG)
         self.treeview.setSingleSelect()
+        self.treeview.onSelectHeader(self.onHeaderSelectEvent)
         self.treeview.onSingleSelectEvent(self.onSelectEvent)
         self.treeview.setTableHeaders("Item-ID", "Auctions", "Price", "Estim-Price", "Diff", "Diff-%")
+
+        self.loadingFrame = tk.Frame(self.contentFrame, SG)
+        self.loadingBar = tk.Progressbar(self.loadingFrame, SG)
+        self.loadingBarLabel = tk.Label(self.loadingFrame, SG)
+        self.loadingBarLabel.setText("Loading Data...")
+        self.loadingBar.placeRelative(fixHeight=25, center=True, xOffset=5)
+        self.loadingBarLabel.placeRelative(fixHeight=25, center=True, changeY=-25)
 
         self.tvRClickMenu = tk.ContextMenu(self.treeview, SG)
         tk.Button(self.tvRClickMenu).setText("Request Average Price").setCommand(self.requestAverage)
@@ -4549,32 +4561,69 @@ class BinSniperPage(CustomPage):
         self.capBuySet.setText("Set")
         self.capBuySet.setCommand(self.buyCapSet)
         self.capBuySet.place(200, 25, 50, 25)
-
+        # Blacklist
         self.blacklistFrame = tk.LabelFrame(self.settingsFrame, SG)
-        self.blacklistFrame.setText("Blacklist")
-        self.blacklistFrame.place(0, 150, 500, 325+20)
+        self.blacklistFrame.setText("Blacklist [0]")
+        self.blacklistFrame.place(0, 150, 500, 225+25)
 
         self.blacklistList = tk.Listbox(self.blacklistFrame, SG)
-        self.blacklistList.place(0, 0, 495, 300)
+        self.blacklistList.place(0, 0, 495, 200)
         self.updateBlacklistBox()
 
         self.blacklistAdd = tk.Button(self.blacklistFrame, SG)
         self.blacklistAdd.setCommand(self.addSelectedToBlacklist)
         self.blacklistAdd.setText("Add Selected")
-        self.blacklistAdd.place(0, 300, 163, 25)
+        self.blacklistAdd.place(0, 200, 163, 25)
 
         self.blacklistRem = tk.Button(self.blacklistFrame, SG)
         self.blacklistRem.setCommand(self.removeSelectedFromBlacklist)
         self.blacklistRem.setText("Remove Selected")
-        self.blacklistRem.place(163, 300, 163, 25)
+        self.blacklistRem.place(163, 200, 163, 25)
 
         self.blacklistEn = tk.Checkbutton(self.blacklistFrame, SG)
         self.blacklistEn.setText("Enable")
         self.blacklistEn.onSelectEvent(self.updateTreeview)
         self.blacklistEn.setSelected()
-        self.blacklistEn.place(163*2, 300, 163, 25)
+        self.blacklistEn.place(163*2, 200, 163, 25)
+        # Flagged
+        self.flaggedFrame = tk.LabelFrame(self.settingsFrame, SG)
+        self.flaggedFrame.setText("Flagged-Items [0]")
+        self.flaggedFrame.place(0, 150+225+25, 500, 225 + 25)
+
+        self.flaggedList = tk.Listbox(self.flaggedFrame, SG)
+        self.flaggedList.place(0, 0, 495, 200)
+
+        self.flaggedAdd = tk.Button(self.flaggedFrame, SG)
+        self.flaggedAdd.setCommand(self.requestSelected)
+        self.flaggedAdd.setText("Request Selected")
+        self.flaggedAdd.place(0, 200, 163, 25)
+
+        self.flaggedRem = tk.Button(self.flaggedFrame, SG)
+        self.flaggedRem.setCommand(self.requestAll)
+        self.flaggedRem.setText("Request All")
+        self.flaggedRem.place(163, 200, 163, 25)
+
+        #self.flaggedEn = tk.Checkbutton(self.flaggedFrame, SG)
+        #self.flaggedEn.setText("Enable")
+        #self.flaggedEn.onSelectEvent(self.updateTreeview)
+        #self.flaggedEn.setSelected()
+        #self.flaggedEn.place(163 * 2, 200, 163, 25)
+        
 
         self.closeSideBarFrame()
+    def requestSelected(self):
+        sel = self.blacklistList.getSelectedItem()
+        if sel is None: return
+        self.requestAverage(itemID=sel)
+        self.updateTreeview()
+    def requestAll(self):
+        max_ = 25
+        items = self.flaggedLbinItems if len(self.flaggedLbinItems) <= max_ else self.flaggedLbinItems[:25]
+
+        for i, item in enumerate(items):
+            self.flaggedFrame.setText(f"Flagged-Items [{len(self.flaggedLbinItems)}] ({i+1}/{len(items)})")
+            self.requestAverage(itemID=item)
+        self.updateTreeview()
     def addSelectedToBlacklist(self):
         sel = self.treeview.getSelectedIndex()
         if sel is None: return
@@ -4594,10 +4643,12 @@ class BinSniperPage(CustomPage):
             return
         self.blacklistEn.setState(False)
         Config.SETTINGS_CONFIG["bin_sniper_blacklist"].remove(sel)
+        self.blacklistFrame.setText(f"Blacklist [{Config.SETTINGS_CONFIG['bin_sniper_blacklist']}]")
         Config.SETTINGS_CONFIG.save()
         self.updateBlacklistBox()
     def updateBlacklistBox(self):
         self.blacklistList.clear()
+        self.blacklistFrame.setText(f"Blacklist [{Config.SETTINGS_CONFIG['bin_sniper_blacklist']}]")
         self.blacklistList.addAll(Config.SETTINGS_CONFIG["bin_sniper_blacklist"])
     def buyCapSet(self):
         self.buyCap = None
@@ -4617,13 +4668,23 @@ class BinSniperPage(CustomPage):
         self.sideBarFrame.placeRelative(fixWidth=500, stickRight=True)
         self.infoOpenBtn.setText(">")
         self.infoOpenBtn.placeRelative(stickRight=True, fixHeight=50, fixWidth=25, changeX=-500, centerY=True)
-        self.treeview.placeRelative(changeWidth=-500)
-        self.contentFrame.updateRelativePlace()
+
+        if not self.isLoading:
+            self.loadingFrame.placeForget()
+            self.treeview.placeRelative(changeWidth=-500)
+        else:
+            self.treeview.placeForget()
+            self.loadingFrame.placeRelative(changeWidth=-500)
     def closeSideBarFrame(self):
         self.sideBarFrame.placeForget()
         self.infoOpenBtn.setText("<")
         self.infoOpenBtn.placeRelative(stickRight=True, fixHeight=50, fixWidth=25, centerY=True)
-        self.treeview.placeRelative()
+        if not self.isLoading:
+            self.loadingFrame.placeForget()
+            self.treeview.placeRelative()
+        else:
+            self.treeview.placeForget()
+            self.loadingFrame.placeRelative()
     def updateTreeview(self):
         self.otherAucTreeView.clear()
         self.toolTipText.clear()
@@ -4650,8 +4711,11 @@ class BinSniperPage(CustomPage):
             recombPrice = recombPrice.getInstaBuyPrice()
 
         sorters = []
-        for id_, aucts in zip(*API.SKYBLOCK_AUCTION_API_PARSER.getBinTypeAndAuctions()):
-
+        typeAndAuc = API.SKYBLOCK_AUCTION_API_PARSER.getBinTypeAndAuctions()
+        self.showLoadingFrame(len(typeAndAuc[0]))
+        for id_, aucts in zip(*typeAndAuc):
+            self.loadingBar.addValue()
+            self.master.update()
             if len(aucts) < 5: continue
 
             lbin, lbinPrice = self.getCustomLbinPrice(id_, isOrder)
@@ -4679,7 +4743,7 @@ class BinSniperPage(CustomPage):
 
                 sorters.append(
                     Sorter(
-                        sortKey="diff",
+                        sortKey=self.sortKey,
 
                         lowestBin=lbinPrice,
                         desc=desc,
@@ -4694,8 +4758,15 @@ class BinSniperPage(CustomPage):
                         autoRecombed=autoRecomb
                     )
                 )
+            self.loadingBar.addValue()
+            self.master.update()
         sorters.sort()
+        if self.sortDirec:
+            sorters.reverse()
         self.sorters = sorters
+        self.flaggedFrame.setText(f"Flagged-Items [{len(self.flaggedLbinItems)}]")
+        self.flaggedList.clear()
+        self.flaggedList.addAll(self.flaggedLbinItems)
         for sorter in sorters:
             self.treeview.addEntry(
                 sorter["clazz"].getDisplayName(),
@@ -4706,6 +4777,7 @@ class BinSniperPage(CustomPage):
                 str(sorter["diffPerc"]) + " %",
                 #tag="auto_recombed" if sorter["autoRecombed"] else ""
             )
+        self.hideLoadingFrame()
         #self.treeview.setBgColorByTag("auto_recombed", "green")
     def onSelectEvent(self, e:tk.Event):
         self.otherAucTreeView.clear()
@@ -4758,6 +4830,24 @@ class BinSniperPage(CustomPage):
         for k, v in iterDict(RARITY_COLOR_CODE):
             self.otherAucTreeView.setFgColorByTag(k, v)
         self.otherAucTreeView.setBgColorByTag("this", "green")
+    def onHeaderSelectEvent(self, e):
+        value = e.getValue()
+        newSortKey = self.sortKey
+        if value == newSortKey:
+            self.sortDirec = not self.sortDirec
+            self.updateTreeview()
+            return
+        if value == "Auctions":
+            newSortKey = "auctions"
+        elif value == "Price":
+            newSortKey = "price"
+        elif value == "Estim-Price":
+            newSortKey = "estim"
+        elif value == "Diff":
+            newSortKey = "diff"
+        if newSortKey != self.sortKey:
+            self.sortKey = newSortKey
+            self.updateTreeview()
     def analyzePets(self, id_:str, force:bool=False, petItemsCache:dict=None)->List[Sorter]:
         if petItemsCache is None: petItemsCache = {}
         def getPetItemPrice(itemID:str | None)->float:
@@ -4893,11 +4983,10 @@ class BinSniperPage(CustomPage):
         # flag if cannot determine which price
         if lowestBin1 * 1.5 < lowestBin2 or lowestBin2 * 1.5 < lowestBin3:
             self.flaggedLbinItems.append(itemID)
-            print(itemID, len(self.flaggedLbinItems))
             return None, None
 
         return lBinList[-1]["auctClass"], lowestBin1
-    def requestAverage(self):
+    def requestAverage(self, e:tk.Event=None, itemID=None):
         def request():
             try:
                 historyData = SkyConflnetAPI.getAuctionHistoryWeek(id_)._data
@@ -4936,14 +5025,33 @@ class BinSniperPage(CustomPage):
             self.master.runTask(self.saveAverage).start()
 
         if not Constants.WAITING_FOR_API_REQUEST:
-            selected = self.treeview.getSelectedIndex()
-            if selected is None: return
-            id_ = self.sorters[selected]["clazz"].getID()
-
+            if itemID is None:
+                selected = self.treeview.getSelectedIndex()
+                if selected is None: return
+                id_ = self.sorters[selected]["clazz"].getID()
+            else:
+                id_ = itemID
             Constants.WAITING_FOR_API_REQUEST = True
             Thread(target=request).start()
     def saveAverage(self):
         ConfigFile.AVERAGE_PRICE.saveConfig()
+    def showLoadingFrame(self, len_):
+        print(len_)
+        self.isLoading = True
+        self.loadingBar.setValues(len_)
+        self.loadingBar.setValue(0)
+        if self.isSideBarOpen:
+            self.openSideBarFrame()
+            return
+        self.closeSideBarFrame()
+    def hideLoadingFrame(self):
+        self.isLoading = False
+        self.loadingFrame.placeForget()
+        if self.isSideBarOpen:
+            self.openSideBarFrame()
+            return
+        self.closeSideBarFrame()
+
     def onShow(self, **kwargs):
         self.placeRelative()
         self.placeContentFrame()
@@ -5027,7 +5135,7 @@ class MainMenuPage(CustomMenuPage):
         self.noSearchInput.placeForget()
     def clearSearch(self):
         self.search.clear()
-        self.noSearchInput.placeRelative(fixY=200 + 12, fixWidth=295, fixHeight=25, centerX=True)
+        self.noSearchInput.placeRelative(fixY=200 + 12, fixWidth=290, fixHeight=25, centerX=True)
         self.placeButtons(self.tools)
     def placeButtons(self, tools):
         for i in self.activeButtons:
@@ -5076,7 +5184,7 @@ class MainMenuPage(CustomMenuPage):
         self.buttonFrame.place(0, self.scrollFramePosY, 300, 50*len(self.tools))
     def onSearch(self):
         if self.search.getValue() == "":
-            self.noSearchInput.placeRelative(fixY=200+12, fixWidth=295, fixHeight=25, centerX=True)
+            self.noSearchInput.placeRelative(fixY=200+12, fixWidth=290, fixHeight=25, centerX=True)
         else:
             self.onSearchClick()
         tools = []
@@ -5379,6 +5487,7 @@ class Window(tk.Tk):
             sleep(5)
             if self.lockInfoLabel: continue
             updateBazaarInfoLabel(API.SKYBLOCK_BAZAAR_API_PARSER, self.isConfigLoadedFromFile)
+            updateAuctionInfoLabel(API.SKYBLOCK_AUCTION_API_PARSER, self.isConfigLoadedFromFile)
     def saveAPIData(self):
         if API.SKYBLOCK_BAZAAR_API_PARSER is not None:
             path = tk.FileDialog.saveFile(self, "SkyBlockTools", types=[".json"])
