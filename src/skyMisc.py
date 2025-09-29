@@ -232,13 +232,13 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
                 for file in _os.listdir(saveTo):
                     delPath = _os.path.join(saveTo, file)
                     _os.remove(delPath)
-            TextColor.printStrf("§INFO§cRequesting 'AUCTION_DATA' from Hypixel-API")
             if useParser is None:
                 assert fileNr is None, "Using New Parser and requesting only one page!"
                 parser = HypixelAuctionParser()
             else:
                 parser = useParser
             if fileNr is None or fileNr == 0:
+                TextColor.printStrf("§INFO§cRequesting 'AUCTION_DATA' from Hypixel-API [page=0]")
                 data = APILoader(HypixelAPIURL.AUCTION_URL,
                                  config.SETTINGS_CONFIG["api_key"],
                                  name=config.SETTINGS_CONFIG["player_name"])
@@ -251,10 +251,10 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
 
             pages = parser.getPages()
             if progBar is not None: progBar.setValues(pages)
-            if fileNr == 0: return
+            if fileNr == 0: return parser
             for page in rangeIfSinleNone(1, pages, fileNr):
                 Constants.WAITING_FOR_API_REQUEST = True
-                TextColor.printStrf(f"§INFO§cRequesting 'AUCTION_DATA' from Hypixel-API [{page+1}]")
+                TextColor.printStrf(f"§INFO§cRequesting 'AUCTION_DATA' from Hypixel-API [page={page}]")
                 data = APILoader(HypixelAPIURL.AUCTION_URL,
                                  config.SETTINGS_CONFIG["api_key"],
                                  name=config.SETTINGS_CONFIG["player_name"],
@@ -266,7 +266,7 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
                 if infoLabel is not None:
                     if infoLabel is not None:
                         if isinstance(infoLabel, tk.Label):
-                            infoLabel.setText(f"Fetching Hypixel Auction API... [{page+1}/{pages}]")
+                            infoLabel.setText(f"Fetching Hypixel Auction API... [{page}/{pages}]")
                         else:
                             infoLabel.executeCommand("setText",f"Fetching Hypixel Auction API... [{page+1}/{pages}]")
                 if progBar is not None: progBar.setValue(page+1)

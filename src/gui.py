@@ -26,6 +26,8 @@ from images import IconLoader
 from constants import (
     VERSION,
     System,
+    DUNGEON_ITEMS,
+    FURNITURE_ITEMS,
     NPC_BUYABLE_PET_ITEMS,
     RARITY_COLOR_CODE,
     LOAD_STYLE,
@@ -4489,18 +4491,21 @@ class BinSniperPage(CustomPage):
         super().__init__(master, pageTitle="Bin-Sniper", buttonText="Bin Sniper")
         self.sorters = None
         self.buyCap = None
+        self.displayedIds = []
         self.isSideBarOpen = False
         self.analyzedPetsSet = set()
         self.flaggedLbinItems = []
         self.isLoading = False
+        self.cheapFactorValue = 1.5
 
-        self.sortKey = "lowestBin"
+        self.sortKey = "diffPerc"
         self.sortDirec = False
 
         self.treeview = tk.TreeView(self.contentFrame, SG)
         self.treeview.setSingleSelect()
         self.treeview.onSelectHeader(self.onHeaderSelectEvent)
         self.treeview.onSingleSelectEvent(self.onSelectEvent)
+        self.treeview.onDoubleSelectEvent(self.onDoubleSelectEvent)
         self.treeview.setTableHeaders("Item-ID", "Auctions", "Price", "Estim-Price", "Diff", "Diff-%")
 
         self.loadingFrame = tk.Frame(self.contentFrame, SG)
@@ -4561,6 +4566,31 @@ class BinSniperPage(CustomPage):
         self.capBuySet.setText("Set")
         self.capBuySet.setCommand(self.buyCapSet)
         self.capBuySet.place(200, 25, 50, 25)
+
+        self.hideDungeonItems = tk.Checkbutton(self.settingsFrame, SG)
+        self.hideDungeonItems.onSelectEvent(self.updateTreeview)
+        self.hideDungeonItems.setText("Hide Dungeon Items").setSelected()
+        self.hideDungeonItems.place(0, 50, 250, 25)
+
+        self.hideFurnitureItems = tk.Checkbutton(self.settingsFrame, SG)
+        self.hideFurnitureItems.onSelectEvent(self.updateTreeview)
+        self.hideFurnitureItems.setText("Hide Furniture Items").setSelected()
+        self.hideFurnitureItems.place(0, 75, 250, 25)
+
+        self.viewMode = tk.TextDropdownMenu(self.settingsFrame, SG)
+        self.viewMode.getDropdownMenu().onSelectEvent(self.updateTreeview)
+        self.viewMode.getDropdownMenu().setOptionList([
+            "View All",
+            "Could be very Cheap"
+        ])
+        self.viewMode.setValue("View All")
+        self.viewMode.setText("View Mode: ")
+        self.viewMode.place(250, 25, 250, 25)
+
+        self.updateTVonAPIUpd = tk.Checkbutton(self.settingsFrame, SG)
+        self.updateTVonAPIUpd.setText("Update On new Data Recive")
+        self.updateTVonAPIUpd.place(250, 50, 250, 25)
+
         # Blacklist
         self.blacklistFrame = tk.LabelFrame(self.settingsFrame, SG)
         self.blacklistFrame.setText("Blacklist [0]")
@@ -4603,27 +4633,36 @@ class BinSniperPage(CustomPage):
         self.flaggedRem.setText("Request All")
         self.flaggedRem.place(163, 200, 163, 25)
 
-        #self.flaggedEn = tk.Checkbutton(self.flaggedFrame, SG)
-        #self.flaggedEn.setText("Enable")
-        #self.flaggedEn.onSelectEvent(self.updateTreeview)
-        #self.flaggedEn.setSelected()
-        #self.flaggedEn.place(163 * 2, 200, 163, 25)
-        
+        self.flaggedAddBkList = tk.Button(self.flaggedFrame, SG)
+        self.flaggedAddBkList.setCommand(self.addToBlackListFromFlagged)
+        self.flaggedAddBkList.setText("Add To Blacklist")
+        self.flaggedAddBkList.place(163*2, 200, 163, 25)
 
         self.closeSideBarFrame()
-    def requestSelected(self):
-        sel = self.blacklistList.getSelectedItem()
+    def addToBlackListFromFlagged(self):
+        sel = self.flaggedList.getSelectedItem()
         if sel is None: return
-        self.requestAverage(itemID=sel)
-        self.updateTreeview()
+        if sel in Config.SETTINGS_CONFIG["bin_sniper_blacklist"]:
+            return
+        self.blacklistEn.setState(False)
+        Config.SETTINGS_CONFIG["bin_sniper_blacklist"].append(sel)
+        Config.SETTINGS_CONFIG.save()
+        self.updateBlacklistBox()
+    def requestSelected(self):
+        sel = self.flaggedList.getSelectedItem()
+        if sel is None: return
+        self.requestAverage(itemID=sel, updAfter=False)
     def requestAll(self):
+        def run():
+            for i, item in enumerate(items):
+                while Constants.WAITING_FOR_API_REQUEST:
+                    sleep(.5)
+                self.flaggedFrame.setText(f"Flagged-Items [{len(self.flaggedLbinItems)}] ({i + 1}/{len(items)})")
+                self.requestAverage(itemID=item, updAfter=False)
+            self.master.runTask(self.updateTreeview).start()
         max_ = 25
         items = self.flaggedLbinItems if len(self.flaggedLbinItems) <= max_ else self.flaggedLbinItems[:25]
-
-        for i, item in enumerate(items):
-            self.flaggedFrame.setText(f"Flagged-Items [{len(self.flaggedLbinItems)}] ({i+1}/{len(items)})")
-            self.requestAverage(itemID=item)
-        self.updateTreeview()
+        Thread(target=run).start()
     def addSelectedToBlacklist(self):
         sel = self.treeview.getSelectedIndex()
         if sel is None: return
@@ -4643,12 +4682,12 @@ class BinSniperPage(CustomPage):
             return
         self.blacklistEn.setState(False)
         Config.SETTINGS_CONFIG["bin_sniper_blacklist"].remove(sel)
-        self.blacklistFrame.setText(f"Blacklist [{Config.SETTINGS_CONFIG['bin_sniper_blacklist']}]")
+        self.blacklistFrame.setText(f"Blacklist [{len(Config.SETTINGS_CONFIG['bin_sniper_blacklist'])}]")
         Config.SETTINGS_CONFIG.save()
         self.updateBlacklistBox()
     def updateBlacklistBox(self):
         self.blacklistList.clear()
-        self.blacklistFrame.setText(f"Blacklist [{Config.SETTINGS_CONFIG['bin_sniper_blacklist']}]")
+        self.blacklistFrame.setText(f"Blacklist [{len(Config.SETTINGS_CONFIG['bin_sniper_blacklist'])}]")
         self.blacklistList.addAll(Config.SETTINGS_CONFIG["bin_sniper_blacklist"])
     def buyCapSet(self):
         self.buyCap = None
@@ -4686,6 +4725,7 @@ class BinSniperPage(CustomPage):
             self.treeview.placeForget()
             self.loadingFrame.placeRelative()
     def updateTreeview(self):
+        tempIDs = []
         self.otherAucTreeView.clear()
         self.toolTipText.clear()
         self.estmPriceText.clear()
@@ -4705,6 +4745,8 @@ class BinSniperPage(CustomPage):
         isOrder = not self.isInstaBuySelect.getState()
         hideAutoRecomb = not self.filterAutoRecomb.getState()
         isBlacklist = self.blacklistEn.getState()
+        isHideDungeonItems = self.hideDungeonItems.getState()
+        isHideFurnitureItems = self.hideFurnitureItems.getState()
         if isOrder:
             recombPrice = recombPrice.getInstaSellPrice()
         else:
@@ -4718,6 +4760,8 @@ class BinSniperPage(CustomPage):
             self.master.update()
             if len(aucts) < 5: continue
 
+            if isBlacklist and id_ in Config.SETTINGS_CONFIG["bin_sniper_blacklist"]: continue
+
             lbin, lbinPrice = self.getCustomLbinPrice(id_, isOrder)
             if lbinPrice is None: continue
             for auction in aucts:
@@ -4728,11 +4772,10 @@ class BinSniperPage(CustomPage):
                 estimPrice, desc, data = calculateEstimatedItemValue(auction, isOrder, lbinPrice)
                 price = auction.getPrice()
                 if estimPrice is None:
-                    MsgText.warning(f"Estim Price for {auction.getID()} is None. Skip")
+                    MsgText.warning(f"Estim Price for {auction.getID()} is None[{desc}]. Skip, {type(lbin)}")
                     continue
                 if estimPrice - price < 0: continue
 
-                if isBlacklist and id_ in Config.SETTINGS_CONFIG["bin_sniper_blacklist"]: continue
                 if self.buyCap is not None and price > self.buyCap: continue
 
                 autoRecomb = "auto_recombed" in data.keys()
@@ -4740,7 +4783,8 @@ class BinSniperPage(CustomPage):
                     autoRecomb = False
                 if autoRecomb and hideAutoRecomb:
                     continue
-
+                if isHideDungeonItems and auction.getID() in DUNGEON_ITEMS: continue
+                if isHideDungeonItems and auction.getID() in FURNITURE_ITEMS: continue
                 sorters.append(
                     Sorter(
                         sortKey=self.sortKey,
@@ -4767,7 +4811,15 @@ class BinSniperPage(CustomPage):
         self.flaggedFrame.setText(f"Flagged-Items [{len(self.flaggedLbinItems)}]")
         self.flaggedList.clear()
         self.flaggedList.addAll(self.flaggedLbinItems)
+
+        def getTags(sorter):
+            temp = []
+            if sorter["clazz"].getUUID() not in self.displayedIds and self.displayedIds:
+                temp.append("new_id")
+            return tuple(temp)
+
         for sorter in sorters:
+            tempIDs.append(sorter["clazz"].getUUID())
             self.treeview.addEntry(
                 sorter["clazz"].getDisplayName(),
                 sorter["auctions"],
@@ -4775,10 +4827,16 @@ class BinSniperPage(CustomPage):
                 parsePrizeToStr(sorter["estim"]),
                 parsePrizeToStr(sorter["diff"], forceSign=True),
                 str(sorter["diffPerc"]) + " %",
-                #tag="auto_recombed" if sorter["autoRecombed"] else ""
+                tag=getTags(sorter)
             )
         self.hideLoadingFrame()
-        #self.treeview.setBgColorByTag("auto_recombed", "green")
+        self.treeview.setBgColorByTag("new_id", tk.Color.rgb(52, 125, 128))
+        self.displayedIds = tempIDs
+    def onDoubleSelectEvent(self):
+        if not self.isSideBarOpen:
+            self.isSideBarOpen = True
+            self.openSideBarFrame()
+        self.tabContr.getTabByName("Other-Auctions").setSelected()
     def onSelectEvent(self, e:tk.Event):
         self.otherAucTreeView.clear()
         sel = self.treeview.getSelectedIndex()
@@ -4845,6 +4903,8 @@ class BinSniperPage(CustomPage):
             newSortKey = "estim"
         elif value == "Diff":
             newSortKey = "diff"
+        elif value == "Diff-%":
+            newSortKey = "diffPerc"
         if newSortKey != self.sortKey:
             self.sortKey = newSortKey
             self.updateTreeview()
@@ -4858,7 +4918,7 @@ class BinSniperPage(CustomPage):
                 return NPC_BUYABLE_PET_ITEMS[itemID]
             lbin = getLBin(itemID)
             if lbin is None: 
-                MsgText.warning(f"Could not get PetItem price {itemID}. Using Zero.")
+                #MsgText.warning(f"Could not get PetItem price {itemID}. Using Zero.")
                 return 0
             price = lbin.getPrice()
             petItemsCache[itemID] = price
@@ -4904,7 +4964,7 @@ class BinSniperPage(CustomPage):
             pets.sort()
         for rarity, pets in iterDict(rarityToPetMap):
             if len(pets) < 3:
-                MsgText.warning(f"Cannot calc Estm Value from pet {id_} with rarity {rarity} only [{len(pets)}] active Auctions. Skip.")
+                #MsgText.warning(f"Cannot calc Estm Value from pet {id_} with rarity {rarity} only [{len(pets)}] active Auctions. Skip.")
                 continue
             smallestLvl = None
             biggestLvl = None
@@ -4951,7 +5011,11 @@ class BinSniperPage(CustomPage):
                 pet["desc"] += f"\t{parsePrizeToStr(estimCost - petItemPrice)}\n"
                 if pet['clazz'].getPetItem() is not None:
                     pet["desc"] += f"PetItem: {pet['clazz'].getPetItem()}"
-                    pet["desc"] += f"\t+{parsePrizeToStr(getPetItemPrice(pet['clazz'].getPetItem()))}\n"
+                    prize = getPetItemPrice(pet['clazz'].getPetItem())
+                    if prize > 0:
+                        pet["desc"] += f"\t+{parsePrizeToStr(prize)}\n"
+                    else:
+                        pet["desc"] += f"\tCOULD NOT CALC USING ZERO!\n"
                 pet["desc"] += f"Total: {parsePrizeToStr(estimCost)}\n\n"
                     
                 pet["estim"] = estimCost
@@ -4969,7 +5033,7 @@ class BinSniperPage(CustomPage):
         lBinList = getLBinList(itemID)
 
         if len(lBinList) < 5:
-            MsgText.warning(f"LBIN from {itemID} cannot be calculated! Too few Data! Skipping.")
+            #MsgText.warning(f"LBIN from {itemID} cannot be calculated! Too few Data! Skipping.")
             return None, None
 
         lowestBin1 = lBinList[-1]["bin_price"] - calculateUpgradesPrice(lBinList[-1]["auctClass"], isOrder)[0]
@@ -4986,11 +5050,12 @@ class BinSniperPage(CustomPage):
             return None, None
 
         return lBinList[-1]["auctClass"], lowestBin1
-    def requestAverage(self, e:tk.Event=None, itemID=None):
+    def requestAverage(self, e:tk.Event=None, itemID=None, updAfter=True):
         def request():
             try:
+                MsgText.info(f"request average Price from {itemID}...")
                 historyData = SkyConflnetAPI.getAuctionHistoryWeek(id_)._data
-                Constants.WAITING_FOR_API_REQUEST = True
+                Constants.WAITING_FOR_API_REQUEST = False
             except APIConnectionError as e:
                 throwAPIConnectionException(
                     source="SkyCoflnet",
@@ -5019,9 +5084,11 @@ class BinSniperPage(CustomPage):
             for entry in historyData:
                 temp.append(entry["min"])
             temp.sort()
+            if not temp:
+                MsgText.error(f"Could not request {itemID}! invalid Data!")
+                return
             ConfigFile.AVERAGE_PRICE[id_] = getMedianFromList(temp)
-            print("Add")
-            self.master.runTask(self.updateTreeview).start()
+            if updAfter: self.master.runTask(self.updateTreeview).start()
             self.master.runTask(self.saveAverage).start()
 
         if not Constants.WAITING_FOR_API_REQUEST:
@@ -5036,7 +5103,6 @@ class BinSniperPage(CustomPage):
     def saveAverage(self):
         ConfigFile.AVERAGE_PRICE.saveConfig()
     def showLoadingFrame(self, len_):
-        print(len_)
         self.isLoading = True
         self.loadingBar.setValues(len_)
         self.loadingBar.setValue(0)
@@ -5051,11 +5117,13 @@ class BinSniperPage(CustomPage):
             self.openSideBarFrame()
             return
         self.closeSideBarFrame()
-
+    def onAPIUpdate(self):
+        if self.updateTVonAPIUpd.getState():
+            self.updateTreeview()
     def onShow(self, **kwargs):
         self.placeRelative()
         self.placeContentFrame()
-        self.master.updateCurrentPageHook = self.updateTreeview
+        self.master.updateCurrentPageHook = self.onAPIUpdate
         self.updateTreeview()
 
 # Menu Pages
@@ -5104,17 +5172,29 @@ class MainMenuPage(CustomMenuPage):
         self.noSearchInput.setTextOrientation(tk.Anchor.LEFT)
         self.noSearchInput.placeRelative(fixY=200+12, fixWidth=290, fixHeight=25, centerX=True)
 
-        self.autoUpdateActive = tk.Button(self, SG)
-        self.autoUpdateActive.attachToolTip(
+        self.autoUpdateBazzarActive = tk.Button(self, SG)
+        self.autoUpdateBazzarActive.attachToolTip(
             "Bazaar Data Auto Request:\n\nUse this option to toggle automatic requests.\nRequest interval can be changed in Settings.\nThis is required to track item prices\nin real time.",
             group=SG
         )
-        self.autoUpdateActive.setStyle(tk.Style.FLAT)
-        self.autoUpdateActive.setFont(15)
-        self.autoUpdateActive.setCommand(self.toggleAutoRequest)
-        self.autoUpdateActive.setFg("green" if Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"] else "red")
-        self.autoUpdateActive.setText("\u27F3")
-        self.autoUpdateActive.placeRelative(fixHeight=25, fixWidth=25)
+        self.autoUpdateBazzarActive.setStyle(tk.Style.FLAT)
+        self.autoUpdateBazzarActive.setFont(15)
+        self.autoUpdateBazzarActive.setCommand(self.toggleAutoBazzarRequest)
+        self.autoUpdateBazzarActive.setFg("green" if Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"] else "red")
+        self.autoUpdateBazzarActive.setText("\u27F3 Bazzar")
+        self.autoUpdateBazzarActive.placeRelative(fixHeight=25, fixWidth=100)
+
+        self.autoUpdateAuctActive = tk.Button(self, SG)
+        self.autoUpdateAuctActive.attachToolTip(
+            "Auction Data Auto Request:\n\nUse this option to toggle automatic requests.\nRequest interval can be changed in Settings.\nThis is required to track item prices\nin real time.",
+            group=SG
+        )
+        self.autoUpdateAuctActive.setStyle(tk.Style.FLAT)
+        self.autoUpdateAuctActive.setFont(15)
+        self.autoUpdateAuctActive.setCommand(self.toggleAutoAuctRequest)
+        self.autoUpdateAuctActive.setFg("green" if Config.SETTINGS_CONFIG["auto_api_requests"]["auction_auto_request"] else "red")
+        self.autoUpdateAuctActive.setText("\u27F3 Auction")
+        self.autoUpdateAuctActive.placeRelative(fixHeight=25, fixWidth=100, changeY=25)
 
         self.scrollFrame = tk.Frame(self, SG)
         self.scrollFrame.bind(self.onPlaceRelative, tk.EventType.CUSTOM_RELATIVE_UPDATE)
@@ -5125,12 +5205,17 @@ class MainMenuPage(CustomMenuPage):
         self.scrollLabel = tk.Label(self.scrollBarFrame, SG)
     def getToolFromClassName(self, n:str):
         return self.toolsDict[n]
-    def toggleAutoRequest(self):
+    def toggleAutoBazzarRequest(self):
         Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"] = not Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"]
         Config.SETTINGS_CONFIG.save()
         self.updateAutoRequestButton()
+    def toggleAutoAuctRequest(self):
+        Config.SETTINGS_CONFIG["auto_api_requests"]["auction_auto_request"] = not Config.SETTINGS_CONFIG["auto_api_requests"]["auction_auto_request"]
+        Config.SETTINGS_CONFIG.save()
+        self.updateAutoRequestButton()
     def updateAutoRequestButton(self):
-        self.autoUpdateActive.setFg("green" if Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"] else "red")
+        self.autoUpdateBazzarActive.setFg("green" if Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"] else "red")
+        self.autoUpdateAuctActive.setFg("green" if Config.SETTINGS_CONFIG["auto_api_requests"]["auction_auto_request"] else "red")
     def onSearchClick(self):
         self.noSearchInput.placeForget()
     def clearSearch(self):
@@ -5262,7 +5347,12 @@ class LoadingPage(CustomPage):
                     t = time()
                     API.SKYBLOCK_ITEM_API_PARSER = requestItemHypixelAPI(self.master, Config, path=path)
                     MsgText.info(f"Loading HypixelItemConfig took {round(time()-t, 2)} Seconds!")
-                if API.SKYBLOCK_ITEM_API_PARSER is not None: itemAPISuccessful = True
+                if API.SKYBLOCK_ITEM_API_PARSER is not None:
+                    FURNITURE_ITEMS.clear()
+                    for item in API.SKYBLOCK_ITEM_API_PARSER.getItems():
+                        if item.isFurniture():
+                            FURNITURE_ITEMS.append(item.getID())
+                    itemAPISuccessful = True
                 self.master.isConfigLoadedFromFile = path is not None
 
                 self.processBar.setValues(len(msgs))
@@ -5338,8 +5428,9 @@ class Window(tk.Tk):
     def __init__(self):
         checkConfigForUpdates()
         #tk.enableRelativePlaceOptimization()
-        if Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_off_on_load"]:
-            Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"] = False
+        if Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_off_on_load"] or Config.SETTINGS_CONFIG["auto_api_requests"]["auction_auto_request_off_on_load"]:
+            if Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_off_on_load"]: Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"] = False
+            if Config.SETTINGS_CONFIG["auto_api_requests"]["auction_auto_request_off_on_load"]: Config.SETTINGS_CONFIG["auto_api_requests"]["auction_auto_request"] = False
             Config.SETTINGS_CONFIG.save()
         MsgText.info("Creating GUI...")
         super().__init__(group=SG)
@@ -5412,22 +5503,49 @@ class Window(tk.Tk):
         if System.SYSTEM_TYPE == "WINDOWS": self.configureWindows()
     def _autoRequestAPI(self):
         started = False
-        timer = time()
+        nextPage = 0
+        timerBaz = time()
+        timerAuc = time()
+        diffTimer = time()
+        MIN_DIFF = 1.5 #sek
         while True:
             sleep(.1)
             if self.loadingPage.loadingComplete and not started:
                 started = True
                 sleep(5)
+
             if Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"]:
-                if Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_interval"] < 20:
-                    tk.SimpleDialog.askError("Request interval cannot be smaller than 20s!")
-                    return
-                if time()-timer >= Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_interval"]:
-                    self.refreshAPIRequest("bazaar")
-                    timer = time()
+                if time()-timerBaz >= Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_interval"]:
+                    if time()-diffTimer < MIN_DIFF: continue
+                    self.refreshAPIRequest("bazaar", force=True)
+                    diffTimer = time()
+                    timerBaz = time()
                     if API.SKYBLOCK_BAZAAR_API_PARSER is None: # if request fails -> auto request disabled
                         Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"] = False
                         self.mainMenuPage.updateAutoRequestButton()
+
+            if Config.SETTINGS_CONFIG["auto_api_requests"]["auction_auto_request"] and API.SKYBLOCK_AUCTION_API_PARSER is not None:
+                if time() - timerAuc >= Config.SETTINGS_CONFIG["auto_api_requests"]["auction_auto_request_interval"]:
+                    if time() - diffTimer < MIN_DIFF: continue
+                    self.refreshAPIRequest("auction",
+                                           fileNr=nextPage,
+                                           force=True,
+                                           useParser=API.SKYBLOCK_AUCTION_API_PARSER
+                                           )
+                    diffTimer = time()
+                    timerAuc = time()
+                    if API.SKYBLOCK_AUCTION_API_PARSER is None:  # if request fails -> auto request disabled
+                        Config.SETTINGS_CONFIG["auto_api_requests"]["auction_auto_request"] = False
+                        self.mainMenuPage.updateAutoRequestButton()
+                    else:
+                        pages:int = API.SKYBLOCK_AUCTION_API_PARSER.getPages()
+                        if nextPage == pages:
+                            nextPage = 0
+                        else:
+                            nextPage += 1
+
+
+
     def configureWindow(self):
         self.setMinSize(600, 600)
         self.setTitle("SkyBlockTools "+VERSION)
@@ -5516,12 +5634,18 @@ class Window(tk.Tk):
         API.SKYBLOCK_BAZAAR_API_PARSER = HypixelBazaarParser(data.getData())
         self.isConfigLoadedFromFile = True
         updateBazaarInfoLabel(API.SKYBLOCK_BAZAAR_API_PARSER, self.isConfigLoadedFromFile)
-    def refreshAPIRequest(self, e):
+    def refreshAPIRequest(self, e, force=False, fileNr=None, useParser=None):
         if Constants.WAITING_FOR_API_REQUEST:
             tk.SimpleDialog.askError(self, "Another api request is still running!\nTry again later.")
             return
         if not self.loadingPage.loadingComplete:
             tk.SimpleDialog.askError(self, "Software is not fully initialized yet!\nTry again later.")
+            return
+        if Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"] and not force:
+            tk.SimpleDialog.askError(self, "Could not request!\nDisable auto request first!")
+            return
+        if Config.SETTINGS_CONFIG["auto_api_requests"]["auction_auto_request"] and not force:
+            tk.SimpleDialog.askError(self, "Could not request!\nDisable auto request first!")
             return
         self.lockInfoLabel = True
         Constants.WAITING_FOR_API_REQUEST = True
@@ -5541,7 +5665,9 @@ class Window(tk.Tk):
             API.SKYBLOCK_AUCTION_API_PARSER = requestAuctionHypixelAPI(self,
                                                                        Config,
                                                                        infoLabel=AILG,
-                                                                       saveTo=os.path.join(System.CONFIG_PATH, "skyblock_save", "auctionhouse"))
+                                                                       saveTo=os.path.join(System.CONFIG_PATH, "skyblock_save", "auctionhouse"),
+                                                                       fileNr=fileNr,
+                                                                       useParser=useParser)
             updateAuctionInfoLabel(API.SKYBLOCK_AUCTION_API_PARSER, self.isConfigLoadedFromFile)
         updateBazaarAnalyzer()
         Constants.WAITING_FOR_API_REQUEST = False

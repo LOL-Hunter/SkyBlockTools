@@ -475,7 +475,6 @@ class APIRequest:
         self._page.placeContentFrame()
         self._tkMaster.updateDynamicWidgets()
         self._tkMaster.update()
-
 class TipText(tk.Text):
     def addStrf(self, text:str, customColorMap=None):
         colors = {'D':tk.Color.DEFAULT,
@@ -505,7 +504,7 @@ class TipText(tk.Text):
                 firstMarkerChar = 0
                 _line = line
             if textSection.count("\n") > 0:  # section -> mehrere zeilen
-                _textSectionLastLength = len(textSection.split("\n")[-1])  # section enthält keine Farbe
+                _textSectionLastLength = len(textSection.split("\n")[-1])  # section enthï¿½lt keine Farbe
             else:
                 _textSectionLastLength = len(textSection.split("\n")[-1]) - 1  # section nur 1 zeile (dann farbe entfernen)
             secondMarker = str(line) + "." + str(firstMarkerChar + _textSectionLastLength)
@@ -523,7 +522,6 @@ class TipText(tk.Text):
             else:
                 print(f"'{textSection}' has no valid color tag.")
             firstMarkerChar = int(secondMarker.split(".")[1])
-
 def fillToolTipText(text:TipText, item:BaseAuctionProduct):
     def _removeStarsFromName(name:str)->str:
         name = name.replace("\u272a", "")  # star
@@ -548,14 +546,11 @@ def fillToolTipText(text:TipText, item:BaseAuctionProduct):
     if item.getStars() > 5:
         text.addText(_genMasterStars(item.getStars()), tags="master_star")
     text.addText("\n")
-    text.addStrf(item.getLore().replace("\xa7k", "\xa7").replace("\xa7r", "") + " ", COLOR_CODE_MAP)
+    text.addStrf(item.getLore().replace("\xa7k", "\xa7").replace("\xa7r", "").replace("\xa7o", "") + " ", COLOR_CODE_MAP)
 
     text.setFgColorByTag("rarity", RARITY_COLOR_CODE[item.getRarity()])
     text.setFgColorByTag("star", "#FFAA00")
     text.setFgColorByTag("master_star", "#AA0000")
-    
-    
-
 class ItemToolTip(tk.Toplevel):
     def __init__(self, master:tk.Tk, item:BaseAuctionProduct):
         super().__init__(master, group=SG)

@@ -6,7 +6,20 @@ from datetime import datetime as dt, timedelta
 from pytz import timezone
 from base64 import b64decode
 from nbt.nbt import NBTFile
+import nbt.nbt as nbt
 from io import BytesIO
+
+# Parsers and Generators (taken from nbt.nbt.py) [https://github.com/twoolie/NBT]
+# override NBT TAG_String-Class
+# Parsers and Generators
+def _own_parse_buffer(self, buffer):
+    length = nbt.TAG_Short(buffer=buffer)
+    read = buffer.read(length.value)
+    if len(read) != length.value:
+        raise nbt.StructError()
+    self.value = read.decode("utf-8", "ignore") # ADDED "ignore" arg
+
+nbt.TAG_String._parse_buffer = _own_parse_buffer
 
 
 # TimeZone calculation
@@ -703,3 +716,5 @@ class Item: # Hypixel ItemInstance
         return self._data.get("upgrade_costs", None)
     def getGemstoneSlots(self):
         return self._data.get("gemstone_slots", None)
+    def isFurniture(self):
+        return "furniture" in self._data.keys()

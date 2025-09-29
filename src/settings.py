@@ -75,7 +75,10 @@ class Config:
         "auto_api_requests":{
             "bazaar_auto_request_off_on_load":True,
             "bazaar_auto_request":False,
-            "bazaar_auto_request_interval": 60
+            "bazaar_auto_request_interval": 60,
+            "auction_auto_request_off_on_load": True,
+            "auction_auto_request": False,
+            "auction_auto_request_interval": 60
         },
         "composter":{
             "speed":1,
@@ -158,32 +161,62 @@ class SettingsGUI(tk.Dialog):
         self.uptBtn2 = tk.Button(self.ownAuct, SG).setText("Delete Selected Player").setCommand(self.deleteSelectedPlayer).placeRelative(fixHeight=25, changeWidth=-5, changeY=-45, stickDown=True)
         self.uptBtn3 = tk.Button(self.ownAuct, SG).setText("Add Player...").setCommand(self.addPlayer).placeRelative(fixHeight=25, changeWidth=-5, fixY=50, changeY=-20, stickDown=True)
         self.ownAuct.place(0, 125, 205, 125)
-
-        self.autoRequests = tk.LabelFrame(tab, SG)
-        self.autoRequests.setText("Auto-API-Requests")
-        self.isAutoReq = tk.Checkbutton(self.autoRequests, SG)
-        self.isAutoReq.onSelectEvent(self.writeAutoAPISettings)
-        self.isAutoReq.setState(Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"])
-        self.isAutoReq.setText("Bazaar-API-Auto-Request")
-        self.isAutoReq.placeRelative(fixHeight=25, changeWidth=-5)
-        self.isAutoReqOff = tk.Checkbutton(self.autoRequests, SG)
-        self.isAutoReqOff.onSelectEvent(self.writeAutoAPISettings)
-        self.isAutoReqOff.setText("Disable-Auto-Requests-Startup")
-        self.isAutoReqOff.setState(Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_off_on_load"])
-        self.isAutoReqOff.placeRelative(fixHeight=25, changeWidth=-5, fixY=50)
-        self.reqInterval = tk.DropdownMenu(self.autoRequests, SG)
+        # Auto Req Bazaar
+        self.autoRequestsBazaar = tk.LabelFrame(tab, SG)
+        self.autoRequestsBazaar.setText("Auto-API-Requests-Bazaar")
+        self.isAutoReqBazaar = tk.Checkbutton(self.autoRequestsBazaar, SG)
+        self.isAutoReqBazaar.onSelectEvent(self.writeAutoAPISettings)
+        self.isAutoReqBazaar.setState(Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"])
+        self.isAutoReqBazaar.setText("Bazaar-API-Auto-Request")
+        self.isAutoReqBazaar.placeRelative(fixHeight=25, changeWidth=-5)
+        self.isAutoReqOffBazaar = tk.Checkbutton(self.autoRequestsBazaar, SG)
+        self.isAutoReqOffBazaar.onSelectEvent(self.writeAutoAPISettings)
+        self.isAutoReqOffBazaar.setText("Disable-Auto-Requests-Startup")
+        self.isAutoReqOffBazaar.setState(Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_off_on_load"])
+        self.isAutoReqOffBazaar.placeRelative(fixHeight=25, changeWidth=-5, fixY=50)
+        self.reqIntervalBazaar = tk.DropdownMenu(self.autoRequestsBazaar, SG)
 
         options = {
-            "300":"1 Request/5 Minutes (Slow)",
-            "60":"1 Request/Minute (Normal)",
-            "20":"3 Request/Minute (Fast)",
+            "60": "1 Request/Minute (Slow)",
+            "30": "2 Request/Minute (Normal)",
+            "10": "6 Request/Minute (Fast)",
         }
 
-        self.reqInterval.setOptionList(list(options.values()))
-        self.reqInterval.onSelectEvent(self.writeAutoAPISettings)
-        self.reqInterval.setValue(options[str(Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_interval"])])
-        self.reqInterval.placeRelative(fixHeight=25, fixY=25, changeWidth=-5)
-        self.autoRequests.place(205, 125, 205, 125)
+        self.reqIntervalBazaar.setOptionList(list(options.values()))
+        self.reqIntervalBazaar.onSelectEvent(self.writeAutoAPISettings)
+        if str(Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_interval"]) in options.keys():
+            self.reqIntervalBazaar.setValue(options[str(Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_interval"])])
+        self.reqIntervalBazaar.placeRelative(fixHeight=25, fixY=25, changeWidth=-5)
+        self.autoRequestsBazaar.place(205, 125, 205, 125)
+        
+        # Auto Req Auc
+        self.autoRequestsAuct = tk.LabelFrame(tab, SG)
+        self.autoRequestsAuct.setText("Auto-API-Requests-Auction")
+        self.isAutoReqAuct = tk.Checkbutton(self.autoRequestsAuct, SG)
+        self.isAutoReqAuct.onSelectEvent(self.writeAutoAPISettings)
+        self.isAutoReqAuct.setState(Config.SETTINGS_CONFIG["auto_api_requests"]["auction_auto_request"])
+        self.isAutoReqAuct.setText("Auction-API-Auto-Request")
+        self.isAutoReqAuct.placeRelative(fixHeight=25, changeWidth=-5)
+        self.isAutoReqOffAuct = tk.Checkbutton(self.autoRequestsAuct, SG)
+        self.isAutoReqOffAuct.onSelectEvent(self.writeAutoAPISettings)
+        self.isAutoReqOffAuct.setText("Disable-Auto-Requests-Startup")
+        self.isAutoReqOffAuct.setState(Config.SETTINGS_CONFIG["auto_api_requests"]["auction_auto_request_off_on_load"])
+        self.isAutoReqOffAuct.placeRelative(fixHeight=25, changeWidth=-5, fixY=50)
+        self.reqIntervalAuct = tk.DropdownMenu(self.autoRequestsAuct, SG)
+
+        options = {
+            "30": "2 Request/Minute (Slow)",
+            "10": "6 Request/Minute (Normal)",
+            "2": "30 Request/Minute (Fast)",
+        }
+
+        self.reqIntervalAuct.setOptionList(list(options.values()))
+        self.reqIntervalAuct.onSelectEvent(self.writeAutoAPISettings)
+        if str(Config.SETTINGS_CONFIG["auto_api_requests"]["auction_auto_request_interval"]) in options.keys():
+            self.reqIntervalAuct.setValue(options[str(Config.SETTINGS_CONFIG["auto_api_requests"]["auction_auto_request_interval"])])
+        self.reqIntervalAuct.placeRelative(fixHeight=25, fixY=25, changeWidth=-5)
+        self.autoRequestsAuct.place(205, 125+125, 205, 125)
+
 
         self.updateItemAPIWidgets()
     def createNotificationsTab(self, tab):
@@ -205,23 +238,34 @@ class SettingsGUI(tk.Dialog):
             onBtn.placeRelative(changeHeight=-5, fixX=300, fixWidth=100)
             frame.placeRelative(fixY=25*i, fixHeight=25, changeWidth=-5)
             radio.setState(int(Config.SETTINGS_CONFIG["notifications"][key]))
-
     def writeAutoAPISettings(self):
-        state = self.isAutoReq.getState()
-        stateStartup = self.isAutoReqOff.getState()
-        interval = self.reqInterval.getValue()
-        transl = {
-            "slow":300,
-            "normal":60,
-            "fast":20
-        }
-        for type_ in ["slow", "normal", "fast"]:
-            if type_ in interval.lower():
-                interval = transl[type_]
-                break
-        Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"] = state
-        Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_off_on_load"] = stateStartup
-        Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_interval"] = interval
+        def _translate(inv:str, data:dict):
+            for type_ in ["slow", "normal", "fast"]:
+                if type_ in inv.lower():
+                    return data[type_]
+            return 10_000 # failsafe
+
+        Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"] = self.isAutoReqBazaar.getState()
+        Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_off_on_load"] = self.isAutoReqOffBazaar.getState()
+        Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request_interval"] = _translate(
+            self.reqIntervalBazaar.getValue(),
+            {
+                "slow": 60,
+                "normal": 30,
+                "fast": 10
+            }
+        )
+
+        Config.SETTINGS_CONFIG["auto_api_requests"]["auction_auto_request"] = self.isAutoReqAuct.getState()
+        Config.SETTINGS_CONFIG["auto_api_requests"]["auction_auto_request_off_on_load"] = self.isAutoReqOffAuct.getState()
+        Config.SETTINGS_CONFIG["auto_api_requests"]["auction_auto_request_interval"] = _translate(
+            self.reqIntervalAuct.getValue(),
+        {
+                "slow": 30,
+                "normal": 10,
+                "fast": 2
+            }
+        )
         Config.SETTINGS_CONFIG.save()
         self.master.mainMenuPage.updateAutoRequestButton()
 
@@ -287,7 +331,6 @@ class SettingsGUI(tk.Dialog):
         ComposterSettings(dialog, onScrollHook)
         if finishHook is not None: dialog.onCloseEvent(finishHook)
         dialog.show()
-
     @staticmethod
     def openSettings(master, hook=None):
         if not master.loadingPage.loadingComplete: return
@@ -304,7 +347,6 @@ class SettingsGUI(tk.Dialog):
             file.close()
             return False
         return True
-
     @staticmethod
     def checkAPIKeySet(master, hook):
         def load():

@@ -8,7 +8,7 @@ from hyPI import getEnchantmentIDLvl
 from random import randint
 from skyMath import getMedianExponent, parsePrizeList, applyBazaarTax
 from skyMisc import getDictEnchantmentIDToLevels, parsePrizeToStr, getLBin, enchBookConvert
-from constants import MAYOR_NORMAL, MAYOR_SPEC, MAYOR_PERK_AMOUNT, API, ConfigFile, MASTER_STARS, ENCHANTMENT_UPGRADES
+from constants import MAYOR_NORMAL, MAYOR_SPEC, MAYOR_PERK_AMOUNT, API, ConfigFile, MASTER_STARS, ENCHANTMENT_UPGRADES, BITS_ENCHANTS
 from logger import MsgText
 
 
@@ -224,6 +224,8 @@ def analyzeMayors(data:list, currentMinister:str, ministerHasLTI, yearOffset:int
         "next_special_in_years":lastSpecialYear+8-currentYear,
         "next_perks":perkData,
     }
+#TODO effi_10
+#TODO IMPALING_5
 def calculateUpgradesPrice(item: BaseAuctionProduct, isOrder: bool) -> tuple[float, str, dict]:
     desc = "\n"
     data = {}
@@ -256,6 +258,11 @@ def calculateUpgradesPrice(item: BaseAuctionProduct, isOrder: bool) -> tuple[flo
     for ench in item.getEnchantments():
         *name, ultLvl = ench.split("_")
         name = "_".join(name)
+        if name in BITS_ENCHANTS:
+            ench = f"{name}_1"
+        if name == "ENCHANTMENT_EFFICIENCY" and int(ultLvl) > 5:
+            ench = f"ENCHANTMENT_EFFICIENCY_5"
+            upgradePrice += getPrice("SIL_EX", amount=int(ultLvl) - 5, addStr="\t")
         if not ench.startswith("ENCHANTMENT_ULTIMATE"):
             if ench in ENCHANTMENT_UPGRADES.keys():
                 c = getPrice(ENCHANTMENT_UPGRADES[ench], ignore=False, addStr="\t")
@@ -282,8 +289,9 @@ def calculateUpgradesPrice(item: BaseAuctionProduct, isOrder: bool) -> tuple[flo
             else:  # insta buy
                 itemSellPrice = bzProduct.getInstaBuyPrice()
             price = applyBazaarTax(itemSellPrice) * amount
-            desc += f"\t{id_}: {parsePrizeToStr(price)}(x{amount})\n"
+            desc += f"\t{id_}(x{amount}): {parsePrizeToStr(price)}\n"
             upgradePrice += price
+            enchPrice += price
     desc += f"Total: {parsePrizeToStr(enchPrice)}\n\n"
 
     if enchPrice < 200_000 and item.isRecombUsed() and item.getPotatoBookCount() == 0 and not item.getAppliedGemstones():
@@ -316,8 +324,9 @@ def calculateUpgradesPrice(item: BaseAuctionProduct, isOrder: bool) -> tuple[flo
             if stars > 0:
                 for i in range(stars):
                     starPrice += getPrice(MASTER_STARS[i], ignore=False, addStr="\t")
-    desc += f"Total: {parsePrizeToStr(enchPrice)}\n\n"
-    upgradePrice += starPrice
+    if starPrice > 0:
+        desc += f"Total: {parsePrizeToStr(starPrice)}\n\n"
+        upgradePrice += starPrice
 
     if len(item.getAppliedGemstones()):
         desc += "Applied Gemstones:\n"
@@ -359,7 +368,7 @@ def calculateUpgradesPrice(item: BaseAuctionProduct, isOrder: bool) -> tuple[flo
             if reforgeStone != "BLACKSMITH":
                 upgradePrice += getPrice(reforgeStone, ignore=False)
         else:
-            if reforge != "NONE": MsgText.warning(f"calculateUpgradesPrice() -> Reforge {reforge} not found on item {item.getID()}!")
+            if reforge != "NONE": MsgText.warning(f"calculateUpgradesPrice() -> Reforge {reforge} not found on item {item.getID()}! {item.getDisplayName()}")
     if item.isWoodenSingularityUsed(): upgradePrice += getPrice("WOOD_SINGULARITY", ignore=False)
     #if item.isShiny(): upgradePrice += getPrice(100_000_000, ignore=False)
     potatoAmount = item.getPotatoBookCount()
@@ -435,14 +444,14 @@ def calculateEstimatedItemValue(item: BaseAuctionProduct, isOrder: bool, lowestB
             lowestBin = lowestBinPrice
         if lowestBin is None: return None, "LowestBin is None", {}
 
-        if isinstance(lowestBin, float):
+        if type(lowestBin) in [float, int]:
             basePrice = lowestBin
             upgradesPriceLBIN = 0
         elif isinstance(lowestBin, BINAuctionProduct):
             basePrice = lowestBin.getPrice()
             upgradesPriceLBIN, *_ = calculateUpgradesPrice(lowestBin, isOrder)
         else:
-            return None, "lowestBin is not instance BINAuctionProduct or float!", {}
+            return None, f"lowestBin is not instance BINAuctionProduct or float! -> {type(lowestBin)}", {}
 
         if upgradesPriceLBIN:
             remTxt = f"\t(-{parsePrizeToStr(upgradesPriceLBIN)})\n"
