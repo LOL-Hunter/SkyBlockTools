@@ -1,6 +1,6 @@
-from skyMath import applyBazaarTax
-from constants import BazaarItemID, API, ConfigFile
-from skyMisc import Sorter
+from .skyMath import applyBazaarTax
+from .constants import BazaarItemID, API, ConfigFile
+from .skyMisc import Sorter
 
 from time import time
 from typing import List, Tuple

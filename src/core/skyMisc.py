@@ -1,23 +1,20 @@
 # -*- coding: iso-8859-15 -*-
 import tksimple as tk
-from math import log
-import os as _os
-
-from hyPI.APIError import APIConnectionError, NoAPIKeySetException, APITimeoutException, CouldNotReadDataPackageException
-from hyPI.hypixelAPI import HypixelAPIURL, APILoader, fileLoader
-from hyPI.hypixelAPI.loader import HypixelBazaarParser, HypixelAuctionParser, HypixelItemParser, HypixelProfileParser, HypixelProfilesParser, HypixelMayorParser
-from hyPI.skyCoflnetAPI import SkyConflnetAPI
-from hyPI.parser import BINAuctionProduct
-from hyPI import getEnchantmentIDLvl
-
-from jsonConfig import JsonConfig
-from logger import TextColor, MsgText
-from datetime import datetime
-from constants import BAZAAR_INFO_LABEL_GROUP as BILG, AUCT_INFO_LABEL_GROUP as AILG, API, ALL_ENCHANTMENT_IDS, AuctionItemID, BazaarItemID, System
-from skyMath import parseTimeDelta
-from typing import List, Dict
 from platform import system
-from constants import Constants
+from datetime import datetime
+from typing import List, Dict
+import os
+
+from .hyPI.APIError import APIConnectionError, NoAPIKeySetException, APITimeoutException, CouldNotReadDataPackageException
+from .hyPI.hypixelAPI import HypixelAPIURL, APILoader, fileLoader
+from .hyPI.hypixelAPI.loader import HypixelBazaarParser, HypixelAuctionParser, HypixelItemParser, HypixelProfileParser, HypixelProfilesParser, HypixelMayorParser
+from .hyPI.skyCoflnetAPI import SkyConflnetAPI
+from .hyPI.parser import BINAuctionProduct
+from .hyPI import getEnchantmentIDLvl
+from .jsonConfig import JsonConfig
+from .logger import TextColor, MsgText
+from .constants import BAZAAR_INFO_LABEL_GROUP as BILG, AUCT_INFO_LABEL_GROUP as AILG, Path, API, ALL_ENCHANTMENT_IDS, AuctionItemID, BazaarItemID, System, Constants
+from .skyMath import parseTimeDelta
 
 def requestMayorHypixelAPI(master, config)->HypixelMayorParser | None:
     """
@@ -210,7 +207,7 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
     """
     try:
         if path is not None:
-            fileList = _os.listdir(path)
+            fileList = os.listdir(path)
             if not len(fileList):
                 tk.SimpleDialog.askError(master, "Could not Load Auction Data!\nRequesting api...")
                 return requestAuctionHypixelAPI(master, config, None, progBar, infoLabel, saveTo)
@@ -225,13 +222,13 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
                         infoLabel.setText(f"Fetching Hypixel Auction API... [{i}/{len(fileList)}]")
                     else:
                         infoLabel.executeCommand("setText", f"Fetching Hypixel Auction API... [{i}/{len(fileList)}]")
-                parser.addPage(fileLoader(_os.path.join(path, fileName)), i)
+                parser.addPage(fileLoader(os.path.join(path, fileName)), i)
         else:
             if saveTo is not None and fileNr is None:
                 TextColor.printStrf("§INFO§gDeleting old Auction-House config files...")
-                for file in _os.listdir(saveTo):
-                    delPath = _os.path.join(saveTo, file)
-                    _os.remove(delPath)
+                for file in os.listdir(saveTo):
+                    delPath = os.path.join(saveTo, file)
+                    os.remove(delPath)
             if useParser is None:
                 assert fileNr is None, "Using New Parser and requesting only one page!"
                 parser = HypixelAuctionParser()
@@ -246,7 +243,7 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
 
                 if saveTo is not None:
                     file = JsonConfig.fromDict(data)
-                    file.setPath(_os.path.join(saveTo, "file000.json"))
+                    file.setPath(os.path.join(saveTo, "file000.json"))
                     file.save()
 
             pages = parser.getPages()
@@ -261,7 +258,7 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
                                  page=page)
                 if saveTo is not None:
                     file = JsonConfig.fromDict(data)
-                    file.setPath(_os.path.join(saveTo, f"file{str(page).rjust(3, '0')}.json"))
+                    file.setPath(os.path.join(saveTo, f"file{str(page).rjust(3, '0')}.json"))
                     file.save()
                 if infoLabel is not None:
                     if infoLabel is not None:
@@ -394,7 +391,7 @@ def updateBazaarInfoLabel(api:HypixelBazaarParser | None, loaded=False):
             BILG.executeCommand("setText", f"SkyBlock-Bazaar-API was loaded from config! Request was [{_timeStr}] ago.")
     else:
         BILG.executeCommand("setFg", "red")
-        BILG.setText("SkyBlock-Bazaar-API request failed!")
+        BILG.executeCommand("setText", "SkyBlock-Bazaar-API request failed!")
 def updateAuctionInfoLabel(api:HypixelAuctionParser | None, loaded=False):
     if api is not None:
         ts:datetime = api.getLastUpdated()
@@ -694,12 +691,15 @@ def _map(value, iMin, iMax, oMin=None, oMax=None):
         iMin = 0
         oMin = 0
     return int((value-iMin) * (oMax-oMin) / (iMax-iMin) + oMin)
+def determineSystem():
+    match (system()):
+        case "Windows":
+            System.CONFIG_PATH = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", ".SkyBlockTools")
+            System.SYSTEM_TYPE = "WINDOWS"
 
-match (system()):
-    case "Windows":
-        System.CONFIG_PATH = _os.path.join(_os.path.expanduser("~"), "AppData", "Roaming", ".SkyBlockTools")
-        System.SYSTEM_TYPE = "WINDOWS"
-
-    case "Linux":
-        System.CONFIG_PATH = _os.path.join(_os.path.expanduser("~"), ".local", "share", ".SkyBlockTools")
-        System.SYSTEM_TYPE = "LINUX"
+        case "Linux":
+            System.CONFIG_PATH = os.path.join(os.path.expanduser("~"), ".local", "share", ".SkyBlockTools")
+            System.SYSTEM_TYPE = "LINUX"
+def registerPath(_file):
+    Path.IMAGES = os.path.join(os.path.split(_file)[0], "images")
+    Path.INTERNAL_CONFIG = os.path.join(os.path.split(_file)[0], "config")

@@ -1,15 +1,14 @@
 from typing import Tuple, Union
-
-from hyPI.hypixelAPI.loader import HypixelBazaarParser
-from hyPI.parser import BaseAuctionProduct, BINAuctionProduct
-from hyPI.constants import MODIFIER
-from hyPI import getEnchantmentIDLvl
-
 from random import randint
-from skyMath import getMedianExponent, parsePrizeList, applyBazaarTax
-from skyMisc import getDictEnchantmentIDToLevels, parsePrizeToStr, getLBin, enchBookConvert
-from constants import MAYOR_NORMAL, MAYOR_SPEC, MAYOR_PERK_AMOUNT, API, ConfigFile, MASTER_STARS, ENCHANTMENT_UPGRADES, BITS_ENCHANTS
-from logger import MsgText
+
+from .hyPI.hypixelAPI.loader import HypixelBazaarParser
+from .hyPI.parser import BaseAuctionProduct, BINAuctionProduct
+from .hyPI.constants import MODIFIER
+from .hyPI import getEnchantmentIDLvl
+from .skyMath import getMedianExponent, parsePrizeList, applyBazaarTax
+from .skyMisc import getDictEnchantmentIDToLevels, parsePrizeToStr, getLBin, enchBookConvert
+from .constants import MAYOR_NORMAL, MAYOR_SPEC, MAYOR_PERK_AMOUNT, API, ConfigFile, MASTER_STARS, ENCHANTMENT_UPGRADES, BITS_ENCHANTS
+from .logger import MsgText
 
 
 def getPlotData(itemId:str, func):

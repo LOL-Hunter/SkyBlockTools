@@ -6,16 +6,15 @@ from webbrowser import open as openURL
 from time import time, sleep
 from random import choice
 
-from hyPI.skyCoflnetAPI import SkyConflnetAPI
-from hyPI.parser import BaseAuctionProduct
-from hyPI.APIError import APIConnectionError, NoAPIKeySetException
-
-from constants import STYLE_GROUP as SG, AUCT_INFO_LABEL_GROUP as AILG, COLOR_CODE_MAP,  BAZAAR_INFO_LABEL_GROUP as BILG, RARITY_COLOR_CODE
-from analyzer import getPlotData, calculateEstimatedItemValue
-from constants import Constants, ConfigFile
-from skyMath import getMedianFromList
-from logger import TextColor
-from images import IconLoader
+from .hyPI.skyCoflnetAPI import SkyConflnetAPI
+from .hyPI.parser import BaseAuctionProduct
+from .hyPI.APIError import APIConnectionError, NoAPIKeySetException
+from .constants import STYLE_GROUP as SG, AUCT_INFO_LABEL_GROUP as AILG, COLOR_CODE_MAP,  BAZAAR_INFO_LABEL_GROUP as BILG, RARITY_COLOR_CODE
+from .analyzer import getPlotData
+from .constants import Constants, ConfigFile
+from .skyMath import getMedianFromList
+from .logger import TextColor
+from .image import IconLoader
 
 class APILoginWidget(tk.LabelFrame):
     API_URL = "https://developer.hypixel.net/"

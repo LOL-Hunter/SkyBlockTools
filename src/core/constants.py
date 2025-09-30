@@ -1,32 +1,32 @@
+import os
 import tksimple as tk
 from tkinter import ttk
-from hyPI.hypixelAPI.loader import HypixelBazaarParser, HypixelAuctionParser, HypixelItemParser
-import os
+
+from .hyPI.hypixelAPI.loader import HypixelBazaarParser, HypixelAuctionParser, HypixelItemParser
 
 VERSION = "v2.3.0"
 APP_DATA = os.path.join(os.path.expanduser("~"), "AppData", "Roaming")
-CONFIG = os.path.join(os.path.split(__file__)[0], "config")
 
+class Path:
+    INTERNAL_CONFIG = ""
+    IMAGES = ""
+    APP_DATA = ""
 class Color:
     COLOR_WHITE = tk.Color.rgb(255, 255, 255)
     COLOR_DARK = tk.Color.rgb(50, 50, 50)
     COLOR_GRAY = tk.Color.rgb(160, 160, 160)
-
 class ConfigFile:
     AVERAGE_PRICE = None
-
 class API:
     SKYBLOCK_BAZAAR_API_PARSER: HypixelBazaarParser = None
     SKYBLOCK_AUCTION_API_PARSER: HypixelAuctionParser = None
     SKYBLOCK_ITEM_API_PARSER: HypixelItemParser = None
-
 class System:
     CONFIG_PATH = ""
     SYSTEM_TYPE = ""
 
 BazaarItemID: [str] = [] # creation on runtime
 AuctionItemID: [str] = [] # creation on runtime
-
 MASTER_STARS = [
     "FIRST_MASTER_STAR",
     "SECOND_MASTER_STAR",
@@ -34,8 +34,7 @@ MASTER_STARS = [
     "FOURTH_MASTER_STAR",
     "FIFTH_MASTER_STAR",
 ]
-
-ALL_ENCHANTMENT_IDS = []
+ALL_ENCHANTMENT_IDS = [] # generated at runtime
 BITS_ENCHANTS = [
     "ENCHANTMENT_CHAMPION",
     "ENCHANTMENT_EXPERTISE",
@@ -233,7 +232,6 @@ STYLE_GROUP.addCommand("setSlotBgAll", Color.COLOR_GRAY, ignoreErrors=True)
 BAZAAR_INFO_LABEL_GROUP = tk.WidgetGroup(instantiate=STYLE_GROUP)
 AUCT_INFO_LABEL_GROUP = tk.WidgetGroup(instantiate=STYLE_GROUP)
 
-
 def LOAD_STYLE():
     style = ttk.Style()
     style.theme_create("custom_theme", parent="alt", settings={
@@ -294,8 +292,6 @@ def LOAD_STYLE():
     }
                        )
     style.theme_use("custom_theme")
-
-
 def CONFIGURE_NOTEBOOK_STYLE(style):
     style.configure(
         "CustomNotebook",
@@ -307,8 +303,6 @@ def CONFIGURE_NOTEBOOK_STYLE(style):
         background=Color.COLOR_DARK,
         foreground=Color.COLOR_WHITE
     )
-
-
 class Constants:
     BAZAAR_TAX = None
     WAITING_FOR_API_REQUEST = False

@@ -3,21 +3,17 @@ import os
 from datetime import datetime
 from threading import Thread
 
-from constants import STYLE_GROUP as SG
-from logger import MsgText
-from jsonConfig import AdvancedJsonConfig
-from widgets import SettingValue, APILoginWidget
-from skyMisc import iterDict, parseTimeToStr, parseTimeDelta, requestItemHypixelAPI
-from constants import API, Constants, System
+from .constants import STYLE_GROUP as SG
+from .logger import MsgText
+from .jsonConfig import AdvancedJsonConfig
+from .widgets import SettingValue, APILoginWidget
+from .skyMisc import iterDict, parseTimeToStr, parseTimeDelta, requestItemHypixelAPI
+from .constants import API, Constants, System
 
-APP_DATA_SETTINGS = System.CONFIG_PATH
-IMAGES = os.path.join(os.path.split(__file__)[0], "images")
-CONFIG = os.path.join(os.path.split(__file__)[0], "config")
-
-
-if not os.path.exists(APP_DATA_SETTINGS):
-    os.mkdir(APP_DATA_SETTINGS)
-    MsgText.warning("Settings Folder missing! Creating at: "+APP_DATA_SETTINGS)
+def testForConfigFolder():
+    if not os.path.exists(System.CONFIG_PATH):
+        os.mkdir(System.CONFIG_PATH)
+        MsgText.warning("Settings Folder missing! Creating at: "+System.CONFIG_PATH)
 
 def checkConfigForUpdates():
     for key in Config.SETTINGS_CONFIG.getDefault().keys():
@@ -39,7 +35,7 @@ def checkConfigForUpdates():
     Config.SETTINGS_CONFIG.save()
 
 class Config:
-    AdvancedJsonConfig.setConfigFolderPath(APP_DATA_SETTINGS)
+    AdvancedJsonConfig.setConfigFolderPath(System.CONFIG_PATH)
 
     SETTINGS_CONFIG = AdvancedJsonConfig("SettingsConfig")
     SETTINGS_CONFIG.setDefault({
@@ -313,7 +309,7 @@ class SettingsGUI(tk.Dialog):
         self.valueLf.place(0, 50, 305, 300)
     def _requestItemAPI(self):
         Constants.WAITING_FOR_API_REQUEST = True
-        API.SKYBLOCK_ITEM_API_PARSER = requestItemHypixelAPI(self, Config, saveTo=os.path.join(APP_DATA_SETTINGS, "skyblock_save", "hypixel_item_config.json"))
+        API.SKYBLOCK_ITEM_API_PARSER = requestItemHypixelAPI(self, Config, saveTo=os.path.join(System.CONFIG_PATH, "skyblock_save", "hypixel_item_config.json"))
         Constants.WAITING_FOR_API_REQUEST = False
         self.uptBtn.setEnabled()
         self.updateItemAPIWidgets()
@@ -340,7 +336,7 @@ class SettingsGUI(tk.Dialog):
         return Config.SETTINGS_CONFIG["api_key"] != ""
     @staticmethod
     def checkItemConfigExist()->bool:
-        path = os.path.join(APP_DATA_SETTINGS, "skyblock_save", "hypixel_item_config.json")
+        path = os.path.join(System.CONFIG_PATH, "skyblock_save", "hypixel_item_config.json")
         if not os.path.exists(path):
             file = open(path, "w")
             file.write("{}")
