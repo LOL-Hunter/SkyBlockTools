@@ -222,7 +222,8 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
                         infoLabel.setText(f"Fetching Hypixel Auction API... [{i}/{len(fileList)}]")
                     else:
                         infoLabel.executeCommand("setText", f"Fetching Hypixel Auction API... [{i}/{len(fileList)}]")
-                parser.addPage(fileLoader(os.path.join(path, fileName)), i)
+                loader = fileLoader(os.path.join(path, fileName))
+                parser.addPage(loader, 0 if "page" not in loader.keys() else loader["page"])
         else:
             if saveTo is not None and fileNr is None:
                 TextColor.printStrf("§INFO§gDeleting old Auction-House config files...")
@@ -239,7 +240,7 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
                 data = APILoader(HypixelAPIURL.AUCTION_URL,
                                  config.SETTINGS_CONFIG["api_key"],
                                  name=config.SETTINGS_CONFIG["player_name"])
-                parser.addPage(data, 0)
+                data = parser.addPage(data, 0) # return decoded Data
 
                 if saveTo is not None:
                     file = JsonConfig.fromDict(data)
@@ -256,6 +257,7 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
                                  config.SETTINGS_CONFIG["api_key"],
                                  name=config.SETTINGS_CONFIG["player_name"],
                                  page=page)
+                data = parser.addPage(data, page)  # return decoded Data
                 if saveTo is not None:
                     file = JsonConfig.fromDict(data)
                     file.setPath(os.path.join(saveTo, f"file{str(page).rjust(3, '0')}.json"))
@@ -267,7 +269,6 @@ def requestAuctionHypixelAPI(master, config, path=None, progBar:tk.Progressbar=N
                         else:
                             infoLabel.executeCommand("setText",f"Fetching Hypixel Auction API... [{page+1}/{pages}]")
                 if progBar is not None: progBar.setValue(page+1)
-                parser.addPage(data, page)
     except APIConnectionError as e:
         throwAPIConnectionException(
             source="Hypixel Auction API",
@@ -447,8 +448,8 @@ def parsePrizeToStr(inputPrize: int | float | None, hideCoins=False, forceSign=F
     if neg:
         inputPrize = abs(inputPrize)
     prefix = ["", "k", "m", "b", "Tr", "Q"]
-    while inputPrize >= 1000:
-        inputPrize = inputPrize/1000
+    while round(inputPrize, 1) >= 1000:
+        inputPrize /= 1000
         exponent += 1
         if exponent > 5:
             return f"Overflow {inputPrize}"
@@ -696,10 +697,12 @@ def determineSystem():
         case "Windows":
             System.CONFIG_PATH = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", ".SkyBlockTools")
             System.SYSTEM_TYPE = "WINDOWS"
-
         case "Linux":
             System.CONFIG_PATH = os.path.join(os.path.expanduser("~"), ".local", "share", ".SkyBlockTools")
             System.SYSTEM_TYPE = "LINUX"
 def registerPath(_file):
     Path.IMAGES = os.path.join(os.path.split(_file)[0], "images")
     Path.INTERNAL_CONFIG = os.path.join(os.path.split(_file)[0], "config")
+def remEnum(val):
+    return val.value if hasattr(val, "value") else val
+

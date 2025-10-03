@@ -1,7 +1,7 @@
 from typing import List as _List, Tuple as _Tuple
 from numpy import median, percentile
 
-from .constants import Constants as _Constants
+from .constants import Constants as _Constants, CUSTOM_PET_XP_MAX, PET_XP_MAX
 
 
 def getPlotTicksFromInterval(data:list, interval:int)->list:
@@ -110,3 +110,11 @@ def parseTimeDelta(td)->TimeDelta:
     minute = minutes
     seconds = td.seconds % 60
     return TimeDelta(day, hour, minute, seconds)
+def capPetXP(xp: float, itemID: str, rarity: str) -> float:
+    if itemID in CUSTOM_PET_XP_MAX.keys():
+        maxXP = CUSTOM_PET_XP_MAX[itemID]
+    else:
+        maxXP = PET_XP_MAX[rarity]
+    if xp < maxXP:
+        return xp
+    return maxXP

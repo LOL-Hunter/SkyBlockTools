@@ -40,7 +40,6 @@ class AuctionHousePage(CustomPage):
         self.treeView.onDoubleSelectEvent(self.onDoubleClick)
         self.treeView.bind(self.onRClick, tk.EventType.RIGHT_CLICK)
         self.treeView.bind(self.onLClick, tk.EventType.LEFT_CLICK_RELEASE)
-        self.treeView.bind(self.onBtn, tk.EventType.MOUSE_PREV)
         self.treeView.placeRelative(changeHeight=-25, changeWidth=-2)
 
         self.searchBtn = tk.Button(self.contentFrame, SG)

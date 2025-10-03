@@ -652,6 +652,7 @@ class Window(tk.Tk):
         ConfigFile.AVERAGE_PRICE = JsonConfig.loadConfig(os.path.join(System.CONFIG_PATH, "skyblock_save", "average_price_save.json"), create=True)
         LOAD_STYLE() # load DarkMode!
         IconLoader.loadIcons()
+        self.requestedOnlyPage = None
         self.isShiftPressed = False
         self.isControlPressed = False
         self.isAltPressed = False
@@ -747,9 +748,6 @@ class Window(tk.Tk):
                             nextPage = 0
                         else:
                             nextPage += 1
-
-
-
     def configureWindow(self):
         self.setMinSize(600, 600)
         self.setTitle("SkyBlockTools "+VERSION)
@@ -839,6 +837,7 @@ class Window(tk.Tk):
         self.isConfigLoadedFromFile = True
         updateBazaarInfoLabel(API.SKYBLOCK_BAZAAR_API_PARSER, self.isConfigLoadedFromFile)
     def refreshAPIRequest(self, e, force=False, fileNr=None, useParser=None):
+        self.requestedOnlyPage = fileNr
         if Constants.WAITING_FOR_API_REQUEST:
             tk.SimpleDialog.askError(self, "Another api request is still running!\nTry again later.")
             return
@@ -890,6 +889,7 @@ if __name__ == '__main__':
     registerPath(__file__)
     determineSystem()
     testForConfigFolder()
+    Config.load() # load Settings
 
     Title().print("Sky Block Tools", "green")
     window = Window()

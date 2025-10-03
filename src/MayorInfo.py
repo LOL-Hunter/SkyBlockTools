@@ -1,5 +1,6 @@
 import os
-from datetime import timedelta, datetime, timezone
+from datetime import timedelta, datetime
+from pytz import timezone
 from threading import Thread
 from time import sleep
 

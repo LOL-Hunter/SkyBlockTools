@@ -14,7 +14,7 @@ def testForConfigFolder():
     if not os.path.exists(System.CONFIG_PATH):
         os.mkdir(System.CONFIG_PATH)
         MsgText.warning("Settings Folder missing! Creating at: "+System.CONFIG_PATH)
-
+    AdvancedJsonConfig.setConfigFolderPath(System.CONFIG_PATH)
 def checkConfigForUpdates():
     for key in Config.SETTINGS_CONFIG.getDefault().keys():
         if key not in Config.SETTINGS_CONFIG.keys():
@@ -33,10 +33,7 @@ def checkConfigForUpdates():
                     else:
                         Config.SETTINGS_CONFIG[key][key2] = Config.SETTINGS_CONFIG.getDefault()[key][key2]
     Config.SETTINGS_CONFIG.save()
-
 class Config:
-    AdvancedJsonConfig.setConfigFolderPath(System.CONFIG_PATH)
-
     SETTINGS_CONFIG = AdvancedJsonConfig("SettingsConfig")
     SETTINGS_CONFIG.setDefault({
         "player_name":"",
@@ -88,9 +85,11 @@ class Config:
         "player_rank": "New_Player",
         "bin_sniper_blacklist":[]
     })
-    SETTINGS_CONFIG.load("settings.json")
-    SettingValue.CONFIG = SETTINGS_CONFIG
-    Constants.BAZAAR_TAX = SETTINGS_CONFIG["constants"]["bazaar_tax"]
+    @staticmethod
+    def load():
+        Config.SETTINGS_CONFIG.load("settings.json")
+        SettingValue.CONFIG = Config.SETTINGS_CONFIG
+        Constants.BAZAAR_TAX = Config.SETTINGS_CONFIG["constants"]["bazaar_tax"]
 class ComposterSettings(tk.Frame):
     def __init__(self, master, onScrollHook=None):
         super().__init__(master)
@@ -297,7 +296,6 @@ class SettingsGUI(tk.Dialog):
 
         self.regItems.setText(f"Registered-Items: {amount}")
     def createConstantsTab(self, tab):
-
         self.valueLf = tk.LabelFrame(tab, SG)
         self.valueLf.setText("Constants:")
         tk.Text(tab, SG).setText("Ony change the Values if you\nreally know what you are doing!").setFg("red").place(0, 0, 305, 50).setFont(15).setDisabled()
@@ -305,7 +303,6 @@ class SettingsGUI(tk.Dialog):
         SettingValue(self.valueLf, name="Bazaar-Tax:", x=0, y=y.get(), key="bazaar_tax")
         SettingValue(self.valueLf, name="UseBazaarConfigAt:", x=0, y=y.get(), key="hypixel_bazaar_config_path")
         SettingValue(self.valueLf, name="UseAuctionConfigAt:", x=0, y=y.get(), key="hypixel_auction_config_path")
-
         self.valueLf.place(0, 50, 305, 300)
     def _requestItemAPI(self):
         Constants.WAITING_FOR_API_REQUEST = True
@@ -366,7 +363,3 @@ class SettingsGUI(tk.Dialog):
             root.show()
             return True
         return False
-
-
-
-

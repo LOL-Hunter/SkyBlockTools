@@ -7,8 +7,10 @@ from pytz import timezone
 from base64 import b64decode
 from nbt.nbt import NBTFile
 import nbt.nbt as nbt
+from time import time
 from io import BytesIO
 
+data = {}
 # Parsers and Generators (taken from nbt.nbt.py) [https://github.com/twoolie/NBT]
 # override NBT TAG_String-Class
 # Parsers and Generators
@@ -20,7 +22,6 @@ def _own_parse_buffer(self, buffer):
     self.value = read.decode("utf-8", "ignore") # ADDED "ignore" arg
 
 nbt.TAG_String._parse_buffer = _own_parse_buffer
-
 
 # TimeZone calculation
 def getHypTimezone(tz)->dt:
@@ -44,15 +45,22 @@ def getMayorTimezone(tz:str)->dt | None:
     time = dt.strptime(tz, "%m/%d/%Y %H:%M:%S")
     return time_zone.localize(time) + timedelta(hours=2)
 # id parsing
+def decodeNBT(base64Data:str):
+    dataGZip = b64decode(base64Data)
+    dataNBT = BytesIO(dataGZip)
+    nbt = NBTFile(fileobj=dataNBT)["i"][0]
+    return nbt
 def convertAuctionNameToID(data:dict)->dict:
     check = lambda id_, def_: extra[id_].value if id_ in extra.keys() else def_
     isPresent = lambda id_: id_ in extra.keys()
     upr = lambda str_: str_.upper() if isinstance(str_, str) else str_
 
     dataB64 = data["item_bytes"]
-    dataGZip = b64decode(dataB64)
-    dataNBT = BytesIO(dataGZip)
-    nbt = NBTFile(fileobj=dataNBT)["i"][0]
+
+    if type(dataB64) is dict: # already decoded!
+        return dataB64
+
+    nbt = decodeNBT(dataB64)
 
     itemID = str(nbt["tag"]["ExtraAttributes"]["id"])
 
@@ -122,7 +130,7 @@ def convertAuctionNameToID(data:dict)->dict:
         runeLvl = int(str(_rune[_runeKeys[0]]))
 
     return {
-        "count":nbt["Count"],
+        "count":int(nbt["Count"].value),
         "id": itemID,
         "name": data["item_name"],
         # upgrades
@@ -383,7 +391,7 @@ class Recipe:
         return self.ID
     def getWikiUrl(self):
         return self._data.get("wiki", None)
-# hypixel (bazzar)
+# hypixel (bazaar)
 class BazaarOrder:
     def __init__(self, data):
         self._data = data
@@ -478,10 +486,13 @@ class BazaarProductWithOrders(BazaarProduct):
         return _list
 # hypixel (auction)
 class BaseAuctionProduct:
-    def __init__(self, auctData:dict, itemData:dict):
+    def __init__(self, auctData:dict, itemData:dict, page:int):
         self._itemData = itemData
         self._auctData = auctData
+        self._page = page
     # Auction
+    def getPageID(self)->int:
+        return self._page
     def getCreatorUUID(self):
         return self._auctData["auctioneer"]
     def getAuctionID(self)->str:
@@ -679,19 +690,16 @@ class BaseAuctionProduct:
     def getBidAmount(self)->int:
         pass
 class BINAuctionProduct(BaseAuctionProduct):
-    def __init__(self, auctData:dict, itemData:dict):
-        super().__init__(auctData, itemData)
+    def __init__(self, auctData:dict, itemData:dict, page:int):
+        super().__init__(auctData, itemData, page)
     def __lt__(self, other):
         return self.getPrice() > other.getPrice()
     def getPrice(self):
         return self._auctData["starting_bid"]
 
-
-
-
 class NORAuctionProduct(BaseAuctionProduct):
-    def __init__(self, auctData: dict, itemData: dict):
-        super().__init__(auctData, itemData)
+    def __init__(self, auctData: dict, itemData: dict, page:int):
+        super().__init__(auctData, itemData, page)
     def __lt__(self, other):
         return self.getHighestBid() < other.getHighestBid()
     def getHighestBid(self):

@@ -194,42 +194,42 @@ class HypixelAuctionPage:
         self._norAucts = []
         self._norByID = {}
         self._decode(rawData["auctions"])
-
     def _decode(self, data:list):
         for auctData in data:
             try:
                 itemData = convertAuctionNameToID(auctData)
+                auctData["item_bytes"] = itemData
             except Exception as e:
                 MsgText.warning(f"Could not parse Item name: {ascii(auctData['item_name'])} | ERR: ({e.__class__.__name__}: {e})")
                 continue
             if auctData["bin"]:
-                _bin = BINAuctionProduct(auctData, itemData)
+                _bin = BINAuctionProduct(auctData, itemData, self._page)
                 if itemData["id"] in self._binByID.keys():
                     self._binByID[itemData["id"]].append(_bin)
                 else:
                     self._binByID[itemData["id"]] = [_bin]
                 self._binAucts.append(_bin)
             else:
-                _auc = NORAuctionProduct(auctData, itemData)
+                _auc = NORAuctionProduct(auctData, itemData, self._page)
                 if itemData["id"] in self._norByID.keys():
                     self._norByID[itemData["id"]].append(_auc)
                 else:
                     self._norByID[itemData["id"]] = [_auc]
                 self._norAucts.append(_auc)
-
-    def getBINAuctionByID(self, id_: str) -> List[BINAuctionProduct]:
+    def getBINAuctionByID(self, id_:str) -> List[BINAuctionProduct]:
         if id_ in self._binByID:
             return self._binByID[id_]
         return []
-    def getAuctionByID(self, id_: str) -> List[BINAuctionProduct]:
+    def getAuctionByID(self, id_:str) -> List[BINAuctionProduct]:
         if id_ in self._norByID:
             return self._norByID[id_]
         return []
+
 class HypixelAuctionParser:
     def __init__(self):
         self._data = None
         self._pages = {}
-    def addPage(self, rawData:dict, page:int):
+    def addPage(self, rawData:dict, page:int)->dict:
         if "auctions" in rawData.keys():
             self._pages[page] = HypixelAuctionPage(rawData, page)
             self._data = {
@@ -238,8 +238,9 @@ class HypixelAuctionParser:
                 "totalAuctions": rawData["totalAuctions"],
                 "lastUpdated": rawData["lastUpdated"],
             }
-            return
+            return self._pages[page]._data
         MsgText.warning(f"Auction House page: \"{rawData['cause']}\"")
+        return rawData
     def getBinAuctions(self)->List[BINAuctionProduct]:
         temp = []
         for page in self._pages.values():
@@ -287,3 +288,5 @@ class HypixelAuctionParser:
         return self._data["totalAuctions"]
     def getLastUpdated(self)->datetime:
         return getTimezone(self._data["lastUpdated"])
+    def getPageByID(self, id_:int)->HypixelAuctionPage:
+        return self._pages[id_]
