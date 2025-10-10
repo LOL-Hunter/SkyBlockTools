@@ -239,7 +239,7 @@ class HypixelAuctionParser:
                 "lastUpdated": rawData["lastUpdated"],
             }
             return self._pages[page]._data
-        MsgText.warning(f"Auction House page: \"{rawData['cause']}\"")
+        MsgText.warning(f"Auction House page[{page}]: \"{rawData['cause']}\"")
         return rawData
     def getBinAuctions(self)->List[BINAuctionProduct]:
         temp = []

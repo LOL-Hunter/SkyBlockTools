@@ -1,8 +1,7 @@
 from typing import List
-from pyperclip import copy as copyStr
 import tksimple as tk
 
-from core.constants import STYLE_GROUP as SG, API, AuctionItemID, RARITY_COLOR_CODE
+from core.constants import STYLE_GROUP as SG, API, AuctionItemID, RARITY_COLOR_CODE, ClipBoard
 from core.settings import Config
 from core.skyMisc import (
     parseTimeFromSec,
@@ -219,7 +218,7 @@ class AuctionHousePage(CustomPage):
         sel = self.treeView.getSelectedIndex()
         if sel is None: return
         auction = self.shownAuctions[sel]
-        copyStr(f"/viewauction {auction.getAuctionID()}")
+        ClipBoard.COPY(f"/viewauction {auction.getAuctionID()}")
     def placeMainWidgets(self):
         self.searchL.placeRelative(fixHeight=25, stickDown=True, fixWidth=75, fixX=150)
         self.searchE.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=250)

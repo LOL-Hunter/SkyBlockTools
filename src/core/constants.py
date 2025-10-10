@@ -17,6 +17,7 @@ class Color:
     COLOR_GRAY = tk.Color.rgb(160, 160, 160)
 class ConfigFile:
     AVERAGE_PRICE = None
+    ATTR_SHARD_DATA = None
 class API:
     SKYBLOCK_BAZAAR_API_PARSER: HypixelBazaarParser = None
     SKYBLOCK_AUCTION_API_PARSER: HypixelAuctionParser = None
@@ -24,7 +25,9 @@ class API:
 class System:
     CONFIG_PATH = ""
     SYSTEM_TYPE = ""
-
+class ClipBoard:
+    COPY = None
+    PASTE = None
 BazaarItemID: [str] = [] # creation on runtime
 AuctionItemID: [str] = [] # creation on runtime
 MASTER_STARS = [
@@ -77,8 +80,21 @@ RARITY_COLOR_CODE = {
     "SPECIAL":"#AA0000",
     "VERY_SPECIAL":"#AA0000",
     "ULTIMATE":"#AA0000",
-    "SUPREME":"#AA0000",
+    "SUPREME":"#AA0000"
 }
+RARITIES = [
+    "COMMON",
+    "UNCOMMON",
+    "RARE",
+    "EPIC",
+    "LEGENDARY",
+    "MYTHIC",
+    "DIVINE",
+    "SPECIAL",
+    "VERY_SPECIAL",
+    "ULTIMATE",
+    "SUPREME"
+]
 NPC_BUYABLE_PET_ITEMS = {
     "PET_ITEM_COMBAT_SKILL_BOOST_COMMON": 60_000,
     "PET_ITEM_FORAGING_SKILL_BOOST_COMMON": 60_000,
@@ -253,6 +269,46 @@ AUTO_RECOMBED_ITEMS = [
     "LAPIS_ARMOR_LEGGINGS",
     "LAPIS_ARMOR_BOOTS",
 ]
+ATTR_SHARD_CATEGORY = [
+    "FOREST",
+    "WATER",
+    "COMBAT",
+]
+ATTR_SHARD_FAMILY = [
+    "ELEMENTAL",
+    "SERPENT",
+    "NONE",
+    "TROPICAL_FISH",
+    "BIRD",
+    "EEL",
+    "FROG",
+    "DROWNED",
+    "CROCO",
+    "TURTLE",
+    "SCALED",
+    "CAVE_DWELLER",
+    "LIZARD",
+    "SPIDER",
+    "DRAGON",
+    "PHANTOM",
+    "REPTILE",
+    "TREASURE_FISH",
+    "SQUID",
+    "AMPHIBIAN",
+    "BUG",
+    "SHULKER",
+    "LAPIS",
+    "PANDA",
+    "DEMON",
+    "AXOLOTL"
+]
+ATTR_SHARDS_REQ = {
+    "COMMON": [1, 3, 5, 6, 7, 8, 10, 14, 18, 24],
+    "UNCOMMON": [1, 2, 3, 4, 5, 6, 7, 8, 12, 16],
+    "RARE": [1, 2, 3, 3, 4, 4, 5, 6, 8, 12],
+    "EPIC": [1, 1, 2, 2, 3, 3, 4, 4, 5, 7],
+    "LEGENDARY": [1, 1, 1, 2, 2, 2, 3, 3, 4, 5],
+}
 
 STYLE_GROUP = tk.WidgetGroup()
 STYLE_GROUP.addCommand("setBg", Color.COLOR_DARK, ignoreErrors=True)

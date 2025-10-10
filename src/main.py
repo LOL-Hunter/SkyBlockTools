@@ -50,6 +50,8 @@ from core.skyMisc import (
     parsePrizeToStr,
     determineSystem,
     registerPath,
+    loadConfigs,
+    initClipBoard,
     search,
     _map,
     updateItemLists,
@@ -77,6 +79,8 @@ from ComposterProfit import ComposterProfitPage
 from BoosterCookieBitsProfit import BoosterCookieBitsProfit
 from EnchantingBookBazaarProfit import EnchantingBookBazaarProfitPage
 from EnchantingBookBazaarCheapest import EnchantingBookBazaarCheapestPage
+from AttrBuyHelper import AttrBuyHelperPage
+
 
 # Info/Content Pages
 class ItemInfoPage(CustomPage):
@@ -649,7 +653,7 @@ class Window(tk.Tk):
             os.mkdir(os.path.join(System.CONFIG_PATH, "skyblock_save", "auctionhouse"))
             MsgText.warning("Folder does not exist! Creating folder: " + os.path.join(System.CONFIG_PATH, "skyblock_save", "auctionhouse"))
         # load average_price_save.json
-        ConfigFile.AVERAGE_PRICE = JsonConfig.loadConfig(os.path.join(System.CONFIG_PATH, "skyblock_save", "average_price_save.json"), create=True)
+
         LOAD_STYLE() # load DarkMode!
         IconLoader.loadIcons()
         self.requestedOnlyPage = None
@@ -667,11 +671,12 @@ class Window(tk.Tk):
         self.loadingPage = LoadingPage(self)
 
         self.mainMenuPage = MainMenuPage(self, [
+                AttrBuyHelperPage(self),
                 LongTimeFlipHelperPage(self),
                 ItemPriceTrackerPage(self),
                 PestProfitPage(self),
-                MayorInfoPage(self),
                 BinSniperPage(self),
+                MayorInfoPage(self),
                 BazaarFlipProfitPage(self),
                 AlchemyXPCalculatorPage(self),
                 BazaarCraftProfitPage(self),
@@ -890,6 +895,8 @@ if __name__ == '__main__':
     determineSystem()
     testForConfigFolder()
     Config.load() # load Settings
+    initClipBoard()
+    loadConfigs()
 
     Title().print("Sky Block Tools", "green")
     window = Window()

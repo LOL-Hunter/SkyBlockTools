@@ -98,14 +98,9 @@ class BinSniperAnalyzer:
     @staticmethod
     def updateSniperPage(page:int, isOrder:bool, sortKey:SortKey | str, filterType=None, filterPrice=None):
         # remove old
-        print("Removing Items...", len(BinSniperAnalyzer.SORTER))
-
         for sorter in BinSniperAnalyzer.SORTER.copy():
             if sorter["page"] == page:
                 BinSniperAnalyzer.SORTER.remove(sorter)
-
-        print("Removed!", len(BinSniperAnalyzer.SORTER))
-
         pageAucts = API.SKYBLOCK_AUCTION_API_PARSER.getPageByID(page)._binAucts
         for auction in pageAucts:
             auctions = len(API.SKYBLOCK_AUCTION_API_PARSER.getBINAuctionByID(auction.getID()))
@@ -598,7 +593,6 @@ class BinSniperPage(CustomPage):
         ConfigFile.AVERAGE_PRICE.saveConfig()
     def showLoadingFrame(self, len_):
         self.isLoading = True
-        print(len_, "BarSteps")
         self.loadingBar.setValues(len_)
         self.loadingBar.setValue(0)
         if self.isSideBarOpen:
@@ -697,7 +691,6 @@ class BinSniperPage(CustomPage):
             if sorter["clazz"].getUUID() not in self.displayedIds and self.displayedIds:
                 temp.append("new_id")
             return tuple(temp)
-        print("Items in TV:", len(BinSniperAnalyzer.SORTER))
         for sorter in BinSniperAnalyzer.SORTER[:200]:
             tempIDs.append(sorter["clazz"].getUUID())
             self.treeview.addEntry(
@@ -713,7 +706,6 @@ class BinSniperPage(CustomPage):
         self.treeview.setBgColorByTag("new_id", tk.Color.rgb(52, 125, 128))
         self.treeview.setBgColorByTag("recomb", tk.Color.rgb(255, 125, 128))
         self.displayedIds = tempIDs
-        print(len(self.displayedIds))
         MsgText.info(f"Updating Treeview took {round(time()-timer, 2)}s!")
 
     # events

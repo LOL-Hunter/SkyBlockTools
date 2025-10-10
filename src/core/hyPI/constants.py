@@ -211,7 +211,6 @@ ROMIC_NUMBERS = {
     "X":10
 }
 
-
 class Category(Enum):
     WEAPON = 'WEAPON'
     ARMOR = 'ARMOR'

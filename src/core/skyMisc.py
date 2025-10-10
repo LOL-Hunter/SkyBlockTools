@@ -3,6 +3,7 @@ import tksimple as tk
 from platform import system
 from datetime import datetime
 from typing import List, Dict
+from pyperclip import determine_clipboard
 import os
 
 from .hyPI.APIError import APIConnectionError, NoAPIKeySetException, APITimeoutException, CouldNotReadDataPackageException
@@ -13,7 +14,21 @@ from .hyPI.parser import BINAuctionProduct
 from .hyPI import getEnchantmentIDLvl
 from .jsonConfig import JsonConfig
 from .logger import TextColor, MsgText
-from .constants import BAZAAR_INFO_LABEL_GROUP as BILG, AUCT_INFO_LABEL_GROUP as AILG, Path, API, ALL_ENCHANTMENT_IDS, AuctionItemID, BazaarItemID, System, Constants
+from .constants import (
+    BAZAAR_INFO_LABEL_GROUP as BILG,
+    AUCT_INFO_LABEL_GROUP as AILG,
+    Path,
+    API,
+    ConfigFile,
+    ALL_ENCHANTMENT_IDS,
+    AuctionItemID,
+    BazaarItemID,
+    System,
+    Constants,
+    ClipBoard,
+    ATTR_SHARDS_REQ,
+    RARITIES
+)
 from .skyMath import parseTimeDelta
 
 def requestMayorHypixelAPI(master, config)->HypixelMayorParser | None:
@@ -601,6 +616,18 @@ def rangeIfSinleNone(from_:int, to_:int, single: int | None):
     if single is None:
         return range(from_, to_)
     return [single]
+def initClipBoard():
+    ClipBoard.COPY, ClipBoard.PASTE = determine_clipboard()
+def getShardsNeeded(rarity:str)->int:
+    rarity = rarity.upper()
+    if rarity in ATTR_SHARDS_REQ.keys():
+        return sum(ATTR_SHARDS_REQ[rarity])
+    return 0
+def loadConfigs():
+    ConfigFile.AVERAGE_PRICE = JsonConfig.loadConfig(os.path.join(System.CONFIG_PATH, "skyblock_save", "average_price_save.json"), create=True)
+    ConfigFile.ATTR_SHARD_DATA = JsonConfig.loadConfig(os.path.join(Path.INTERNAL_CONFIG, "attribute_shards_data.json"))
+def isRarityGreater(baseRar:str, greaterThen:str):
+    return RARITIES.index(baseRar.upper()) <= RARITIES.index(greaterThen.upper())
 
 class Sorter:
     def __init__(self, sort=None, sortKey=None, **kwargs):
@@ -705,4 +732,3 @@ def registerPath(_file):
     Path.INTERNAL_CONFIG = os.path.join(os.path.split(_file)[0], "config")
 def remEnum(val):
     return val.value if hasattr(val, "value") else val
-
