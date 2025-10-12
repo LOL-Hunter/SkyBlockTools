@@ -1,1 +1,4523 @@
-{"SHARD_GROVE": {"rarity": "COMMON", "category": ["FOREST"], "family": ["ELEMENTAL"], "attr_name": "Nature Elemental", "effect": "Grants +2 \u2794 20  Health", "obtain": "Fusing Forest Category and Common with Uncommon or higher.", "id_res": {"shard": "SHARD_PHANPYRE"}, "fusion": {"input_1": {"type": "and", "data": [{"category": "FOREST"}, {"rarity": "COMMON", "or_higher": false}]}, "input_2": {"rarity": "UNCOMMON", "or_higher": true}}}, "SHARD_MIST": {"rarity": "COMMON", "category": ["WATER"], "family": ["ELEMENTAL"], "attr_name": "Fog Elemental", "effect": "Grants +1 \u2794 10  Intelligence", "obtain": "Fusing Water Category and Common with Uncommon or higher.", "id_res": {"shard": "SHARD_COD"}, "fusion": {"input_1": {"type": "and", "data": [{"category": "WATER"}, {"rarity": "COMMON", "or_higher": false}]}, "input_2": {"rarity": "UNCOMMON", "or_higher": true}}}, "SHARD_FLASH": {"rarity": "COMMON", "category": ["COMBAT"], "family": ["ELEMENTAL"], "attr_name": "Light Elemental", "effect": "Grants +1 \u2794 10  Strength", "obtain": "Fusing Combat Category and Common with Uncommon or higher.", "id_res": {"shard": "SHARD_LAPIS_ZOMBIE"}, "fusion": {"input_1": {"type": "and", "data": [{"category": "COMBAT"}, {"rarity": "COMMON", "or_higher": false}]}, "input_2": {"rarity": "UNCOMMON", "or_higher": true}}}, "SHARD_PHANPYRE": {"rarity": "COMMON", "category": ["FOREST"], "family": ["PHANTOM"], "attr_name": "Nocturnal Animal", "effect": "Grants +1 \u2794 10  Sweep during the night", "obtain": "Catch with Lasso. Place Traps in Galatea. (On Land). Found in Fig and Mangrove Tree Gifts.", "id_res": {"shard": "SHARD_PHANFLARE"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_COD": {"rarity": "COMMON", "category": ["WATER"], "family": ["TROPICAL_FISH"], "attr_name": "Cheapstake", "effect": "Gain +1% \u2794 10% more Coins from fishing treasures", "obtain": "Place Traps in Murkwater Depths. (Underwater). Place Traps in Murkwater Shallows. (Underwater). Caught by Fishing in Tomb Floodway. Catch with a Fishing Net.", "id_res": {"shard": "SHARD_NIGHT_SQUID"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_PHANFLARE": {"rarity": "COMMON", "category": ["FOREST"], "family": ["PHANTOM"], "attr_name": "Moonglade Mastery", "effect": "Grants +10 \u2794 100  Fig Fortune and +10 \u2794 100  Mangrove Fortune", "obtain": "Catch with Lasso. Place Traps in Galatea. (On Land). Found in Fig and Mangrove Tree Gifts.", "id_res": {"shard": "SHARD_HIDEONLEAF"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_NIGHT_SQUID": {"rarity": "COMMON", "category": ["WATER"], "family": ["SQUID"], "attr_name": "Fisherman", "effect": "Has a +1% \u2794 10% chance not to consume any bait", "obtain": "Catch with Pocket Black Hole. Kill Night Squid while using Salts.", "id_res": {"shard": "SHARD_VERDANT"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_LAPIS_ZOMBIE": {"rarity": "COMMON", "category": ["COMBAT"], "family": ["LAPIS"], "attr_name": "Experience", "effect": "Grants +10% \u2794 100% more experience orbs from killing mobs", "obtain": "Catch with Pocket Black Hole. Kill Lapis Zombie while using Salts.", "id_res": {"shard": "SHARD_CHILL"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_HIDEONLEAF": {"rarity": "COMMON", "category": ["FOREST"], "family": ["SHULKER"], "attr_name": "Mossy Box", "effect": "Grants +5 \u2794 50  Block Fortune", "obtain": "Hunted on Galatea.", "id_res": {"shard": "SHARD_MUDWORM"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_VERDANT": {"rarity": "COMMON", "category": ["WATER"], "family": ["TROPICAL_FISH"], "attr_name": "Forest Fishing", "effect": "Grants +3 \u2794 30  Fishing Speed while on Foraging Islands", "obtain": "Place Traps in Murkwater Depths. (Underwater). Place Traps in Murkwater Shallows. (Underwater). Caught by Fishing in Tomb Floodway. Catch with a Fishing Net.", "id_res": {"shard": "SHARD_BOGGED"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_CHILL": {"rarity": "COMMON", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Skeletal Ruler", "effect": "Increase damage to Skeletal creatures by +3% \u2794 30%", "obtain": "Catch with Pocket Black Hole. Kill Chillshot or Chillblade while using Salts. Place Traps in Wyrmgrove Tomb.", "id_res": {"shard": "SHARD_VORACIOUS_SPIDER"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_BOGGED": {"rarity": "COMMON", "category": ["WATER"], "family": ["NONE"], "attr_name": "Creature Fisher", "effect": "Grants +0.5 \u2794 5  Sea Creature Chance", "obtain": "Catch with Pocket Black Hole. Kill Sea Archer while using Salts.", "id_res": {"shard": "SHARD_BIRRIES"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_VORACIOUS_SPIDER": {"rarity": "COMMON", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Arthropod Resistance", "effect": "Grants +4 \u2794 40  Defense against Spiders", "obtain": "Catch with Pocket Black Hole. Kill Voracious Spider while using Salts.", "id_res": {"shard": "SHARD_TANK_ZOMBIE"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_HIDEONGIFT": {"rarity": "COMMON", "category": ["FOREST"], "family": ["SHULKER"], "attr_name": "Happy Box", "effect": "Grants a +2% \u2794 20% chance to obtain an extra Winter Gift when finding one", "obtain": "Fusing Shulker Family with Common or higher.", "id_res": {"shard": "SHARD_MUDWORM"}, "fusion": {"input_1": {"family": "SHULKER"}, "input_2": {"rarity": "COMMON", "or_higher": true}}}, "SHARD_BIRRIES": {"rarity": "COMMON", "category": ["WATER"], "family": ["NONE"], "attr_name": "Yummy", "effect": "Grants a +10% \u2794 100%  chance to drop double Berries and Sea Lumies", "obtain": "Place Traps in Galatea. (On Land). Catch with a Fishing Net. Catch with Lasso.", "id_res": {"shard": "SHARD_TADGANG"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_TANK_ZOMBIE": {"rarity": "COMMON", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Undead Resistance", "effect": "Grants +4 \u2794 40  Defense against Undead Monsters", "obtain": "Kill Super Tank Zombie, Crypt Tank Zombie, Master Crypt Tank Zombie, or Master Super Tank Zombie while using Salts.", "id_res": {"shard": "SHARD_ZEALOT"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_CROW": {"rarity": "COMMON", "category": ["FOREST"], "family": ["BIRD"], "attr_name": "Fig Sharpening", "effect": "Grants +5 \u2794 50  Sweep towards Fig Trees", "obtain": "Purchased in Agatha's Shop.", "id_res": {"shard": "SHARD_MUDWORM"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_TADGANG": {"rarity": "COMMON", "category": ["WATER"], "family": ["FROG", "AMPHIBIAN"], "attr_name": "Unity Is Strength", "effect": "Grants +0.02 \u2794 0.2  Sweep for each unique Common Attribute you own", "obtain": "Catch with Pocket Black Hole. Kill Tadgang while using Salts. Place Traps in Murkwater Depths. (Underwater). Place Traps in Murkwater Shallows. (Underwater).", "id_res": {"shard": "SHARD_CORALOT"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_ZEALOT": {"rarity": "COMMON", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Ender Resistance", "effect": "Grants +4 \u2794 40  Defense against mobs in The End", "obtain": "Catch with Pocket Black Hole. Kill Zealot while using Salts.", "id_res": {"shard": "SHARD_GOLDEN_GHOUL"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_CORALOT": {"rarity": "COMMON", "category": ["WATER"], "family": ["AXOLOTL"], "attr_name": "Bucket Lover", "effect": "You have a +5% \u2794 50% chance to gain extra Chums", "obtain": "Place Traps in Murkwater Depths. (Underwater). Catch with a Fishing Net. Catch with Lasso.", "id_res": null, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_HARPY": {"rarity": "COMMON", "category": ["COMBAT"], "family": ["BIRD"], "attr_name": "Tree Lurker", "effect": "Increases the odds of finding monsters from Tree Gifts by +5% \u2794 50%", "obtain": "Fusing Bird Family with Combat Category.", "id_res": {"shard": "SHARD_GOLDEN_GHOUL"}, "fusion": {"input_1": {"family": "BIRD"}, "input_2": {"category": "COMBAT"}}}, "SHARD_MUDWORM": {"rarity": "COMMON", "category": ["FOREST"], "family": ["NONE"], "attr_name": "Visitor Bait", "effect": "Garden Visitors arrive +1% \u2794 10% faster", "obtain": "Place Traps in Galatea. (On Land). Found in Grass on Galatea.", "id_res": null, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_GOLDEN_GHOUL": {"rarity": "COMMON", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Midas Touch", "effect": "Grants +1 \u2794 10 Coins per kill", "obtain": "Catch with Pocket Black Hole. Kill Golden Ghoul while using Salts.", "id_res": {"shard": "SHARD_BEZAL"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_AZURE": {"rarity": "COMMON", "category": ["COMBAT"], "family": ["TROPICAL_FISH"], "attr_name": "Forest Strength", "effect": "Grants +5 \u2794 50  Strength while on Foraging Islands", "obtain": "Place Traps in Murkwater Depths. (Underwater). Place Traps in Murkwater Shallows. (Underwater). Caught by Fishing in Tomb Floodway.", "id_res": null, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_BEZAL": {"rarity": "COMMON", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Blazing Resistance", "effect": "Grants +4 \u2794 40  Defense against mobs while in the Crimson Isle", "obtain": "Catch with Pocket Black Hole. Kill Bezal while using Salts. Obtained from Kuudra.", "id_res": {"shard": "SHARD_YOG"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_YOG": {"rarity": "COMMON", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Yog Membrane", "effect": "Grants +1 \u2794 10  Heat Resistance", "obtain": "Catch with Pocket Black Hole. Kill Yog while using Salts.", "id_res": {"shard": "SHARD_MINER_ZOMBIE"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_BOREAL_OWL": {"rarity": "COMMON", "category": ["FOREST"], "family": ["BIRD"], "attr_name": "Owl Friend", "effect": "Your pets gain +2% \u2794 20%  more Pet EXP from Fann", "obtain": "Fusing Bird Family with Common or higher.", "id_res": null, "fusion": {"input_1": {"family": "BIRD"}, "input_2": {"rarity": "COMMON", "or_higher": true}}}, "SHARD_NEWT": {"rarity": "COMMON", "category": ["WATER"], "family": ["REPTILE", "LIZARD"], "attr_name": "Decent Karma", "effect": "Grants +2 \u2794 20  Hunter Fortune towards COMMON Attributes", "obtain": "Fusing Axolotl Family with Water Category.", "id_res": null, "fusion": {"input_1": {"family": "AXOLOTL"}, "input_2": {"category": "WATER"}}}, "SHARD_MINER_ZOMBIE": {"rarity": "COMMON", "category": ["COMBAT"], "family": ["CAVE_DWELLER"], "attr_name": "Rotten Pickaxe", "effect": "Grants +3 \u2794 30  Mining Speed", "obtain": "Catch with Pocket Black Hole. Kill Miner Zombie while using Salts.", "id_res": null, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_BRAMBLE": {"rarity": "UNCOMMON", "category": ["FOREST"], "family": ["ELEMENTAL"], "attr_name": "Wood Elemental", "effect": "Grants +2 \u2794 20  Health", "obtain": "Fusing Forest Category and Uncommon with Rare or higher.", "id_res": {"shard": "SHARD_PEST"}, "fusion": {"input_1": {"type": "and", "data": [{"category": "FOREST"}, {"rarity": "UNCOMMON", "or_higher": false}]}, "input_2": {"rarity": "RARE", "or_higher": true}}}, "SHARD_TIDE": {"rarity": "UNCOMMON", "category": ["WATER"], "family": ["ELEMENTAL"], "attr_name": "Water Elemental", "effect": "Grants +1 \u2794 10  Intelligence", "obtain": "Fusing Water Category and Uncommon with Rare or higher.", "id_res": {"shard": "SHARD_MOSSYBIT"}, "fusion": {"input_1": {"type": "and", "data": [{"category": "WATER"}, {"rarity": "UNCOMMON", "or_higher": false}]}, "input_2": {"rarity": "RARE", "or_higher": true}}}, "SHARD_QUAKE": {"rarity": "UNCOMMON", "category": ["COMBAT"], "family": ["ELEMENTAL"], "attr_name": "Stone Elemental", "effect": "Grants +1 \u2794 10  Strength", "obtain": "Fusing Combat Category and Uncommon with Rare or higher.", "id_res": {"shard": "SHARD_RAIN_SLIME"}, "fusion": {"input_1": {"type": "and", "data": [{"category": "COMBAT"}, {"rarity": "UNCOMMON", "or_higher": false}]}, "input_2": {"rarity": "RARE", "or_higher": true}}}, "SHARD_SPARROW": {"rarity": "UNCOMMON", "category": ["FOREST"], "family": ["BIRD"], "attr_name": "Fig Collector", "effect": "Grants +1 \u2794 10  Fig Fortune for every digit in your Fig Log collection. (Max 10M collection)", "obtain": "Unlocked from Fig Collection VII.", "id_res": {"shard": "SHARD_PEST"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_GOLDFIN": {"rarity": "UNCOMMON", "category": ["WATER"], "family": ["NONE"], "attr_name": "Gold Bait", "effect": "The cooldown of Golden Fish is reduced by 30s \u2794 5m", "obtain": "Fusing Golden Ghoul Shard with Water Category.", "id_res": {"shard": "SHARD_MOSSYBIT"}, "fusion": {"input_1": {"shard": "SHARD_GOLDEN_GHOUL"}, "input_2": {"category": "WATER"}}}, "SHARD_TROGLOBYTE": {"rarity": "UNCOMMON", "category": ["COMBAT"], "family": ["CAVE_DWELLER"], "attr_name": "Mountain Climber", "effect": "Commissions grant +1% \u2794 10% more HOTM Exp", "obtain": "Fusing Cave Dweller Family with Combat Category.", "id_res": {"shard": "SHARD_RAIN_SLIME"}, "fusion": {"input_1": {"family": "CAVE_DWELLER"}, "input_2": {"category": "COMBAT"}}}, "SHARD_HIDEONCAVE": {"rarity": "UNCOMMON", "category": ["FOREST"], "family": ["SHULKER"], "attr_name": "Bigger Box", "effect": "Grants a +5% \u2794 50%  chance to find an extra item in Treasure Chests and the Crystal Nucleus", "obtain": "Fusing Shulker Family with Cave Dweller Family.", "id_res": {"shard": "SHARD_PEST"}, "fusion": {"input_1": {"family": "SHULKER"}, "input_2": {"family": "CAVE_DWELLER"}}}, "SHARD_SALAMANDER": {"rarity": "UNCOMMON", "category": ["WATER"], "family": ["REPTILE", "LIZARD"], "attr_name": "Good Karma", "effect": "Grants +2 \u2794 20  Hunter Fortune towards UNCOMMON Attributes", "obtain": "Fusing Lizard Family with Water Category.", "id_res": {"shard": "SHARD_MOSSYBIT"}, "fusion": {"input_1": {"shard": "SHARD_NEWT"}, "input_2": {"category": "WATER"}}}, "SHARD_CUBOA": {"rarity": "UNCOMMON", "category": ["COMBAT"], "family": ["REPTILE", "SERPENT"], "attr_name": "Echo Of Boxes", "effect": "Your \"Box\" Attributes are +2% \u2794 20%  stronger", "obtain": "Fusing Shulker Family with Reptile Family.", "id_res": {"shard": "SHARD_RAIN_SLIME"}, "fusion": {"input_1": {"family": "SHULKER"}, "input_2": {"family": "REPTILE"}}}, "SHARD_PEST": {"rarity": "UNCOMMON", "category": ["FOREST"], "family": ["BUG"], "attr_name": "Pest Luck", "effect": "Gain a +2% \u2794 20% chance to obtain rare loot from Pests", "obtain": "Catch with Pocket Black Hole. Catch with Lasso. Kill Cricket, Fly, Beetle, Earthworm, Locust, Slug, Mosquito, Moth, Rat, or Mite while using Salts.", "id_res": {"shard": "SHARD_BAMBULEAF"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_MOSSYBIT": {"rarity": "UNCOMMON", "category": ["WATER"], "family": ["FROG", "AMPHIBIAN"], "attr_name": "Forest Trap", "effect": "Forest Shards get caught by Traps +1% \u2794 10%  faster", "obtain": "Fusing Tadgang Shard with Forest Category. Place Traps in Galatea. (On Land). Hunted in Murkwater Loch.", "id_res": {"shard": "SHARD_SALMON"}, "fusion": {"input_1": {"shard": "SHARD_TADGANG"}, "input_2": {"category": "FOREST"}}}, "SHARD_RAIN_SLIME": {"rarity": "UNCOMMON", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Mana Steal", "effect": "Regain +0.5 \u2794 5 of your maximum Mana every time you hit a monster", "obtain": "Catch with Pocket Black Hole. Kill Rain Slime or Toxic Rain Slime while using Salts.", "id_res": {"shard": "SHARD_SEER"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_SEER": {"rarity": "UNCOMMON", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Dragon Shortbow Improvement", "effect": "Your Dragon Shortbow gains +2% \u2794 20% more  Damage while in The End", "obtain": "Catch with Pocket Black Hole. Kill Seer while using Salts.", "id_res": {"shard": "SHARD_OBSIDIAN_DEFENDER"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_HERON": {"rarity": "UNCOMMON", "category": ["FOREST"], "family": ["BIRD"], "attr_name": "Mangrove Sharpening", "effect": "Grants +10 \u2794 100  Sweep towards Mangrove Trees", "obtain": "Purchased in Agatha's Shop.", "id_res": {"shard": "SHARD_BAMBULEAF"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_OBSIDIAN_DEFENDER": {"rarity": "UNCOMMON", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Speed", "effect": "Grants +1 \u2794 10  Speed", "obtain": "Catch with Pocket Black Hole. Kill Obsidian Defender while using Salts.", "id_res": {"shard": "SHARD_ZOMBIE_SOLDIER"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_SALMON": {"rarity": "UNCOMMON", "category": ["WATER"], "family": ["NONE"], "attr_name": "Lost And Found", "effect": "Grants a +0.1% \u2794 1% chance to find a Wet Book when fishing a Treasure", "obtain": "Place Traps in Murkwater Depths. (Underwater). Place Traps in Murkwater Shallows. (Underwater). Caught by Fishing in Tomb Floodway. Catch with a Fishing Net.", "id_res": {"shard": "SHARD_ENT"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_VIPER": {"rarity": "UNCOMMON", "category": ["COMBAT"], "family": ["REPTILE", "SERPENT"], "attr_name": "Hunter's Fang", "effect": "Your Hunting Axes gain +1% \u2794 10% more stats from the weapon they hold", "obtain": "Fusing Cuboa Shard with Combat Category. Purchased from Kiara's Shop.", "id_res": {"shard": "SHARD_ZOMBIE_SOLDIER"}, "fusion": {"input_1": {"shard": "SHARD_CUBOA"}, "input_2": {"category": "COMBAT"}}}, "SHARD_PRAYING_MANTIS": {"rarity": "UNCOMMON", "category": ["FOREST"], "family": ["BUG"], "attr_name": "Insect Power", "effect": "Your Vacuum deals +5% \u2794 50% extra  Damage", "obtain": "Fusing Pest Shard with Combat Category.", "id_res": {"shard": "SHARD_BAMBULEAF"}, "fusion": {"input_1": {"shard": "SHARD_PEST"}, "input_2": {"category": "COMBAT"}}}, "SHARD_ZOMBIE_SOLDIER": {"rarity": "UNCOMMON", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Undead Ruler", "effect": "Grants +3% \u2794 30% more  Damage against Undead Monsters", "obtain": "Kill Zombie Knight, Zombie Soldier, Zombie Commander, or Zombie Lord while using Salts.", "id_res": {"shard": "SHARD_SYCOPHANT"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_BAMBULEAF": {"rarity": "UNCOMMON", "category": ["FOREST"], "family": ["PANDA"], "attr_name": "Strong Arms", "effect": "Your Axe gains +3 \u2794 30  Sweep on throws", "obtain": "Place Traps in Tranquility Sanctum. (Spring or Summer). Obtained from Pandas on Galatea.", "id_res": {"shard": "SHARD_MOCHIBEAR"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_SYCOPHANT": {"rarity": "UNCOMMON", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Life Recovery", "effect": "Heals for +0.1% \u2794 1% of your max health each time you kill a mob", "obtain": "Catch with Pocket Black Hole. Kill Revenant Sycophant while using Salts.", "id_res": {"shard": "SHARD_SOUL_OF_THE_ALPHA"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_SEAGULL": {"rarity": "UNCOMMON", "category": ["FOREST"], "family": ["BIRD"], "attr_name": "Mangrove Collector", "effect": "Grants +1 \u2794 10  Mangrove Fortune for every digit in your Mangrove Log collection. (Max 10M collection)", "obtain": "Unlocked from Mangrove Collection VI.", "id_res": {"shard": "SHARD_MOCHIBEAR"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_ENT": {"rarity": "UNCOMMON", "category": ["WATER"], "family": ["NONE"], "attr_name": "Spirit Axe", "effect": "Your Axes deal +2% \u2794 20% extra  Damage to creatures on Galatea", "obtain": "Catch with Pocket Black Hole. Kill Ent while using Salts. Place Traps in Murkwater Depths. (Underwater). Place Traps in Murkwater Shallows. (Underwater).", "id_res": {"shard": "SHARD_MAGMA_SLUG"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_SOUL_OF_THE_ALPHA": {"rarity": "UNCOMMON", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Combo", "effect": "Deal +0.1% \u2794 1% more  Damage per Grandma Wolf pet combo. (Max 50 combo)", "obtain": "Catch with Pocket Black Hole. Kill Soul of the Alpha while using Salts. Place Traps in Howling Cave.", "id_res": {"shard": "SHARD_FLAMING_SPIDER"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_MOCHIBEAR": {"rarity": "UNCOMMON", "category": ["FOREST"], "family": ["PANDA"], "attr_name": "Strong Legs", "effect": "Your Axe gains +3 \u2794 30  Sweep on melee", "obtain": "Place Traps in Tranquility Sanctum. (Autumn or Winter). Obtained from Pandas on Galatea.", "id_res": null, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_MAGMA_SLUG": {"rarity": "UNCOMMON", "category": ["WATER"], "family": ["NONE"], "attr_name": "Infection", "effect": "Increases the chance of catching corrupted Sea Creatures by +0.2% \u2794 2%", "obtain": "Catch with Pocket Black Hole. Kill Magma Slug while using Salts. Obtained from Kuudra. Place Traps in Crimson Isle. (Under lava).", "id_res": {"shard": "SHARD_STRIDERSURFER"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_FLAMING_SPIDER": {"rarity": "UNCOMMON", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Arthropod Ruler", "effect": "Grants +3% \u2794 30% more  Damage against Spiders", "obtain": "Catch with Pocket Black Hole. Kill Flaming Spider while using Salts.", "id_res": {"shard": "SHARD_BRUISER"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_KIWI": {"rarity": "UNCOMMON", "category": ["FOREST"], "family": ["BIRD"], "attr_name": "Kat Favorite", "effect": "Kat takes +1% \u2794 10%  less time to upgrade a Pet", "obtain": "Fusing Bird Family with Uncommon or higher.", "id_res": null, "fusion": {"input_1": {"family": "BIRD"}, "input_2": {"rarity": "UNCOMMON", "or_higher": true}}}, "SHARD_BRUISER": {"rarity": "UNCOMMON", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Ender Ruler", "effect": "Grants +3% \u2794 30% more  Damage against Ender Creatures", "obtain": "Catch with Pocket Black Hole. Kill Zealot Bruiser while using Salts.", "id_res": null, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_STRIDERSURFER": {"rarity": "UNCOMMON", "category": ["WATER"], "family": ["DROWNED"], "attr_name": "Magmatic Ruler", "effect": "Grants +3% \u2794 30% more  Damage against Lava Sea Creatures", "obtain": "Catch with Pocket Black Hole. Kill Strider Surfer or Strider while using Salts. Place Traps in Stride-Ember Fissure.", "id_res": null, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_RANA": {"rarity": "UNCOMMON", "category": ["COMBAT"], "family": ["FROG", "AMPHIBIAN"], "attr_name": "Battle Frog", "effect": "Your Frog Pet gains +3 \u2794 30  Strength", "obtain": "Fusing Frog Family with Combat Category.", "id_res": null, "fusion": {"input_1": {"family": "FROG"}, "input_2": {"category": "COMBAT"}}}, "SHARD_TERMITE": {"rarity": "UNCOMMON", "category": ["FOREST"], "family": ["BUG"], "attr_name": "Infiltration", "effect": "Grants +3 \u2794 30  Farming Fortune if your Garden Plot currently has a Pest in it", "obtain": "Fusing Bug Family with Mining Category.", "id_res": null, "fusion": {"input_1": {"family": "BUG"}, "input_2": {"shard": "SHARD_PRAYING_MANTIS"}}}, "SHARD_SYLVAN": {"rarity": "RARE", "category": ["FOREST"], "family": ["ELEMENTAL"], "attr_name": "Forest Elemental", "effect": "Grants +2 \u2794 20  Health", "obtain": "Fusing Forest Category and Rare with Epic or higher.", "id_res": {"shard": "SHARD_BEACONMITE"}, "fusion": {"input_1": {"type": "and", "data": [{"category": "FOREST"}, {"rarity": "RARE", "or_higher": false}]}, "input_2": {"rarity": "EPIC", "or_higher": true}}}, "SHARD_CASCADE": {"rarity": "RARE", "category": ["WATER"], "family": ["ELEMENTAL"], "attr_name": "Torrent Elemental", "effect": "Grants +1 \u2794 10  Intelligence", "obtain": "Fusing Water Category and Rare with Epic or higher.", "id_res": {"shard": "SHARD_PIRANHA"}, "fusion": {"input_1": {"type": "and", "data": [{"category": "WATER"}, {"rarity": "RARE", "or_higher": false}]}, "input_2": {"rarity": "EPIC", "or_higher": true}}}, "SHARD_BOLT": {"rarity": "RARE", "category": ["COMBAT"], "family": ["ELEMENTAL"], "attr_name": "Lightning Elemental", "effect": "Grants +1 \u2794 10  Strength", "obtain": "Fusing Combat Category and Rare with Epic or higher.", "id_res": {"shard": "SHARD_GLACITE_WALKER"}, "fusion": {"input_1": {"type": "and", "data": [{"category": "COMBAT"}, {"rarity": "RARE", "or_higher": false}]}, "input_2": {"rarity": "EPIC", "or_higher": true}}}, "SHARD_BAMBLOOM": {"rarity": "RARE", "category": ["FOREST"], "family": ["PANDA"], "attr_name": "Animal Expertise", "effect": "Grants +10 \u2794 100  Foraging Fortune", "obtain": "Fusing Panda Family with Uncommon or higher.", "id_res": {"shard": "SHARD_BEACONMITE"}, "fusion": {"input_1": {"family": "PANDA"}, "input_2": {"rarity": "UNCOMMON", "or_higher": true}}}, "SHARD_TOAD": {"rarity": "RARE", "category": ["WATER"], "family": ["FROG", "AMPHIBIAN"], "attr_name": "Frog Legs", "effect": "Frogs have a +10% \u2794 100% chance to jump 1 less time", "obtain": "Frogs have a +10% \u2794 100% chance to jump 1 less time.", "id_res": {"shard": "SHARD_PIRANHA"}, "fusion": {"input_1": {"family": "FROG"}, "input_2": {"type": "and", "data": [{"rarity": "UNCOMMON", "or_higher": true}, {"category": "FOREST"}]}}}, "SHARD_GLACITE_WALKER": {"rarity": "RARE", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Essence of Ice", "effect": "Gain +1% \u2794 10% more Ice Essence", "obtain": "Catch with Pocket Black Hole. Kill Glacite Walker while using Salts.", "id_res": {"family": "DROWNED"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_BEACONMITE": {"rarity": "RARE", "category": ["FOREST"], "family": ["BUG"], "attr_name": "Beacon Zealot", "effect": "The effects of beacons are 10% \u2794 100% stronger on you. Gain a 0.1% \u2794 1% chance to find Signal Enhancers in Tree Gifts", "obtain": "Obtained by Tuning the Moonglade Beacon.", "id_res": {"shard": "SHARD_INVISIBUG"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_LIZARD_KING": {"rarity": "RARE", "category": ["WATER"], "family": ["REPTILE", "LIZARD"], "attr_name": "Great Karma", "effect": "Grants +1 \u2794 10  Hunter Fortune towards RARE Attributes", "obtain": "Fusing Lizard Family with Water Category and Uncommon or higher.", "id_res": {"shard": "SHARD_PIRANHA"}, "fusion": {"input_1": {"family": "LIZARD"}, "input_2": {"type": "and", "data": [{"category": "WATER"}, {"rarity": "UNCOMMON", "or_higher": true}]}}}, "SHARD_PYTHON": {"rarity": "RARE", "category": ["COMBAT"], "family": ["REPTILE", "SERPENT"], "attr_name": "Hunters Pressure", "effect": "Your Black Holes capture creatures +2% \u2794 20% faster", "obtain": "Fusing Viper Shard with Combat Category and Uncommon or higher.", "id_res": {"family": "DROWNED"}, "fusion": {"input_1": {"shard": "SHARD_VIPER"}, "input_2": {"type": "and", "data": [{"rarity": "UNCOMMON", "or_higher": true}, {"category": "COMBAT"}]}}}, "SHARD_INVISIBUG": {"rarity": "RARE", "category": ["FOREST"], "family": ["BUG"], "attr_name": "Fancy Visit", "effect": "RARE and above Garden Visitors have a +1% \u2794 10% higher chance to arrive", "obtain": "Place Traps in Galatea. (On Land). Found in Grass on Galatea.", "id_res": {"shard": "SHARD_DREADWING"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_PIRANHA": {"rarity": "RARE", "category": ["WATER"], "family": ["TREASURE_FISH"], "attr_name": "Moonglade Serendipity", "effect": "Increases the odds of finding rare items in Tree Gifts at Moonglade Marsh by +2% \u2794 20%", "obtain": "Place Traps in Murkwater Depths. (Underwater). Place Traps in Murkwater Shallows. (Underwater). Caught by Fishing in Moonglade Marsh.", "id_res": {"shard": "SHARD_ABYSSAL_LANTERNFISH"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_HIDEONGEON": {"rarity": "RARE", "category": ["FOREST"], "family": ["SHULKER"], "attr_name": "Catacombs Box", "effect": "Increases the quality of boss rewards in The Catacombs by +1 \u2794 10", "obtain": "Fusing Shulker Family with Wither Shard.", "id_res": {"shard": "SHARD_DREADWING"}, "fusion": {"input_1": {"family": "SHULKER"}, "input_2": {"shard": "SHARD_WITHER"}}}, "SHARD_LAPIS_SKELETON": {"rarity": "RARE", "category": ["COMBAT"], "family": ["LAPIS"], "attr_name": "Bone Font", "effect": "Grants a +2% \u2794 20% extra chance of finding Level 6+ books or higher in Superpairs", "obtain": "Fusing Lapis Zombie Shard with Rare or higher.", "id_res": {"family": "DROWNED"}, "fusion": {"input_1": {"shard": "SHARD_LAPIS_ZOMBIE"}, "input_2": {"rarity": "RARE", "or_higher": true}}}, "SHARD_CROPEETLE": {"rarity": "RARE", "category": ["FOREST"], "family": ["BUG"], "attr_name": "Crop Bug", "effect": "Increased the odds of finding a Cropie, Squash or Fermento by +2% \u2794 20%", "obtain": "Fusing Invisibug and Termite Shards with Forest Category.", "id_res": {"shard": "SHARD_DREADWING"}, "fusion": {"input_1": {"type": "or", "data": [{"shard": "SHARD_TERMITE"}, {"shard": "SHARD_INVISIBUG"}]}, "input_2": {"category": "FOREST"}}}, "SHARD_DROWNED": {"rarity": "RARE", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Humanoid Ruler", "effect": "Grants +3% \u2794 30% more  Damage against Humanoid Creatures", "obtain": "Catch with Pocket Black Hole. Kill Seacurse, Hydrospear, or Tidetot while using Salts. Place Traps in Drowned Reliquary.", "id_res": {"shard": "SHARD_STAR_SENTRY"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_STAR_SENTRY": {"rarity": "RARE", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Atomized Mithril", "effect": "Gain +1% \u2794 10% extra Mithril Powder", "obtain": "Catch with Pocket Black Hole. Kill Star Sentry while using Salts.", "id_res": {"shard": "SHARD_ARACHNE"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_HIDEONDRA": {"rarity": "RARE", "category": ["FOREST"], "family": ["SHULKER"], "attr_name": "Kuudra's Box", "effect": "Gives +5% \u2794 50%  chance to have an extra Kuudra Teeth in the Paid Reward Chest", "obtain": "Fusing Shulker Family with Demon Family.", "id_res": {"shard": "SHARD_DREADWING"}, "fusion": {"input_1": {"family": "SHULKER"}, "input_2": {"family": "DEMON"}}}, "SHARD_ABYSSAL_LANTERNFISH": {"rarity": "RARE", "category": ["WATER"], "family": ["TREASURE_FISH"], "attr_name": "Dwarven Serendipity", "effect": "Increases the chance to find Golden and Diamond Goblins by +10% \u2794 100%", "obtain": "Place Traps in Dwarven Mines. (Underwater). Caught by Fishing in Dwarven Mines.", "id_res": {"shard": "SHARD_SILENTDEPTH"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_ARACHNE": {"rarity": "RARE", "category": ["COMBAT"], "family": ["SPIDER"], "attr_name": "Essence of Arthropods", "effect": "Gain +1% \u2794 10% more Spider Essence", "obtain": "Kill Arachne while using Salts.", "id_res": {"shard": "SHARD_REVENANT"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_BITBUG": {"rarity": "RARE", "category": ["FOREST"], "family": ["BUG"], "attr_name": "Cookie Eater", "effect": "Gain +5% \u2794 50%  of your Booster Cookie Bits up front", "obtain": "Purchased in the Bits Shop.", "id_res": {"shard": "SHARD_DREADWING"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_REVENANT": {"rarity": "RARE", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Essence of Unliving", "effect": "Gain +1% \u2794 10% more Undead Essence", "obtain": "Dropped by Revenant Horror.", "id_res": {"shard": "SHARD_SKELETOR"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_SILENTDEPTH": {"rarity": "RARE", "category": ["WATER"], "family": ["TREASURE_FISH"], "attr_name": "Crystal Serendipity", "effect": "Grants a +2% \u2794 20%  chance to double any loot from Crystal Hollows Treasure Chests", "obtain": "Place Traps in Crystal Hollows. (Underwater). Caught by Fishing in Crystal Hollows.", "id_res": {"shard": "SHARD_SNOWFIN"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_SKELETOR": {"rarity": "RARE", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Deadeye", "effect": "Increases damage from ranged weapons by +2.5% \u2794 25%", "obtain": "Fusing Lapis Skeleton Shard with Rare or higher. Kill Skeletor while using Salts.", "id_res": {"shard": "SHARD_KADA_KNIGHT"}, "fusion": {"input_1": {"shard": "SHARD_LAPIS_SKELETON"}, "input_2": {"rarity": "RARE", "or_higher": true}}}, "SHARD_THYST": {"rarity": "RARE", "category": ["COMBAT"], "family": ["CAVE_DWELLER"], "attr_name": "Atomized Crystals", "effect": "Gain +1% \u2794 10% extra Gemstone Powder", "obtain": "Catch with Pocket Black Hole. Kill Thyst while using Salts. Place Traps in Crystal Hollows.", "id_res": null, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_QUARTZFANG": {"rarity": "RARE", "category": ["COMBAT"], "family": ["CAVE_DWELLER"], "attr_name": "Quartz Speed", "effect": "Mining Speed from events is increased by +10% \u2794 100%", "obtain": "Fusing Troglobyte Shard with Cave Dweller Family or Abyssal Lanternfish Shard.", "id_res": {"shard": "SHARD_KADA_KNIGHT"}, "fusion": {"input_1": {"shard": "SHARD_TROGLOBYTE"}, "input_2": {"type": "or", "data": [{"shard": "SHARD_ABYSSAL_LANTERNFISH"}, {"family": "CAVE_DWELLER"}]}}}, "SHARD_HIDEONRING": {"rarity": "RARE", "category": ["FOREST"], "family": ["SHULKER"], "attr_name": "Accessory Size", "effect": "Grants +1 \u2794 10 extra Accessory Bag slots", "obtain": "Fusing Shulker Family and Rare or higher with Rare or higher.", "id_res": {"shard": "SHARD_DREADWING"}, "fusion": {"input_1": {"type": "and", "data": [{"family": "SHULKER"}, {"rarity": "RARE", "or_higher": true}]}, "input_2": {"rarity": "RARE", "or_higher": true}}}, "SHARD_SNOWFIN": {"rarity": "RARE", "category": ["WATER"], "family": ["TREASURE_FISH"], "attr_name": "Winter's Serendipity", "effect": "Increases the odds of finding rare items in Winter Gifts by +2% \u2794 20%", "obtain": "Place Traps in Jerry's Workshop. (Underwater).", "id_res": {"shard": "SHARD_CARROT_KING"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_KADA_KNIGHT": {"rarity": "RARE", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Lifeline", "effect": "When under 20% maximum HP, your  Damage and  Defense increase by +2.5% \u2794 25%", "obtain": "Catch with Pocket Black Hole. Kill Kada Knight while using Salts. Obtained from Kuudra.", "id_res": {"shard": "SHARD_WITHER_SPECTER"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_CARROT_KING": {"rarity": "RARE", "category": ["WATER"], "family": ["NONE"], "attr_name": "Rabbit Crew", "effect": "Your Chocolate Factory gains +2 \u2794 20 more Chocolate per second", "obtain": "Catch with Pocket Black Hole. Kill Carrot King while using Salts.", "id_res": {"shard": "SHARD_LUMISQUID"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_WITHER_SPECTER": {"rarity": "RARE", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Breeze", "effect": "When you haven't been damaged in the last 5s or more, your mana costs are decreased by +1% \u2794 10%", "obtain": "Catch with Pocket Black Hole. Kill Wither Spectre while using Salts. Obtained from Kuudra.", "id_res": {"shard": "SHARD_MATCHO"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_MATCHO": {"rarity": "RARE", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Ignition", "effect": "Increases the duration of fire damage that you inflict on enemies by +30% \u2794 300%", "obtain": "Catch with Pocket Black Hole. Kill Matcho while using Salts. Obtained from Kuudra.", "id_res": {"shard": "SHARD_CROCODILE"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_LADYBUG": {"rarity": "RARE", "category": ["FOREST"], "family": ["BUG"], "attr_name": "Pretty Clothes", "effect": "Gain +1% \u2794 10%  more Copper from Garden Visitors", "obtain": "Fusing Cropeetle Shard with Bug Family.", "id_res": {"shard": "SHARD_DREADWING"}, "fusion": {"input_1": {"shard": "SHARD_CROPEETLE"}, "input_2": {"family": "BUG"}}}, "SHARD_LUMISQUID": {"rarity": "RARE", "category": ["WATER"], "family": ["SQUID"], "attr_name": "Extreme Pressure", "effect": "Grants +5 \u2794 50  Pressure Resistance", "obtain": "Place Traps in Squid Cave. (Underwater). Catch with a Fishing Net.", "id_res": {"shard": "SHARD_JOYDIVE"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_CROCODILE": {"rarity": "RARE", "category": ["COMBAT"], "family": ["REPTILE", "CROCO"], "attr_name": "Pure Reptile", "effect": "Grants a +2% \u2794 20% chance to double shards from a Reptile Fusion", "obtain": "Purchased from Kiara's Shop.", "id_res": {"shard": "SHARD_DRACONIC"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_BULLFROG": {"rarity": "RARE", "category": ["WATER"], "family": ["FROG", "AMPHIBIAN"], "attr_name": "Berry Enjoyer", "effect": "Berries have a +10% \u2794 100%  chance to grant you double points in Starlyn Contests", "obtain": "Fusing Frog Family with Forest Category and Rare or higher.", "id_res": null, "fusion": {"input_1": {"family": "FROG"}, "input_2": {"type": "and", "data": [{"rarity": "RARE", "or_higher": true}, {"category": "FOREST"}]}}}, "SHARD_DREADWING": {"rarity": "RARE", "category": ["FOREST"], "family": ["PHANTOM"], "attr_name": "Essence of the Forest", "effect": "Gain +1% \u2794 10% more Forest Essence", "obtain": "Fusing Phanpyre and Phanflare Shards with Rare or higher. Catch with Pocket Black Hole. Catch with Lasso. Kill Dreadwing while using Salts. Place Traps in Galatea. (On Land). Found in Fig and Mangrove Tree Gifts.", "id_res": {"shard": "SHARD_FUNGLOOM"}, "fusion": {"input_1": {"type": "or", "data": [{"shard": "SHARD_PHANPYRE"}, {"shard": "SHARD_PHANFLARE"}]}, "input_2": {"rarity": "RARE", "or_higher": true}}}, "SHARD_JOYDIVE": {"rarity": "RARE", "category": ["WATER"], "family": ["NONE"], "attr_name": "Deep Diving", "effect": "Grants +5 \u2794 50  Respiration", "obtain": "Place Traps in Murkwater Depths. (Underwater). Catch with a Fishing Net.", "id_res": {"family": "EEL"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_STALAGMIGHT": {"rarity": "RARE", "category": ["COMBAT"], "family": ["CAVE_DWELLER"], "attr_name": "Atomized Glacite", "effect": "Gain +1% \u2794 10% extra Glacite Powder", "obtain": "Fusing Quartzfang Shard with Cave Dweller Family or Silentdepth Shard.", "id_res": {"shard": "SHARD_DRACONIC"}, "fusion": {"input_1": {"shard": "SHARD_QUARTZFANG"}, "input_2": {"type": "or", "data": [{"shard": "SHARD_SILENTDEPTH"}, {"family": "CAVE_DWELLER"}]}}}, "SHARD_FUNGLOOM": {"rarity": "RARE", "category": ["FOREST"], "family": ["CAVE_DWELLER"], "attr_name": "Fungy Luck", "effect": "Gain a +10% \u2794 100% chance to gain an additional Chisel charge upon starting the Fossil Excavator", "obtain": "Fusing Cave Dweller Family with Forest Category and Epic or higher.", "id_res": null, "fusion": {"input_1": {"family": "CAVE_DWELLER"}, "input_2": {"type": "and", "data": [{"category": "FOREST"}, {"rarity": "EPIC", "or_higher": true}]}}}, "SHARD_EEL": {"rarity": "RARE", "category": ["WATER"], "family": ["EEL", "AMPHIBIAN"], "attr_name": "Eelastic", "effect": "Increase Pull by +1 \u2794 10 when using your Fishing Nets", "obtain": "Purchased from Kiara's Shop. Caught by Fishing in Moonglade Marsh.", "id_res": {"shard": "SHARD_LAVA_FLAME"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_KING_COBRA": {"rarity": "RARE", "category": ["COMBAT"], "family": ["REPTILE", "SERPENT"], "attr_name": "Hunters Grasp", "effect": "Your Black Holes gain +1% \u2794 10%  Hunter Fortune", "obtain": "Fusing Python Shard with Combat Category and Uncommon or higher.", "id_res": {"shard": "SHARD_DRACONIC"}, "fusion": {"input_1": {"shard": "SHARD_PYTHON"}, "input_2": {"type": "and", "data": [{"rarity": "UNCOMMON", "or_higher": true}, {"category": "COMBAT"}]}}}, "SHARD_LAVA_FLAME": {"rarity": "RARE", "category": ["WATER"], "family": ["NONE"], "attr_name": "Blazing Fortune", "effect": "Grants +1 \u2794 10  Magic Find on Lava Sea Creatures", "obtain": "Catch with Pocket Black Hole. Kill Lava Flame while using Salts. Obtained from Kuudra. Place Traps in Crimson Isle. (Under lava).", "id_res": {"shard": "SHARD_INFERNO_KOI"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_DRACONIC": {"rarity": "RARE", "category": ["COMBAT"], "family": ["DRAGON"], "attr_name": "Essence of Dragons", "effect": "Gain +1% \u2794 10% more Essence", "obtain": "Dropped by Dragons on The End.", "id_res": {"shard": "SHARD_WITHER"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_FALCON": {"rarity": "RARE", "category": ["FOREST"], "family": ["BIRD"], "attr_name": "Battle Experience", "effect": "Pets gain +1% \u2794 10%  more EXP from Combat", "obtain": "Fusing Bird Family with Rare or higher.", "id_res": null, "fusion": {"input_1": {"family": "BIRD"}, "input_2": {"rarity": "RARE", "or_higher": true}}}, "SHARD_INFERNO_KOI": {"rarity": "RARE", "category": ["WATER"], "family": ["TREASURE_FISH"], "attr_name": "Crimson Serendipity", "effect": "Increase the odds of finding a Vanquisher by +2% \u2794 20%", "obtain": "Place Traps in Crimson Isle. (Under lava). Caught by Fishing in Crimson Isle.", "id_res": null, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_WITHER": {"rarity": "RARE", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Essence of Wither", "effect": "Gain +1% \u2794 10% more Essence", "obtain": "Obtained from Catacombs Floor VII and Master Catacombs Floor VII.", "id_res": null, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_GECKO": {"rarity": "RARE", "category": ["FOREST"], "family": ["REPTILE", "SCALED"], "attr_name": "Echo Of Sharpening", "effect": "Your Sharpening Attributes are +2% \u2794 20% stronger", "obtain": "Purchased from Kiara's Shop.", "id_res": null, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_HUMMINGBIRD": {"rarity": "RARE", "category": ["FOREST"], "family": ["BIRD"], "attr_name": "Chop", "effect": "Grants a +10% \u2794 100% chance to Chop an extra log, on top of the ones you swept", "obtain": "Found in Fig and Mangrove Tree Gifts.", "id_res": null, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_TERRA": {"rarity": "EPIC", "category": ["FOREST"], "family": ["ELEMENTAL"], "attr_name": "Earth Elemental", "effect": "Grants +2 \u2794 20  Health", "obtain": "Fusing Forest Category and Epic with Legendary or higher.", "id_res": {"shard": "SHARD_XYZ"}, "fusion": {"input_1": {"type": "and", "data": [{"category": "FOREST"}, {"rarity": "EPIC", "or_higher": false}]}, "input_2": {"rarity": "LEGENDARY", "or_higher": true}}}, "SHARD_CRYO": {"rarity": "EPIC", "category": ["WATER"], "family": ["ELEMENTAL"], "attr_name": "Frost Elemental", "effect": "Grants +1 \u2794 10  Intelligence", "obtain": "Fusing Water Category and Epic with Legendary or higher.", "id_res": {"shard": "SHARD_FIRE_EEL"}, "fusion": {"input_1": {"type": "and", "data": [{"category": "WATER"}, {"rarity": "EPIC", "or_higher": false}]}, "input_2": {"rarity": "LEGENDARY", "or_higher": true}}}, "SHARD_AERO": {"rarity": "EPIC", "category": ["COMBAT"], "family": ["ELEMENTAL"], "attr_name": "Wind Elemental", "effect": "Grants +1 \u2794 10  Strength", "obtain": "Fusing Combat Category and Epic with Legendary or higher.", "id_res": {"shard": "SHARD_THORN"}, "fusion": {"input_1": {"type": "and", "data": [{"category": "COMBAT"}, {"rarity": "EPIC", "or_higher": false}]}, "input_2": {"rarity": "LEGENDARY", "or_higher": true}}}, "SHARD_PANDARAI": {"rarity": "EPIC", "category": ["FOREST"], "family": ["PANDA"], "attr_name": "Foraging Wisdom", "effect": "Grants +5  Foraging Wisdom", "obtain": "Fusing Panda Family with Rare or higher.", "id_res": {"shard": "SHARD_XYZ"}, "fusion": {"input_1": {"family": "PANDA"}, "input_2": {"rarity": "RARE", "or_higher": true}}}, "SHARD_LEVIATHAN": {"rarity": "EPIC", "category": ["WATER"], "family": ["REPTILE", "LIZARD"], "attr_name": "Excellent Karma", "effect": "Grants +1 \u2794 10  Hunter Fortune towards EPIC Attributes", "obtain": "Fusing Lizard Family with Water Category and Rare or higher.", "id_res": {"shard": "SHARD_FIRE_EEL"}, "fusion": {"input_1": {"family": "LIZARD"}, "input_2": {"type": "and", "data": [{"category": "WATER"}, {"rarity": "RARE", "or_higher": true}]}}}, "SHARD_ALLIGATOR": {"rarity": "EPIC", "category": ["COMBAT"], "family": ["REPTILE", "CROCO"], "attr_name": "Echo Of Resistance", "effect": "Your Resistance Attributes are +2% \u2794 20% stronger", "obtain": "Fusing Crocodile Shard with Combat Category and Rare or higher.", "id_res": {"shard": "SHARD_THORN"}, "fusion": {"input_1": {"shard": "SHARD_CROCODILE"}, "input_2": {"type": "and", "data": [{"rarity": "RARE", "or_higher": true}, {"category": "COMBAT"}]}}}, "SHARD_FENLORD": {"rarity": "EPIC", "category": ["WATER"], "family": ["FROG", "AMPHIBIAN"], "attr_name": "Berry Mogul", "effect": "Your Salts last +1% \u2794 10%  longer", "obtain": "Fusing Bullfrog Shard with Forest Category and Rare or higher.", "id_res": null, "fusion": {"input_1": {"shard": "SHARD_BULLFROG"}, "input_2": {"type": "and", "data": [{"rarity": "RARE", "or_higher": true}, {"category": "FOREST"}]}}}, "SHARD_BASILISK": {"rarity": "EPIC", "category": ["COMBAT"], "family": ["REPTILE", "SERPENT"], "attr_name": "Hunters Suppress", "effect": "Lassos deplete Stamina +2% \u2794 20% faster", "obtain": "Fusing King Cobra Shard with Combat Category and Rare or higher.", "id_res": {"shard": "SHARD_THORN"}, "fusion": {"input_1": {"shard": "SHARD_KING_COBRA"}, "input_2": {"type": "and", "data": [{"rarity": "RARE", "or_higher": true}, {"category": "COMBAT"}]}}}, "SHARD_IGUANA": {"rarity": "EPIC", "category": ["FOREST"], "family": ["REPTILE", "SCALED"], "attr_name": "Echo Of Atomized", "effect": "Your Atomized Attributes are +2% \u2794 20% stronger", "obtain": "Fusing Gecko Shard with Forest Category and Rare or higher.", "id_res": {"shard": "SHARD_XYZ"}, "fusion": {"input_1": {"shard": "SHARD_GECKO"}, "input_2": {"type": "and", "data": [{"category": "FOREST"}, {"rarity": "RARE", "or_higher": true}]}}}, "SHARD_MORAY_EEL": {"rarity": "EPIC", "category": ["WATER"], "family": ["EEL", "AMPHIBIAN"], "attr_name": "Lucky Rod", "effect": "Fish Treasure Shards are +1% \u2794 10% easier to find", "obtain": "Fusing Eel Shard with Water Category and Rare or higher.", "id_res": {"shard": "SHARD_FIRE_EEL"}, "fusion": {"input_1": {"shard": "SHARD_EEL"}, "input_2": {"type": "and", "data": [{"rarity": "RARE", "or_higher": true}, {"category": "WATER"}]}}}, "SHARD_THORN": {"rarity": "EPIC", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Dominance", "effect": "Gain +1.5% \u2794 15% more  Damage when at full health", "obtain": "Obtained from Catacombs Floor IV.", "id_res": {"shard": "SHARD_BAL"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_LUNAR_MOTH": {"rarity": "EPIC", "category": ["FOREST"], "family": ["BUG"], "attr_name": "Lunar Power", "effect": "Grants +5 \u2794 50  Farming Fortune during the Night", "obtain": "Fusing Ladybug Shard with Bug Family and Rare or higher.", "id_res": {"shard": "SHARD_XYZ"}, "fusion": {"input_1": {"shard": "SHARD_LADYBUG"}, "input_2": {"type": "and", "data": [{"family": "BUG"}, {"rarity": "RARE", "or_higher": true}]}}}, "SHARD_FIRE_EEL": {"rarity": "EPIC", "category": ["WATER"], "family": ["EEL", "AMPHIBIAN"], "attr_name": "Trophy Hunter", "effect": "Grants +2 \u2794 20  Trophy Fish Chance", "obtain": "Fusing Moray Eel Shard with Firefly Shards. Fusing Eel Shard with Moray Eel Shard. Catch with Pocket Black Hole. Kill Fire Eel while using Salts. Obtained from Kuudra.", "id_res": {"shard": "SHARD_WATER_HYDRA"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_BAL": {"rarity": "EPIC", "category": ["COMBAT"], "family": ["CAVE_DWELLER"], "attr_name": "Deep Technique", "effect": "Each block you mine has a +1% \u2794 10%  chance to grant 1 extra  Pristine for that block", "obtain": "Kill Bal while using Salts.", "id_res": {"shard": "SHARD_FLARE"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_HIDEONSACK": {"rarity": "EPIC", "category": ["FOREST"], "family": ["SHULKER"], "attr_name": "Sack Size", "effect": "Your sacks can hold +1% \u2794 10% more items", "obtain": "Fusing Shulker Family and Rare or higher with Epic or higher.", "id_res": {"shard": "SHARD_XYZ"}, "fusion": {"input_1": {"type": "and", "data": [{"family": "SHULKER"}, {"rarity": "RARE", "or_higher": true}]}, "input_2": {"rarity": "EPIC", "or_higher": true}}}, "SHARD_WATER_HYDRA": {"rarity": "EPIC", "category": ["WATER"], "family": ["NONE"], "attr_name": "Fishing Speed", "effect": "Grants +3 \u2794 30  Fishing Speed", "obtain": "Catch with Pocket Black Hole. Kill Water Hydra while using Salts.", "id_res": {"shard": "SHARD_LOCH_EMPEROR"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_FLARE": {"rarity": "EPIC", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Blazing", "effect": "Grants +3% \u2794 30% more  Damage against mobs while in the Crimson Isle", "obtain": "Catch with Pocket Black Hole. Kill Flare while using Salts. Obtained from Kuudra.", "id_res": {"shard": "SHARD_PRINCE"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_LOCH_EMPEROR": {"rarity": "EPIC", "category": ["WATER"], "family": ["NONE"], "attr_name": "Sea Wisdom", "effect": "Grants +0.5 \u2794 5 \u262f Fishing Wisdom", "obtain": "Catch with Pocket Black Hole. Kill The Loch Emperor while using Salts.", "id_res": {"shard": "SHARD_SHELLWISE"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_PRINCE": {"rarity": "EPIC", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Reborn", "effect": "Killing a Prince has a +10% \u2794 100%  chance to add 1 Bonus Score to your Dungeon Run", "obtain": "Kill Prince Bernhard, Prince Christian, Prince Pieter, Prince Nicholas, Prince Alexander, Prince Marius, Prince Valentin, or Prince Friedrich while using Salts.", "id_res": {"shard": "SHARD_MIMIC"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_KOMODO_DRAGON": {"rarity": "EPIC", "category": ["FOREST"], "family": ["REPTILE", "SCALED"], "attr_name": "Echo Of Essence", "effect": "Your Essence Attributes are +2% \u2794 20% stronger", "obtain": "Fusing Iguana Shard with Forest Category and Rare or higher.", "id_res": {"shard": "SHARD_XYZ"}, "fusion": {"input_1": {"shard": "SHARD_IGUANA"}, "input_2": {"type": "and", "data": [{"category": "FOREST"}, {"rarity": "RARE", "or_higher": true}]}}}, "SHARD_MIMIC": {"rarity": "EPIC", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Faker", "effect": "Dungeon Blessings are +1% \u2794 10% stronger on you", "obtain": "Kill Mimic while using Salts.", "id_res": {"shard": "SHARD_BARBARIAN_DUKE_X"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_SHELLWISE": {"rarity": "EPIC", "category": ["WATER"], "family": ["REPTILE", "TURTLE"], "attr_name": "Shell", "effect": "Gain a +10% \u2794 100%  chance to negate knockback", "obtain": "Place Traps in Murkwater Depths. (Underwater). Catch with a Fishing Net.", "id_res": null, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_BARBARIAN_DUKE_X": {"rarity": "EPIC", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Warrior", "effect": "Increases melee damage dealt by +2.5% \u2794 25%", "obtain": "Catch with Pocket Black Hole. Kill Barbarian Duke X while using Salts. Obtained from Kuudra.", "id_res": {"shard": "SHARD_GHOST"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_TOUCAN": {"rarity": "EPIC", "category": ["FOREST"], "family": ["BIRD"], "attr_name": "Why Not More", "effect": "Your pet's EXP Share grants +1% \u2794 10%  more EXP", "obtain": "Fusing Bird Family with Epic or higher.", "id_res": {"shard": "SHARD_XYZ"}, "fusion": {"input_1": {"family": "BIRD"}, "input_2": {"rarity": "EPIC", "or_higher": true}}}, "SHARD_HELLWISP": {"rarity": "EPIC", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Matriarch Cubs", "effect": "Grants a +2% \u2794 20% chance to get a second Heavy Pearl", "obtain": "Catch with Pocket Black Hole. Kill Hellwisp while using Salts. Obtained from Kuudra.", "id_res": null, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_CAIMAN": {"rarity": "EPIC", "category": ["COMBAT"], "family": ["REPTILE", "CROCO"], "attr_name": "Echo Of Ruler", "effect": "Your Ruler Attributes are +2% \u2794 20% stronger", "obtain": "Fusing Alligator Shard with Combat Category and Rare or higher.", "id_res": {"shard": "SHARD_GHOST"}, "fusion": {"input_1": {"shard": "SHARD_ALLIGATOR"}, "input_2": {"type": "and", "data": [{"rarity": "RARE", "or_higher": true}, {"category": "COMBAT"}]}}}, "SHARD_FIREFLY": {"rarity": "EPIC", "category": ["FOREST"], "family": ["BUG"], "attr_name": "Solar Power", "effect": "Grants +5 \u2794 50  Farming Fortune during the day", "obtain": "Fusing Lunar Moth Shard with Bezal, Cinderbat, Flare, Lava Flame, Fire Eel, Bal, and Flaming Spider Shards.", "id_res": {"shard": "SHARD_XYZ"}, "fusion": {"input_1": {"shard": "SHARD_LUNAR_MOTH"}, "input_2": {"type": "or", "data": [{"shard": "SHARD_BEZAL"}, {"shard": "SHARD_LAVA_FLAME"}, {"shard": "SHARD_FIRE_EEL"}, {"shard": "SHARD_BAL"}, {"shard": "SHARD_FLARE"}, {"shard": "SHARD_CINDER_BAT"}, {"shard": "SHARD_FLAMING_SPIDER"}]}}}, "SHARD_SEA_SERPENT": {"rarity": "EPIC", "category": ["WATER"], "family": ["EEL", "SERPENT", "AMPHIBIAN"], "attr_name": "Echo Of Hunter", "effect": "Your Hunter Attributes are +2% \u2794 20% stronger", "obtain": "Fusing Moray Eel Shard with Water Category and Rare or higher.", "id_res": null, "fusion": {"input_1": {"shard": "SHARD_MORAY_EEL"}, "input_2": {"type": "and", "data": [{"rarity": "RARE", "or_higher": true}, {"category": "WATER"}]}}}, "SHARD_GHOST": {"rarity": "EPIC", "category": ["COMBAT"], "family": ["CAVE_DWELLER"], "attr_name": "Veil", "effect": "Grants +1 \u2794 10  True Defense", "obtain": "Catch with Pocket Black Hole. Kill Ghost while using Salts.", "id_res": null, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_XYZ": {"rarity": "EPIC", "category": ["FOREST"], "family": ["NONE"], "attr_name": "Mana Regeneration", "effect": "Increases your Mana regeneration by +1% \u2794 10%", "obtain": "Catch with Lasso. Kill Atom while using Salts. Obtained from Kuudra. Place Traps in Mystic Marsh. Captured using an Atominzer.", "id_res": null, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_LEATHERBACK": {"rarity": "EPIC", "category": ["WATER"], "family": ["REPTILE", "TURTLE"], "attr_name": "Hunt Wisdom", "effect": "Grants +0.5 \u2794 5  Hunting Wisdom", "obtain": "Fusing Shellwise Shard with Water Category and Rare or higher.", "id_res": null, "fusion": {"input_1": {"shard": "SHARD_SHELLWISE"}, "input_2": {"type": "and", "data": [{"rarity": "RARE", "or_higher": true}, {"category": "WATER"}]}}}, "SHARD_CAVERNSHADE": {"rarity": "EPIC", "category": ["COMBAT"], "family": ["CAVE_DWELLER"], "attr_name": "Cavern Wisdom", "effect": "Grants +0.5 \u2794 5  Mining Wisdom", "obtain": "Fusing Cave Dweller Family and Rare or higher with Cave Dweller Family and Epic or higher.", "id_res": null, "fusion": {"input_1": {"type": "and", "data": [{"family": "CAVE_DWELLER"}, {"rarity": "RARE", "or_higher": true}]}, "input_2": {"type": "and", "data": [{"family": "CAVE_DWELLER"}, {"rarity": "EPIC", "or_higher": true}]}}}, "SHARD_DRAGONFLY": {"rarity": "EPIC", "category": ["FOREST"], "family": ["BUG"], "attr_name": "Garden Wisdom", "effect": "Grants +0.5 \u2794 5  Farming Wisdom", "obtain": "Fusing Firefly Shard with Dragon Family.", "id_res": null, "fusion": {"input_1": {"shard": "SHARD_FIREFLY"}, "input_2": {"family": "DRAGON"}}}, "SHARD_TENEBRIS": {"rarity": "LEGENDARY", "category": ["FOREST"], "family": ["ELEMENTAL"], "attr_name": "Shadow Elemental", "effect": "Grants +2 \u2794 20  Health", "obtain": "Fusing Forest Category and Legendary with Elemental Family and Epic or higher.", "id_res": {"shard": "SHARD_CINDERBAT"}, "fusion": {"input_1": {"type": "and", "data": [{"category": "FOREST"}, {"rarity": "LEGENDARY", "or_higher": false}]}, "input_2": {"type": "and", "data": [{"rarity": "EPIC", "or_higher": true}, {"family": "ELEMENTAL"}]}}}, "SHARD_BLIZZARD": {"rarity": "LEGENDARY", "category": ["WATER"], "family": ["ELEMENTAL"], "attr_name": "Snow Elemental", "effect": "Grants +1 \u2794 10  Intelligence", "obtain": "Fusing Water Category and Legendary with Elemental Family and Epic or higher.", "id_res": {"shard": "SHARD_SPIKE"}, "fusion": {"input_1": {"type": "and", "data": [{"category": "WATER"}, {"rarity": "LEGENDARY", "or_higher": false}]}, "input_2": {"type": "and", "data": [{"rarity": "EPIC", "or_higher": true}, {"family": "ELEMENTAL"}]}}}, "SHARD_TEMPEST": {"rarity": "LEGENDARY", "category": ["COMBAT"], "family": ["ELEMENTAL"], "attr_name": "Storm Elemental", "effect": "Grants +1 \u2794 10  Strength", "obtain": "Fusing Combat Category and Legendary with Elemental Family and Epic or higher.", "id_res": {"shard": "SHARD_END_STONE_PROTECTOR"}, "fusion": {"input_1": {"type": "and", "data": [{"category": "COMBAT"}, {"rarity": "LEGENDARY", "or_higher": false}]}, "input_2": {"type": "and", "data": [{"rarity": "EPIC", "or_higher": true}, {"family": "ELEMENTAL"}]}}}, "SHARD_CHAMELEON": {"rarity": "LEGENDARY", "category": ["FOREST"], "family": ["REPTILE"], "attr_name": "Reptiloid", "effect": "Fusions with Chameleons grant the next 3 IDs as results", "obtain": "Found in Fig and Mangrove Tree Gifts.", "id_res": {"shard": "SHARD_CINDERBAT"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_TIAMAT": {"rarity": "LEGENDARY", "category": ["COMBAT"], "family": ["REPTILE", "CROCO"], "attr_name": "Echo Of Echoes", "effect": "Your Echo Attributes are +5% \u2794 50% stronger", "obtain": "Fusing Caiman Shard with Combat Category and Epic or higher.", "id_res": {"shard": "SHARD_END_STONE_PROTECTOR"}, "fusion": {"input_1": {"shard": "SHARD_CAIMAN"}, "input_2": {"type": "and", "data": [{"rarity": "EPIC", "or_higher": true}, {"category": "COMBAT"}]}}}, "SHARD_WYVERN": {"rarity": "LEGENDARY", "category": ["FOREST"], "family": ["REPTILE", "SCALED"], "attr_name": "Echo Of Wisdom", "effect": "Your Wisdom Attributes are +2% \u2794 20% stronger", "obtain": "Fusing Komodo Dragon Shard with Forest Category and Epic or higher.", "id_res": {"shard": "SHARD_CINDERBAT"}, "fusion": {"input_1": {"shard": "SHARD_KOMODO_DRAGON"}, "input_2": {"type": "and", "data": [{"category": "FOREST"}, {"rarity": "EPIC", "or_higher": true}]}}}, "SHARD_TORTOISE": {"rarity": "LEGENDARY", "category": ["WATER"], "family": ["REPTILE", "TURTLE"], "attr_name": "Cloak Improvement", "effect": "Your David's Cloak gains +1 \u2794 10  True Defense", "obtain": "Fusing Leatherback Shard with Water Category and Epic or higher.", "id_res": {"shard": "SHARD_SPIKE"}, "fusion": {"input_1": {"shard": "SHARD_LEATHERBACK"}, "input_2": {"type": "and", "data": [{"rarity": "EPIC", "or_higher": true}, {"category": "WATER"}]}}}, "SHARD_END_STONE_PROTECTOR": {"rarity": "LEGENDARY", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Paramount Fortitude", "effect": "Your  Defense is increased by +0.2% \u2794 2%", "obtain": "Dropped by End Stone Protectors on The End.", "id_res": {"shard": "SHARD_KRAKEN"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_NAGA": {"rarity": "LEGENDARY", "category": ["WATER"], "family": ["EEL", "AMPHIBIAN"], "attr_name": "Charmed", "effect": "Grants a +0.05% \u2794 0.5% chance to charm the Shard of monsters you kill", "obtain": "Fusing Sea Serpent Shard with Water Category and Epic or higher.", "id_res": {"shard": "SHARD_SPIKE"}, "fusion": {"input_1": {"shard": "SHARD_SEA_SERPENT"}, "input_2": {"type": "and", "data": [{"rarity": "EPIC", "or_higher": true}, {"category": "WATER"}]}}}, "SHARD_LAPIS_CREEPER": {"rarity": "LEGENDARY", "category": ["COMBAT"], "family": ["NONE"], "attr_name": "Book Wisdom", "effect": "Grants +0.5 \u2794 5  Enchanting Wisdom", "obtain": "Fusing Lapis Skeleton Shard with Ghost Shard or Legendary or higher.", "id_res": {"shard": "SHARD_KRAKEN"}, "fusion": {"input_1": {"shard": "SHARD_LAPIS_SKELETON"}, "input_2": {"type": "or", "data": [{"shard": "SHARD_GHOST"}, {"rarity": "LEGENDARY", "or_higher": true}]}}}, "SHARD_WARTYBUG": {"rarity": "LEGENDARY", "category": ["FOREST"], "family": ["BUG"], "attr_name": "Wart Eater", "effect": "Grants a +0.01% \u2794 0.05% chance to obtain a Warty when breaking Nether Warts", "obtain": "Fusing Dragonfly Shards with Legendary or higher.", "id_res": {"shard": "SHARD_CINDERBAT"}, "fusion": {"input_1": {"type": "or", "data": [{"shard": "SHARD_DRAGONFLY"}, {}]}, "input_2": {"rarity": "LEGENDARY", "or_higher": true}}}, "SHARD_SPIKE": {"rarity": "LEGENDARY", "category": ["WATER"], "family": ["NONE"], "attr_name": "Payback", "effect": "When hit, your next hit deals +2% \u2794 20% damage", "obtain": "Catch with a Fishing Net. Place Traps in Murkwater Depths. (Underwater). Place Traps in Kelpwoven Tunnels. (Underwater).", "id_res": {"shard": "SHARD_TAURUS"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_KRAKEN": {"rarity": "LEGENDARY", "category": ["COMBAT"], "family": ["DEMON"], "attr_name": "Vitality", "effect": "Grants +2 \u2794 20  Vitality", "obtain": "Obtained from Kuudra.", "id_res": {"shard": "SHARD_BURNINGSOUL"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_TAURUS": {"rarity": "LEGENDARY", "category": ["WATER"], "family": ["NONE"], "attr_name": "Maximal Torment", "effect": "Your  Intelligence is increased by +0.1% \u2794 1%", "obtain": "Catch with Pocket Black Hole. Kill Taurus while using Salts. Obtained from Kuudra.", "id_res": {"shard": "SHARD_SHINYFISH"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_DAEMON": {"rarity": "LEGENDARY", "category": ["COMBAT"], "family": ["DEMON"], "attr_name": "Pity", "effect": "Your RNG Meter fills +1% \u2794 10% faster", "obtain": "Fusing Kraken Shard with Kraken Shard. Obtained from Kuudra.", "id_res": {"shard": "SHARD_BURNINGSOUL"}, "fusion": {"input_1": {"shard": "SHARD_KRAKEN"}, "input_2": {"shard": "SHARD_KRAKEN"}}}, "SHARD_MOLTENFISH": {"rarity": "LEGENDARY", "category": ["WATER"], "family": ["DEMON"], "attr_name": "Star Bait", "effect": "Grants a +0.1% \u2794 1% chance to fish a Shinyfish", "obtain": "Fusing Kraken Shard with Water Category. Obtained from Kuudra.", "id_res": {"shard": "SHARD_SHINYFISH"}, "fusion": {"input_1": {"shard": "SHARD_KRAKEN"}, "input_2": {"category": "WATER"}}}, "SHARD_SHINYFISH": {"rarity": "LEGENDARY", "category": ["WATER"], "family": ["NONE"], "attr_name": "Help from Above", "effect": "Grants +1.2 \u2794 12.5  Health Regen", "obtain": "Caught using the Star Bait Attribute.", "id_res": {"shard": "SHARD_LORD_JAWBUS"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_ANANKE": {"rarity": "LEGENDARY", "category": ["COMBAT"], "family": ["DEMON", "BIRD"], "attr_name": "Wings Of Destiny", "effect": "Increases the odds of finding Ananke Feathers by +2% \u2794 20%", "obtain": "Fusing Kraken Shard with Bird Family. Obtained from Kuudra.", "id_res": {"shard": "SHARD_BURNINGSOUL"}, "fusion": {"input_1": {"shard": "SHARD_KRAKEN"}, "input_2": {"family": "BIRD"}}}, "SHARD_HIDEONBOX": {"rarity": "LEGENDARY", "category": ["FOREST"], "family": ["SHULKER"], "attr_name": "Tuning Box", "effect": "Grants +1 \u2794 10 Tuning Points", "obtain": "Fusing Shulker Family and Epic or higher with Legendary or higher.", "id_res": {"shard": "SHARD_CINDERBAT"}, "fusion": {"input_1": {"type": "and", "data": [{"family": "SHULKER"}, {"rarity": "EPIC", "or_higher": true}]}, "input_2": {"rarity": "LEGENDARY", "or_higher": true}}}, "SHARD_LORD_JAWBUS": {"rarity": "LEGENDARY", "category": ["WATER"], "family": ["NONE"], "attr_name": "Crimson Hook", "effect": "Grants +0.5 \u2794 5  Double Hook Chance while on the Crimson Isle", "obtain": "Catch with Pocket Black Hole. Kill Lord Jawbus while using Salts. Obtained from Kuudra.", "id_res": {"shard": "SHARD_TITANOBOA"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_BURNINGSOUL": {"rarity": "LEGENDARY", "category": ["COMBAT"], "family": ["DEMON"], "attr_name": "Attack Speed", "effect": "Grants +1 \u2794 10  Bonus Attack Speed", "obtain": "Catch with Pocket Black Hole. Kill Burningsoul Demon while using Salts. Place Traps in Smoldering Tomb.", "id_res": {"shard": "SHARD_POWER_DRAGON"}, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_CINDERBAT": {"rarity": "LEGENDARY", "category": ["FOREST"], "family": ["NONE"], "attr_name": "Magic Find", "effect": "Grants +0.5 \u2794 5  Magic Find", "obtain": "Catch with Pocket Black Hole. Catch with Lasso. Kill Cinderbat while using Salts. Obtained from Kuudra.", "id_res": null, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_MEGALITH": {"rarity": "LEGENDARY", "category": ["WATER"], "family": ["REPTILE", "TURTLE"], "attr_name": "Hunter's Karma", "effect": "Grants +1 \u2794 10  Hunter Fortune", "obtain": "Fusing Tortoise Shard with Water Category and Epic or higher.", "id_res": {"shard": "SHARD_TITANOBOA"}, "fusion": {"input_1": {"shard": "SHARD_TORTOISE"}, "input_2": {"type": "and", "data": [{"rarity": "EPIC", "or_higher": true}, {"category": "WATER"}]}}}, "SHARD_POWER_DRAGON": {"rarity": "LEGENDARY", "category": ["COMBAT"], "family": ["DRAGON"], "attr_name": "Elite", "effect": "Grants +3% \u2794 30% more  Damage against bosses and mini-bosses", "obtain": "Obtained from Master Catacombs Floor VII.", "id_res": null, "fusion": {"input_1": {}, "input_2": {}}}, "SHARD_CONDOR": {"rarity": "LEGENDARY", "category": ["FOREST"], "family": ["BIRD"], "attr_name": "Pet Wisdom", "effect": "Grants +0.5 \u2794 5  Taming Wisdom", "obtain": "Fusing Bird Family with Legendary or higher.", "id_res": null, "fusion": {"input_1": {"family": "BIRD"}, "input_2": {"rarity": "LEGENDARY", "or_higher": true}}}, "SHARD_SUN_FISH": {"rarity": "LEGENDARY", "category": ["WATER"], "family": ["NONE"], "attr_name": "Starborn", "effect": "The effect of Starborn Temples is +1% \u2794 10% stronger on you", "obtain": "Fusing Shinyfish Shard with Shinyfish Shard.", "id_res": {"shard": "SHARD_TITANOBOA"}, "fusion": {"input_1": {"shard": "SHARD_SHINYFISH"}, "input_2": {"shard": "SHARD_SHINYFISH"}}}, "SHARD_APEX_DRAGON": {"rarity": "LEGENDARY", "category": ["COMBAT"], "family": ["DRAGON"], "attr_name": "Veteran", "effect": "Grants +1 \u2794 10  Combat Wisdom", "obtain": "Fusing Power Dragon Shard with any Shard. Obtained from Master Catacombs Floor VII.", "id_res": null, "fusion": {"input_1": {"shard": "SHARD_POWER_DRAGON"}, "input_2": {}}}, "SHARD_DODO": {"rarity": "LEGENDARY", "category": ["FOREST"], "family": ["BIRD"], "attr_name": "Rare Bird", "effect": "Grants +1 \u2794 10  Pet Luck", "obtain": "Fusing Condor Shard with Legendary or higher.", "id_res": null, "fusion": {"input_1": {"shard": "SHARD_CONDOR"}, "input_2": {"rarity": "LEGENDARY", "or_higher": true}}}, "SHARD_JORMUNG": {"rarity": "LEGENDARY", "category": ["COMBAT"], "family": ["DEMON", "DRAGON"], "attr_name": "Unlimited Power", "effect": "Your  Strength is increased by +0.1% \u2794 1%", "obtain": "Fusing Power Dragon Shard with Kraken Shard.", "id_res": null, "fusion": {"input_1": {"shard": "SHARD_POWER_DRAGON"}, "input_2": {"shard": "SHARD_KRAKEN"}}}, "SHARD_ETHERDRAKE": {"rarity": "LEGENDARY", "category": ["COMBAT"], "family": ["DEMON", "DRAGON"], "attr_name": "Unlimited Energy", "effect": "Your  Crit Damage is increased by +0.1% \u2794 1%", "obtain": "Fusing Apex Dragon Shard with Kraken Shard.", "id_res": null, "fusion": {"input_1": {"shard": "SHARD_APEX_DRAGON"}, "input_2": {"shard": "SHARD_KRAKEN"}}}, "SHARD_GALAXY_FISH": {"rarity": "LEGENDARY", "category": ["WATER"], "family": ["NONE"], "attr_name": "Ultimate DNA", "effect": "Grants +1 \u2794 10  Mining Fortune,  Farming Fortune, and  Foraging Fortune", "obtain": "Fusing Sun Fish Shard with Sun Fish Shard.", "id_res": {"shard": "SHARD_TITANOBOA"}, "fusion": {"input_1": {"shard": "SHARD_SUN_FISH"}, "input_2": {"shard": "SHARD_SUN_FISH"}}}, "SHARD_MOLTHORN": {"rarity": "LEGENDARY", "category": ["COMBAT"], "family": ["DEMON", "DRAGON"], "attr_name": "Almighty", "effect": "Your \"Unlimited\" Attributes are +5% \u2794 50%  stronger", "obtain": "Fusing Etherdrake Shard with Jormung Shard.", "id_res": null, "fusion": {"input_1": {"shard": "SHARD_ETHERDRAKE"}, "input_2": {"shard": "SHARD_JORMUNG"}}}, "SHARD_STARBORN": {"rarity": "LEGENDARY", "category": ["COMBAT"], "family": ["ELEMENTAL"], "attr_name": "Echo Of Elemental", "effect": "Buffs all other shards in the Elemental Family by +2% \u2794 20%", "obtain": "Fusing Elemental Family and Legendary with Galaxy Fish Shard.", "id_res": null, "fusion": {"input_1": {"type": "and", "data": [{"family": "ELEMENTAL"}, {"rarity": "LEGENDARY", "or_higher": false}]}, "input_2": {"shard": "SHARD_GALAXY_FISH"}}}, "SHARD_TITANOBOA": {"rarity": "LEGENDARY", "category": ["WATER"], "family": ["REPTILE"], "attr_name": "Bayou Biter", "effect": "Grants +0.2 \u2794 2.5  Double Hook Chance while on the Backwater Bayou", "obtain": "Catch with Pocket Black Hole. Kill Titanoboa while using Salts.", "id_res": null, "fusion": {"input_1": {}, "input_2": {}}}}
+{
+   "SHARD_GROVE":{
+      "rarity":"COMMON",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "ELEMENTAL"
+      ],
+      "attr_name":"Nature Elemental",
+      "effect":"Grants +2 \u2794 20  Health",
+      "obtain":"Fusing Forest Category and Common with Uncommon or higher.",
+      "id_res":{
+         "shard":"SHARD_PHANPYRE"
+      },
+      "fusion":{
+         "input_1":{
+            "type":"and",
+            "data":[
+               {
+                  "category":"FOREST"
+               },
+               {
+                  "rarity":"COMMON",
+                  "or_higher":false
+               }
+            ]
+         },
+         "input_2":{
+            "rarity":"UNCOMMON",
+            "or_higher":true
+         }
+      }
+   },
+   "SHARD_MIST":{
+      "rarity":"COMMON",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "ELEMENTAL"
+      ],
+      "attr_name":"Fog Elemental",
+      "effect":"Grants +1 \u2794 10  Intelligence",
+      "obtain":"Fusing Water Category and Common with Uncommon or higher.",
+      "id_res":{
+         "shard":"SHARD_COD"
+      },
+      "fusion":{
+         "input_1":{
+            "type":"and",
+            "data":[
+               {
+                  "category":"WATER"
+               },
+               {
+                  "rarity":"COMMON",
+                  "or_higher":false
+               }
+            ]
+         },
+         "input_2":{
+            "rarity":"UNCOMMON",
+            "or_higher":true
+         }
+      }
+   },
+   "SHARD_FLASH":{
+      "rarity":"COMMON",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "ELEMENTAL"
+      ],
+      "attr_name":"Light Elemental",
+      "effect":"Grants +1 \u2794 10  Strength",
+      "obtain":"Fusing Combat Category and Common with Uncommon or higher.",
+      "id_res":{
+         "shard":"SHARD_LAPIS_ZOMBIE"
+      },
+      "fusion":{
+         "input_1":{
+            "type":"and",
+            "data":[
+               {
+                  "category":"COMBAT"
+               },
+               {
+                  "rarity":"COMMON",
+                  "or_higher":false
+               }
+            ]
+         },
+         "input_2":{
+            "rarity":"UNCOMMON",
+            "or_higher":true
+         }
+      }
+   },
+   "SHARD_PHANPYRE":{
+      "rarity":"COMMON",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "PHANTOM"
+      ],
+      "attr_name":"Nocturnal Animal",
+      "effect":"Grants +1 \u2794 10  Sweep during the night",
+      "obtain":"Catch with Lasso. Place Traps in Galatea. (On Land). Found in Fig and Mangrove Tree Gifts.",
+      "id_res":{
+         "shard":"SHARD_PHANFLARE"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_COD":{
+      "rarity":"COMMON",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "TROPICAL_FISH"
+      ],
+      "attr_name":"Cheapstake",
+      "effect":"Gain +1% \u2794 10% more Coins from fishing treasures",
+      "obtain":"Place Traps in Murkwater Depths. (Underwater). Place Traps in Murkwater Shallows. (Underwater). Caught by Fishing in Tomb Floodway. Catch with a Fishing Net.",
+      "id_res":{
+         "shard":"SHARD_NIGHT_SQUID"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_PHANFLARE":{
+      "rarity":"COMMON",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "PHANTOM"
+      ],
+      "attr_name":"Moonglade Mastery",
+      "effect":"Grants +10 \u2794 100  Fig Fortune and +10 \u2794 100  Mangrove Fortune",
+      "obtain":"Catch with Lasso. Place Traps in Galatea. (On Land). Found in Fig and Mangrove Tree Gifts.",
+      "id_res":{
+         "shard":"SHARD_HIDEONLEAF"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_NIGHT_SQUID":{
+      "rarity":"COMMON",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "SQUID"
+      ],
+      "attr_name":"Fisherman",
+      "effect":"Has a +1% \u2794 10% chance not to consume any bait",
+      "obtain":"Catch with Pocket Black Hole. Kill Night Squid while using Salts.",
+      "id_res":{
+         "shard":"SHARD_VERDANT"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_LAPIS_ZOMBIE":{
+      "rarity":"COMMON",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "LAPIS"
+      ],
+      "attr_name":"Experience",
+      "effect":"Grants +10% \u2794 100% more experience orbs from killing mobs",
+      "obtain":"Catch with Pocket Black Hole. Kill Lapis Zombie while using Salts.",
+      "id_res":{
+         "shard":"SHARD_CHILL"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_HIDEONLEAF":{
+      "rarity":"COMMON",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "SHULKER"
+      ],
+      "attr_name":"Mossy Box",
+      "effect":"Grants +5 \u2794 50  Block Fortune",
+      "obtain":"Hunted on Galatea.",
+      "id_res":{
+         "shard":"SHARD_MUDWORM"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_VERDANT":{
+      "rarity":"COMMON",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "TROPICAL_FISH"
+      ],
+      "attr_name":"Forest Fishing",
+      "effect":"Grants +3 \u2794 30  Fishing Speed while on Foraging Islands",
+      "obtain":"Place Traps in Murkwater Depths. (Underwater). Place Traps in Murkwater Shallows. (Underwater). Caught by Fishing in Tomb Floodway. Catch with a Fishing Net.",
+      "id_res":{
+         "shard":"SHARD_BOGGED"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_CHILL":{
+      "rarity":"COMMON",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Skeletal Ruler",
+      "effect":"Increase damage to Skeletal creatures by +3% \u2794 30%",
+      "obtain":"Catch with Pocket Black Hole. Kill Chillshot or Chillblade while using Salts. Place Traps in Wyrmgrove Tomb.",
+      "id_res":{
+         "shard":"SHARD_VORACIOUS_SPIDER"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_BOGGED":{
+      "rarity":"COMMON",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Creature Fisher",
+      "effect":"Grants +0.5 \u2794 5  Sea Creature Chance",
+      "obtain":"Catch with Pocket Black Hole. Kill Sea Archer while using Salts.",
+      "id_res":{
+         "shard":"SHARD_BIRRIES"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_VORACIOUS_SPIDER":{
+      "rarity":"COMMON",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Arthropod Resistance",
+      "effect":"Grants +4 \u2794 40  Defense against Spiders",
+      "obtain":"Catch with Pocket Black Hole. Kill Voracious Spider while using Salts.",
+      "id_res":{
+         "shard":"SHARD_TANK_ZOMBIE"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_HIDEONGIFT":{
+      "rarity":"COMMON",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "SHULKER"
+      ],
+      "attr_name":"Happy Box",
+      "effect":"Grants a +2% \u2794 20% chance to obtain an extra Winter Gift when finding one",
+      "obtain":"Fusing Shulker Family with Common or higher.",
+      "id_res":{
+         "shard":"SHARD_MUDWORM"
+      },
+      "fusion":{
+         "input_1":{
+            "family":"SHULKER"
+         },
+         "input_2":{
+            "rarity":"COMMON",
+            "or_higher":true
+         }
+      }
+   },
+   "SHARD_BIRRIES":{
+      "rarity":"COMMON",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Yummy",
+      "effect":"Grants a +10% \u2794 100%  chance to drop double Berries and Sea Lumies",
+      "obtain":"Place Traps in Galatea. (On Land). Catch with a Fishing Net. Catch with Lasso.",
+      "id_res":{
+         "shard":"SHARD_TADGANG"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_TANK_ZOMBIE":{
+      "rarity":"COMMON",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Undead Resistance",
+      "effect":"Grants +4 \u2794 40  Defense against Undead Monsters",
+      "obtain":"Kill Super Tank Zombie, Crypt Tank Zombie, Master Crypt Tank Zombie, or Master Super Tank Zombie while using Salts.",
+      "id_res":{
+         "shard":"SHARD_ZEALOT"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_CROW":{
+      "rarity":"COMMON",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "BIRD"
+      ],
+      "attr_name":"Fig Sharpening",
+      "effect":"Grants +5 \u2794 50  Sweep towards Fig Trees",
+      "obtain":"Purchased in Agatha's Shop.",
+      "id_res":{
+         "shard":"SHARD_MUDWORM"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_TADGANG":{
+      "rarity":"COMMON",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "FROG",
+         "AMPHIBIAN"
+      ],
+      "attr_name":"Unity Is Strength",
+      "effect":"Grants +0.02 \u2794 0.2  Sweep for each unique Common Attribute you own",
+      "obtain":"Catch with Pocket Black Hole. Kill Tadgang while using Salts. Place Traps in Murkwater Depths. (Underwater). Place Traps in Murkwater Shallows. (Underwater).",
+      "id_res":{
+         "shard":"SHARD_CORALOT"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_ZEALOT":{
+      "rarity":"COMMON",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Ender Resistance",
+      "effect":"Grants +4 \u2794 40  Defense against mobs in The End",
+      "obtain":"Catch with Pocket Black Hole. Kill Zealot while using Salts.",
+      "id_res":{
+         "shard":"SHARD_GOLDEN_GHOUL"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_CORALOT":{
+      "rarity":"COMMON",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "AXOLOTL"
+      ],
+      "attr_name":"Bucket Lover",
+      "effect":"You have a +5% \u2794 50% chance to gain extra Chums",
+      "obtain":"Place Traps in Murkwater Depths. (Underwater). Catch with a Fishing Net. Catch with Lasso.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_HARPY":{
+      "rarity":"COMMON",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "BIRD"
+      ],
+      "attr_name":"Tree Lurker",
+      "effect":"Increases the odds of finding monsters from Tree Gifts by +5% \u2794 50%",
+      "obtain":"Fusing Bird Family with Combat Category.",
+      "id_res":{
+         "shard":"SHARD_GOLDEN_GHOUL"
+      },
+      "fusion":{
+         "input_1":{
+            "family":"BIRD"
+         },
+         "input_2":{
+            "category":"COMBAT"
+         }
+      }
+   },
+   "SHARD_MUDWORM":{
+      "rarity":"COMMON",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Visitor Bait",
+      "effect":"Garden Visitors arrive +1% \u2794 10% faster",
+      "obtain":"Place Traps in Galatea. (On Land). Found in Grass on Galatea.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_GOLDEN_GHOUL":{
+      "rarity":"COMMON",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Midas Touch",
+      "effect":"Grants +1 \u2794 10 Coins per kill",
+      "obtain":"Catch with Pocket Black Hole. Kill Golden Ghoul while using Salts.",
+      "id_res":{
+         "shard":"SHARD_BEZAL"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_AZURE":{
+      "rarity":"COMMON",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "TROPICAL_FISH"
+      ],
+      "attr_name":"Forest Strength",
+      "effect":"Grants +5 \u2794 50  Strength while on Foraging Islands",
+      "obtain":"Place Traps in Murkwater Depths. (Underwater). Place Traps in Murkwater Shallows. (Underwater). Caught by Fishing in Tomb Floodway.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_BEZAL":{
+      "rarity":"COMMON",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Blazing Resistance",
+      "effect":"Grants +4 \u2794 40  Defense against mobs while in the Crimson Isle",
+      "obtain":"Catch with Pocket Black Hole. Kill Bezal while using Salts. Obtained from Kuudra.",
+      "id_res":{
+         "shard":"SHARD_YOG"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_YOG":{
+      "rarity":"COMMON",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Yog Membrane",
+      "effect":"Grants +1 \u2794 10  Heat Resistance",
+      "obtain":"Catch with Pocket Black Hole. Kill Yog while using Salts.",
+      "id_res":{
+         "shard":"SHARD_MINER_ZOMBIE"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_BOREAL_OWL":{
+      "rarity":"COMMON",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "BIRD"
+      ],
+      "attr_name":"Owl Friend",
+      "effect":"Your pets gain +2% \u2794 20%  more Pet EXP from Fann",
+      "obtain":"Fusing Bird Family with Common or higher.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+            "family":"BIRD"
+         },
+         "input_2":{
+            "rarity":"COMMON",
+            "or_higher":true
+         }
+      }
+   },
+   "SHARD_NEWT":{
+      "rarity":"COMMON",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "REPTILE",
+         "LIZARD"
+      ],
+      "attr_name":"Decent Karma",
+      "effect":"Grants +2 \u2794 20  Hunter Fortune towards COMMON Attributes",
+      "obtain":"Fusing Axolotl Family with Water Category.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+            "family":"AXOLOTL"
+         },
+         "input_2":{
+            "category":"WATER"
+         }
+      }
+   },
+   "SHARD_MINER_ZOMBIE":{
+      "rarity":"COMMON",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "CAVE_DWELLER"
+      ],
+      "attr_name":"Rotten Pickaxe",
+      "effect":"Grants +3 \u2794 30  Mining Speed",
+      "obtain":"Catch with Pocket Black Hole. Kill Miner Zombie while using Salts.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_BRAMBLE":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "ELEMENTAL"
+      ],
+      "attr_name":"Wood Elemental",
+      "effect":"Grants +2 \u2794 20  Health",
+      "obtain":"Fusing Forest Category and Uncommon with Rare or higher.",
+      "id_res":{
+         "shard":"SHARD_PEST"
+      },
+      "fusion":{
+         "input_1":{
+            "type":"and",
+            "data":[
+               {
+                  "category":"FOREST"
+               },
+               {
+                  "rarity":"UNCOMMON",
+                  "or_higher":false
+               }
+            ]
+         },
+         "input_2":{
+            "rarity":"RARE",
+            "or_higher":true
+         }
+      }
+   },
+   "SHARD_TIDE":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "ELEMENTAL"
+      ],
+      "attr_name":"Water Elemental",
+      "effect":"Grants +1 \u2794 10  Intelligence",
+      "obtain":"Fusing Water Category and Uncommon with Rare or higher.",
+      "id_res":{
+         "shard":"SHARD_MOSSYBIT"
+      },
+      "fusion":{
+         "input_1":{
+            "type":"and",
+            "data":[
+               {
+                  "category":"WATER"
+               },
+               {
+                  "rarity":"UNCOMMON",
+                  "or_higher":false
+               }
+            ]
+         },
+         "input_2":{
+            "rarity":"RARE",
+            "or_higher":true
+         }
+      }
+   },
+   "SHARD_QUAKE":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "ELEMENTAL"
+      ],
+      "attr_name":"Stone Elemental",
+      "effect":"Grants +1 \u2794 10  Strength",
+      "obtain":"Fusing Combat Category and Uncommon with Rare or higher.",
+      "id_res":{
+         "shard":"SHARD_RAIN_SLIME"
+      },
+      "fusion":{
+         "input_1":{
+            "type":"and",
+            "data":[
+               {
+                  "category":"COMBAT"
+               },
+               {
+                  "rarity":"UNCOMMON",
+                  "or_higher":false
+               }
+            ]
+         },
+         "input_2":{
+            "rarity":"RARE",
+            "or_higher":true
+         }
+      }
+   },
+   "SHARD_SPARROW":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "BIRD"
+      ],
+      "attr_name":"Fig Collector",
+      "effect":"Grants +1 \u2794 10  Fig Fortune for every digit in your Fig Log collection. (Max 10M collection)",
+      "obtain":"Unlocked from Fig Collection VII.",
+      "id_res":{
+         "shard":"SHARD_PEST"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_GOLDFIN":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Gold Bait",
+      "effect":"The cooldown of Golden Fish is reduced by 30s \u2794 5m",
+      "obtain":"Fusing Golden Ghoul Shard with Water Category.",
+      "id_res":{
+         "shard":"SHARD_MOSSYBIT"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_GOLDEN_GHOUL"
+         },
+         "input_2":{
+            "category":"WATER"
+         }
+      }
+   },
+   "SHARD_TROGLOBYTE":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "CAVE_DWELLER"
+      ],
+      "attr_name":"Mountain Climber",
+      "effect":"Commissions grant +1% \u2794 10% more HOTM Exp",
+      "obtain":"Fusing Cave Dweller Family with Combat Category.",
+      "id_res":{
+         "shard":"SHARD_RAIN_SLIME"
+      },
+      "fusion":{
+         "input_1":{
+            "family":"CAVE_DWELLER"
+         },
+         "input_2":{
+            "category":"COMBAT"
+         }
+      }
+   },
+   "SHARD_HIDEONCAVE":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "SHULKER"
+      ],
+      "attr_name":"Bigger Box",
+      "effect":"Grants a +5% \u2794 50%  chance to find an extra item in Treasure Chests and the Crystal Nucleus",
+      "obtain":"Fusing Shulker Family with Cave Dweller Family.",
+      "id_res":{
+         "shard":"SHARD_PEST"
+      },
+      "fusion":{
+         "input_1":{
+            "family":"SHULKER"
+         },
+         "input_2":{
+            "family":"CAVE_DWELLER"
+         }
+      }
+   },
+   "SHARD_SALAMANDER":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "REPTILE",
+         "LIZARD"
+      ],
+      "attr_name":"Good Karma",
+      "effect":"Grants +2 \u2794 20  Hunter Fortune towards UNCOMMON Attributes",
+      "obtain":"Fusing Lizard Family with Water Category.",
+      "id_res":{
+         "shard":"SHARD_MOSSYBIT"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_NEWT"
+         },
+         "input_2":{
+            "category":"WATER"
+         }
+      }
+   },
+   "SHARD_CUBOA":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "REPTILE",
+         "SERPENT"
+      ],
+      "attr_name":"Echo Of Boxes",
+      "effect":"Your \"Box\" Attributes are +2% \u2794 20%  stronger",
+      "obtain":"Fusing Shulker Family with Reptile Family.",
+      "id_res":{
+         "shard":"SHARD_RAIN_SLIME"
+      },
+      "fusion":{
+         "input_1":{
+            "family":"SHULKER"
+         },
+         "input_2":{
+            "family":"REPTILE"
+         }
+      }
+   },
+   "SHARD_PEST":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "BUG"
+      ],
+      "attr_name":"Pest Luck",
+      "effect":"Gain a +2% \u2794 20% chance to obtain rare loot from Pests",
+      "obtain":"Catch with Pocket Black Hole. Catch with Lasso. Kill Cricket, Fly, Beetle, Earthworm, Locust, Slug, Mosquito, Moth, Rat, or Mite while using Salts.",
+      "id_res":{
+         "shard":"SHARD_BAMBULEAF"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_MOSSYBIT":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "FROG",
+         "AMPHIBIAN"
+      ],
+      "attr_name":"Forest Trap",
+      "effect":"Forest Shards get caught by Traps +1% \u2794 10%  faster",
+      "obtain":"Fusing Tadgang Shard with Forest Category. Place Traps in Galatea. (On Land). Hunted in Murkwater Loch.",
+      "id_res":{
+         "shard":"SHARD_SALMON"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_TADGANG"
+         },
+         "input_2":{
+            "category":"FOREST"
+         }
+      }
+   },
+   "SHARD_RAIN_SLIME":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Mana Steal",
+      "effect":"Regain +0.5 \u2794 5 of your maximum Mana every time you hit a monster",
+      "obtain":"Catch with Pocket Black Hole. Kill Rain Slime or Toxic Rain Slime while using Salts.",
+      "id_res":{
+         "shard":"SHARD_SEER"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_SEER":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Dragon Shortbow Improvement",
+      "effect":"Your Dragon Shortbow gains +2% \u2794 20% more  Damage while in The End",
+      "obtain":"Catch with Pocket Black Hole. Kill Seer while using Salts.",
+      "id_res":{
+         "shard":"SHARD_OBSIDIAN_DEFENDER"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_HERON":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "BIRD"
+      ],
+      "attr_name":"Mangrove Sharpening",
+      "effect":"Grants +10 \u2794 100  Sweep towards Mangrove Trees",
+      "obtain":"Purchased in Agatha's Shop.",
+      "id_res":{
+         "shard":"SHARD_BAMBULEAF"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_OBSIDIAN_DEFENDER":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Speed",
+      "effect":"Grants +1 \u2794 10  Speed",
+      "obtain":"Catch with Pocket Black Hole. Kill Obsidian Defender while using Salts.",
+      "id_res":{
+         "shard":"SHARD_ZOMBIE_SOLDIER"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_SALMON":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Lost And Found",
+      "effect":"Grants a +0.1% \u2794 1% chance to find a Wet Book when fishing a Treasure",
+      "obtain":"Place Traps in Murkwater Depths. (Underwater). Place Traps in Murkwater Shallows. (Underwater). Caught by Fishing in Tomb Floodway. Catch with a Fishing Net.",
+      "id_res":{
+         "shard":"SHARD_ENT"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_VIPER":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "REPTILE",
+         "SERPENT"
+      ],
+      "attr_name":"Hunter's Fang",
+      "effect":"Your Hunting Axes gain +1% \u2794 10% more stats from the weapon they hold",
+      "obtain":"Fusing Cuboa Shard with Combat Category. Purchased from Kiara's Shop.",
+      "id_res":{
+         "shard":"SHARD_ZOMBIE_SOLDIER"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_CUBOA"
+         },
+         "input_2":{
+            "category":"COMBAT"
+         }
+      }
+   },
+   "SHARD_PRAYING_MANTIS":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "BUG"
+      ],
+      "attr_name":"Insect Power",
+      "effect":"Your Vacuum deals +5% \u2794 50% extra  Damage",
+      "obtain":"Fusing Pest Shard with Combat Category.",
+      "id_res":{
+         "shard":"SHARD_BAMBULEAF"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_PEST"
+         },
+         "input_2":{
+            "category":"COMBAT"
+         }
+      }
+   },
+   "SHARD_ZOMBIE_SOLDIER":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Undead Ruler",
+      "effect":"Grants +3% \u2794 30% more  Damage against Undead Monsters",
+      "obtain":"Kill Zombie Knight, Zombie Soldier, Zombie Commander, or Zombie Lord while using Salts.",
+      "id_res":{
+         "shard":"SHARD_SYCOPHANT"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_BAMBULEAF":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "PANDA"
+      ],
+      "attr_name":"Strong Arms",
+      "effect":"Your Axe gains +3 \u2794 30  Sweep on throws",
+      "obtain":"Place Traps in Tranquility Sanctum. (Spring or Summer). Obtained from Pandas on Galatea.",
+      "id_res":{
+         "shard":"SHARD_MOCHIBEAR"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_SYCOPHANT":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Life Recovery",
+      "effect":"Heals for +0.1% \u2794 1% of your max health each time you kill a mob",
+      "obtain":"Catch with Pocket Black Hole. Kill Revenant Sycophant while using Salts.",
+      "id_res":{
+         "shard":"SHARD_SOUL_OF_THE_ALPHA"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_SEAGULL":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "BIRD"
+      ],
+      "attr_name":"Mangrove Collector",
+      "effect":"Grants +1 \u2794 10  Mangrove Fortune for every digit in your Mangrove Log collection. (Max 10M collection)",
+      "obtain":"Unlocked from Mangrove Collection VI.",
+      "id_res":{
+         "shard":"SHARD_MOCHIBEAR"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_ENT":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Spirit Axe",
+      "effect":"Your Axes deal +2% \u2794 20% extra  Damage to creatures on Galatea",
+      "obtain":"Catch with Pocket Black Hole. Kill Ent while using Salts. Place Traps in Murkwater Depths. (Underwater). Place Traps in Murkwater Shallows. (Underwater).",
+      "id_res":{
+         "shard":"SHARD_MAGMA_SLUG"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_SOUL_OF_THE_ALPHA":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Combo",
+      "effect":"Deal +0.1% \u2794 1% more  Damage per Grandma Wolf pet combo. (Max 50 combo)",
+      "obtain":"Catch with Pocket Black Hole. Kill Soul of the Alpha while using Salts. Place Traps in Howling Cave.",
+      "id_res":{
+         "shard":"SHARD_FLAMING_SPIDER"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_MOCHIBEAR":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "PANDA"
+      ],
+      "attr_name":"Strong Legs",
+      "effect":"Your Axe gains +3 \u2794 30  Sweep on melee",
+      "obtain":"Place Traps in Tranquility Sanctum. (Autumn or Winter). Obtained from Pandas on Galatea.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_MAGMA_SLUG":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Infection",
+      "effect":"Increases the chance of catching corrupted Sea Creatures by +0.2% \u2794 2%",
+      "obtain":"Catch with Pocket Black Hole. Kill Magma Slug while using Salts. Obtained from Kuudra. Place Traps in Crimson Isle. (Under lava).",
+      "id_res":{
+         "shard":"SHARD_STRIDERSURFER"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_FLAMING_SPIDER":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Arthropod Ruler",
+      "effect":"Grants +3% \u2794 30% more  Damage against Spiders",
+      "obtain":"Catch with Pocket Black Hole. Kill Flaming Spider while using Salts.",
+      "id_res":{
+         "shard":"SHARD_BRUISER"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_KIWI":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "BIRD"
+      ],
+      "attr_name":"Kat Favorite",
+      "effect":"Kat takes +1% \u2794 10%  less time to upgrade a Pet",
+      "obtain":"Fusing Bird Family with Uncommon or higher.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+            "family":"BIRD"
+         },
+         "input_2":{
+            "rarity":"UNCOMMON",
+            "or_higher":true
+         }
+      }
+   },
+   "SHARD_BRUISER":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Ender Ruler",
+      "effect":"Grants +3% \u2794 30% more  Damage against Ender Creatures",
+      "obtain":"Catch with Pocket Black Hole. Kill Zealot Bruiser while using Salts.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_STRIDERSURFER":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "DROWNED"
+      ],
+      "attr_name":"Magmatic Ruler",
+      "effect":"Grants +3% \u2794 30% more  Damage against Lava Sea Creatures",
+      "obtain":"Catch with Pocket Black Hole. Kill Strider Surfer or Strider while using Salts. Place Traps in Stride-Ember Fissure.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_RANA":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "FROG",
+         "AMPHIBIAN"
+      ],
+      "attr_name":"Battle Frog",
+      "effect":"Your Frog Pet gains +3 \u2794 30  Strength",
+      "obtain":"Fusing Frog Family with Combat Category.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+            "family":"FROG"
+         },
+         "input_2":{
+            "category":"COMBAT"
+         }
+      }
+   },
+   "SHARD_TERMITE":{
+      "rarity":"UNCOMMON",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "BUG"
+      ],
+      "attr_name":"Infiltration",
+      "effect":"Grants +3 \u2794 30  Farming Fortune if your Garden Plot currently has a Pest in it",
+      "obtain":"Fusing Bug Family with Mining Category.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+            "family":"BUG"
+         },
+         "input_2":{
+            "shard":"SHARD_PRAYING_MANTIS"
+         }
+      }
+   },
+   "SHARD_SYLVAN":{
+      "rarity":"RARE",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "ELEMENTAL"
+      ],
+      "attr_name":"Forest Elemental",
+      "effect":"Grants +2 \u2794 20  Health",
+      "obtain":"Fusing Forest Category and Rare with Epic or higher.",
+      "id_res":{
+         "shard":"SHARD_BEACONMITE"
+      },
+      "fusion":{
+         "input_1":{
+            "type":"and",
+            "data":[
+               {
+                  "category":"FOREST"
+               },
+               {
+                  "rarity":"RARE",
+                  "or_higher":false
+               }
+            ]
+         },
+         "input_2":{
+            "rarity":"EPIC",
+            "or_higher":true
+         }
+      }
+   },
+   "SHARD_CASCADE":{
+      "rarity":"RARE",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "ELEMENTAL"
+      ],
+      "attr_name":"Torrent Elemental",
+      "effect":"Grants +1 \u2794 10  Intelligence",
+      "obtain":"Fusing Water Category and Rare with Epic or higher.",
+      "id_res":{
+         "shard":"SHARD_PIRANHA"
+      },
+      "fusion":{
+         "input_1":{
+            "type":"and",
+            "data":[
+               {
+                  "category":"WATER"
+               },
+               {
+                  "rarity":"RARE",
+                  "or_higher":false
+               }
+            ]
+         },
+         "input_2":{
+            "rarity":"EPIC",
+            "or_higher":true
+         }
+      }
+   },
+   "SHARD_BOLT":{
+      "rarity":"RARE",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "ELEMENTAL"
+      ],
+      "attr_name":"Lightning Elemental",
+      "effect":"Grants +1 \u2794 10  Strength",
+      "obtain":"Fusing Combat Category and Rare with Epic or higher.",
+      "id_res":{
+         "shard":"SHARD_GLACITE_WALKER"
+      },
+      "fusion":{
+         "input_1":{
+            "type":"and",
+            "data":[
+               {
+                  "category":"COMBAT"
+               },
+               {
+                  "rarity":"RARE",
+                  "or_higher":false
+               }
+            ]
+         },
+         "input_2":{
+            "rarity":"EPIC",
+            "or_higher":true
+         }
+      }
+   },
+   "SHARD_BAMBLOOM":{
+      "rarity":"RARE",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "PANDA"
+      ],
+      "attr_name":"Animal Expertise",
+      "effect":"Grants +10 \u2794 100  Foraging Fortune",
+      "obtain":"Fusing Panda Family with Uncommon or higher.",
+      "id_res":{
+         "shard":"SHARD_BEACONMITE"
+      },
+      "fusion":{
+         "input_1":{
+            "family":"PANDA"
+         },
+         "input_2":{
+            "rarity":"UNCOMMON",
+            "or_higher":true
+         }
+      }
+   },
+   "SHARD_TOAD":{
+      "rarity":"RARE",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "FROG",
+         "AMPHIBIAN"
+      ],
+      "attr_name":"Frog Legs",
+      "effect":"Frogs have a +10% \u2794 100% chance to jump 1 less time",
+      "obtain":"Frogs have a +10% \u2794 100% chance to jump 1 less time.",
+      "id_res":{
+         "shard":"SHARD_PIRANHA"
+      },
+      "fusion":{
+         "input_1":{
+            "family":"FROG"
+         },
+         "input_2":{
+            "type":"and",
+            "data":[
+               {
+                  "rarity":"UNCOMMON",
+                  "or_higher":true
+               },
+               {
+                  "category":"FOREST"
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_GLACITE_WALKER":{
+      "rarity":"RARE",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Essence of Ice",
+      "effect":"Gain +1% \u2794 10% more Ice Essence",
+      "obtain":"Catch with Pocket Black Hole. Kill Glacite Walker while using Salts.",
+      "id_res":{
+         "family":"DROWNED"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_BEACONMITE":{
+      "rarity":"RARE",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "BUG"
+      ],
+      "attr_name":"Beacon Zealot",
+      "effect":"The effects of beacons are 10% \u2794 100% stronger on you. Gain a 0.1% \u2794 1% chance to find Signal Enhancers in Tree Gifts",
+      "obtain":"Obtained by Tuning the Moonglade Beacon.",
+      "id_res":{
+         "shard":"SHARD_INVISIBUG"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_LIZARD_KING":{
+      "rarity":"RARE",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "REPTILE",
+         "LIZARD"
+      ],
+      "attr_name":"Great Karma",
+      "effect":"Grants +1 \u2794 10  Hunter Fortune towards RARE Attributes",
+      "obtain":"Fusing Lizard Family with Water Category and Uncommon or higher.",
+      "id_res":{
+         "shard":"SHARD_PIRANHA"
+      },
+      "fusion":{
+         "input_1":{
+            "family":"LIZARD"
+         },
+         "input_2":{
+            "type":"and",
+            "data":[
+               {
+                  "category":"WATER"
+               },
+               {
+                  "rarity":"UNCOMMON",
+                  "or_higher":true
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_PYTHON":{
+      "rarity":"RARE",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "REPTILE",
+         "SERPENT"
+      ],
+      "attr_name":"Hunters Pressure",
+      "effect":"Your Black Holes capture creatures +2% \u2794 20% faster",
+      "obtain":"Fusing Viper Shard with Combat Category and Uncommon or higher.",
+      "id_res":{
+         "family":"DROWNED"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_VIPER"
+         },
+         "input_2":{
+            "type":"and",
+            "data":[
+               {
+                  "rarity":"UNCOMMON",
+                  "or_higher":true
+               },
+               {
+                  "category":"COMBAT"
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_INVISIBUG":{
+      "rarity":"RARE",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "BUG"
+      ],
+      "attr_name":"Fancy Visit",
+      "effect":"RARE and above Garden Visitors have a +1% \u2794 10% higher chance to arrive",
+      "obtain":"Place Traps in Galatea. (On Land). Found in Grass on Galatea.",
+      "id_res":{
+         "shard":"SHARD_DREADWING"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_PIRANHA":{
+      "rarity":"RARE",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "TREASURE_FISH"
+      ],
+      "attr_name":"Moonglade Serendipity",
+      "effect":"Increases the odds of finding rare items in Tree Gifts at Moonglade Marsh by +2% \u2794 20%",
+      "obtain":"Place Traps in Murkwater Depths. (Underwater). Place Traps in Murkwater Shallows. (Underwater). Caught by Fishing in Moonglade Marsh.",
+      "id_res":{
+         "shard":"SHARD_ABYSSAL_LANTERNFISH"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_HIDEONGEON":{
+      "rarity":"RARE",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "SHULKER"
+      ],
+      "attr_name":"Catacombs Box",
+      "effect":"Increases the quality of boss rewards in The Catacombs by +1 \u2794 10",
+      "obtain":"Fusing Shulker Family with Wither Shard.",
+      "id_res":{
+         "shard":"SHARD_DREADWING"
+      },
+      "fusion":{
+         "input_1":{
+            "family":"SHULKER"
+         },
+         "input_2":{
+            "shard":"SHARD_WITHER"
+         }
+      }
+   },
+   "SHARD_LAPIS_SKELETON":{
+      "rarity":"RARE",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "LAPIS"
+      ],
+      "attr_name":"Bone Font",
+      "effect":"Grants a +2% \u2794 20% extra chance of finding Level 6+ books or higher in Superpairs",
+      "obtain":"Fusing Lapis Zombie Shard with Rare or higher.",
+      "id_res":{
+         "family":"DROWNED"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_LAPIS_ZOMBIE"
+         },
+         "input_2":{
+            "rarity":"RARE",
+            "or_higher":true
+         }
+      }
+   },
+   "SHARD_CROPEETLE":{
+      "rarity":"RARE",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "BUG"
+      ],
+      "attr_name":"Crop Bug",
+      "effect":"Increased the odds of finding a Cropie, Squash or Fermento by +2% \u2794 20%",
+      "obtain":"Fusing Invisibug and Termite Shards with Forest Category.",
+      "id_res":{
+         "shard":"SHARD_DREADWING"
+      },
+      "fusion":{
+         "input_1":{
+            "type":"or",
+            "data":[
+               {
+                  "shard":"SHARD_TERMITE"
+               },
+               {
+                  "shard":"SHARD_INVISIBUG"
+               }
+            ]
+         },
+         "input_2":{
+            "category":"FOREST"
+         }
+      }
+   },
+   "SHARD_DROWNED":{
+      "rarity":"RARE",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Humanoid Ruler",
+      "effect":"Grants +3% \u2794 30% more  Damage against Humanoid Creatures",
+      "obtain":"Catch with Pocket Black Hole. Kill Seacurse, Hydrospear, or Tidetot while using Salts. Place Traps in Drowned Reliquary.",
+      "id_res":{
+         "shard":"SHARD_STAR_SENTRY"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_STAR_SENTRY":{
+      "rarity":"RARE",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Atomized Mithril",
+      "effect":"Gain +1% \u2794 10% extra Mithril Powder",
+      "obtain":"Catch with Pocket Black Hole. Kill Star Sentry while using Salts.",
+      "id_res":{
+         "shard":"SHARD_ARACHNE"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_HIDEONDRA":{
+      "rarity":"RARE",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "SHULKER"
+      ],
+      "attr_name":"Kuudra's Box",
+      "effect":"Gives +5% \u2794 50%  chance to have an extra Kuudra Teeth in the Paid Reward Chest",
+      "obtain":"Fusing Shulker Family with Demon Family.",
+      "id_res":{
+         "shard":"SHARD_DREADWING"
+      },
+      "fusion":{
+         "input_1":{
+            "family":"SHULKER"
+         },
+         "input_2":{
+            "family":"DEMON"
+         }
+      }
+   },
+   "SHARD_ABYSSAL_LANTERNFISH":{
+      "rarity":"RARE",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "TREASURE_FISH"
+      ],
+      "attr_name":"Dwarven Serendipity",
+      "effect":"Increases the chance to find Golden and Diamond Goblins by +10% \u2794 100%",
+      "obtain":"Place Traps in Dwarven Mines. (Underwater). Caught by Fishing in Dwarven Mines.",
+      "id_res":{
+         "shard":"SHARD_SILENTDEPTH"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_ARACHNE":{
+      "rarity":"RARE",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "SPIDER"
+      ],
+      "attr_name":"Essence of Arthropods",
+      "effect":"Gain +1% \u2794 10% more Spider Essence",
+      "obtain":"Kill Arachne while using Salts.",
+      "id_res":{
+         "shard":"SHARD_REVENANT"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_BITBUG":{
+      "rarity":"RARE",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "BUG"
+      ],
+      "attr_name":"Cookie Eater",
+      "effect":"Gain +5% \u2794 50%  of your Booster Cookie Bits up front",
+      "obtain":"Purchased in the Bits Shop.",
+      "id_res":{
+         "shard":"SHARD_DREADWING"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_REVENANT":{
+      "rarity":"RARE",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Essence of Unliving",
+      "effect":"Gain +1% \u2794 10% more Undead Essence",
+      "obtain":"Dropped by Revenant Horror.",
+      "id_res":{
+         "shard":"SHARD_SKELETOR"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_SILENTDEPTH":{
+      "rarity":"RARE",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "TREASURE_FISH"
+      ],
+      "attr_name":"Crystal Serendipity",
+      "effect":"Grants a +2% \u2794 20%  chance to double any loot from Crystal Hollows Treasure Chests",
+      "obtain":"Place Traps in Crystal Hollows. (Underwater). Caught by Fishing in Crystal Hollows.",
+      "id_res":{
+         "shard":"SHARD_SNOWFIN"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_SKELETOR":{
+      "rarity":"RARE",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Deadeye",
+      "effect":"Increases damage from ranged weapons by +2.5% \u2794 25%",
+      "obtain":"Fusing Lapis Skeleton Shard with Rare or higher. Kill Skeletor while using Salts.",
+      "id_res":{
+         "shard":"SHARD_KADA_KNIGHT"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_LAPIS_SKELETON"
+         },
+         "input_2":{
+            "rarity":"RARE",
+            "or_higher":true
+         }
+      }
+   },
+   "SHARD_THYST":{
+      "rarity":"RARE",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "CAVE_DWELLER"
+      ],
+      "attr_name":"Atomized Crystals",
+      "effect":"Gain +1% \u2794 10% extra Gemstone Powder",
+      "obtain":"Catch with Pocket Black Hole. Kill Thyst while using Salts. Place Traps in Crystal Hollows.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_QUARTZFANG":{
+      "rarity":"RARE",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "CAVE_DWELLER"
+      ],
+      "attr_name":"Quartz Speed",
+      "effect":"Mining Speed from events is increased by +10% \u2794 100%",
+      "obtain":"Fusing Troglobyte Shard with Cave Dweller Family or Abyssal Lanternfish Shard.",
+      "id_res":{
+         "shard":"SHARD_KADA_KNIGHT"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_TROGLOBYTE"
+         },
+         "input_2":{
+            "type":"or",
+            "data":[
+               {
+                  "shard":"SHARD_ABYSSAL_LANTERNFISH"
+               },
+               {
+                  "family":"CAVE_DWELLER"
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_HIDEONRING":{
+      "rarity":"RARE",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "SHULKER"
+      ],
+      "attr_name":"Accessory Size",
+      "effect":"Grants +1 \u2794 10 extra Accessory Bag slots",
+      "obtain":"Fusing Shulker Family and Rare or higher with Rare or higher.",
+      "id_res":{
+         "shard":"SHARD_DREADWING"
+      },
+      "fusion":{
+         "input_1":{
+            "type":"and",
+            "data":[
+               {
+                  "family":"SHULKER"
+               },
+               {
+                  "rarity":"RARE",
+                  "or_higher":true
+               }
+            ]
+         },
+         "input_2":{
+            "rarity":"RARE",
+            "or_higher":true
+         }
+      }
+   },
+   "SHARD_SNOWFIN":{
+      "rarity":"RARE",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "TREASURE_FISH"
+      ],
+      "attr_name":"Winter's Serendipity",
+      "effect":"Increases the odds of finding rare items in Winter Gifts by +2% \u2794 20%",
+      "obtain":"Place Traps in Jerry's Workshop. (Underwater).",
+      "id_res":{
+         "shard":"SHARD_CARROT_KING"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_KADA_KNIGHT":{
+      "rarity":"RARE",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Lifeline",
+      "effect":"When under 20% maximum HP, your  Damage and  Defense increase by +2.5% \u2794 25%",
+      "obtain":"Catch with Pocket Black Hole. Kill Kada Knight while using Salts. Obtained from Kuudra.",
+      "id_res":{
+         "shard":"SHARD_WITHER_SPECTER"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_CARROT_KING":{
+      "rarity":"RARE",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Rabbit Crew",
+      "effect":"Your Chocolate Factory gains +2 \u2794 20 more Chocolate per second",
+      "obtain":"Catch with Pocket Black Hole. Kill Carrot King while using Salts.",
+      "id_res":{
+         "shard":"SHARD_LUMISQUID"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_WITHER_SPECTER":{
+      "rarity":"RARE",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Breeze",
+      "effect":"When you haven't been damaged in the last 5s or more, your mana costs are decreased by +1% \u2794 10%",
+      "obtain":"Catch with Pocket Black Hole. Kill Wither Spectre while using Salts. Obtained from Kuudra.",
+      "id_res":{
+         "shard":"SHARD_MATCHO"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_MATCHO":{
+      "rarity":"RARE",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Ignition",
+      "effect":"Increases the duration of fire damage that you inflict on enemies by +30% \u2794 300%",
+      "obtain":"Catch with Pocket Black Hole. Kill Matcho while using Salts. Obtained from Kuudra.",
+      "id_res":{
+         "shard":"SHARD_CROCODILE"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_LADYBUG":{
+      "rarity":"RARE",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "BUG"
+      ],
+      "attr_name":"Pretty Clothes",
+      "effect":"Gain +1% \u2794 10%  more Copper from Garden Visitors",
+      "obtain":"Fusing Cropeetle Shard with Bug Family.",
+      "id_res":{
+         "shard":"SHARD_DREADWING"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_CROPEETLE"
+         },
+         "input_2":{
+            "family":"BUG"
+         }
+      }
+   },
+   "SHARD_LUMISQUID":{
+      "rarity":"RARE",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "SQUID"
+      ],
+      "attr_name":"Extreme Pressure",
+      "effect":"Grants +5 \u2794 50  Pressure Resistance",
+      "obtain":"Place Traps in Squid Cave. (Underwater). Catch with a Fishing Net.",
+      "id_res":{
+         "shard":"SHARD_JOYDIVE"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_CROCODILE":{
+      "rarity":"RARE",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "REPTILE",
+         "CROCO"
+      ],
+      "attr_name":"Pure Reptile",
+      "effect":"Grants a +2% \u2794 20% chance to double shards from a Reptile Fusion",
+      "obtain":"Purchased from Kiara's Shop.",
+      "id_res":{
+         "shard":"SHARD_DRACONIC"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_BULLFROG":{
+      "rarity":"RARE",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "FROG",
+         "AMPHIBIAN"
+      ],
+      "attr_name":"Berry Enjoyer",
+      "effect":"Berries have a +10% \u2794 100%  chance to grant you double points in Starlyn Contests",
+      "obtain":"Fusing Frog Family with Forest Category and Rare or higher.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+            "family":"FROG"
+         },
+         "input_2":{
+            "type":"and",
+            "data":[
+               {
+                  "rarity":"RARE",
+                  "or_higher":true
+               },
+               {
+                  "category":"FOREST"
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_DREADWING":{
+      "rarity":"RARE",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "PHANTOM"
+      ],
+      "attr_name":"Essence of the Forest",
+      "effect":"Gain +1% \u2794 10% more Forest Essence",
+      "obtain":"Fusing Phanpyre and Phanflare Shards with Rare or higher. Catch with Pocket Black Hole. Catch with Lasso. Kill Dreadwing while using Salts. Place Traps in Galatea. (On Land). Found in Fig and Mangrove Tree Gifts.",
+      "id_res":{
+         "shard":"SHARD_FUNGLOOM"
+      },
+      "fusion":{
+         "input_1":{
+            "type":"or",
+            "data":[
+               {
+                  "shard":"SHARD_PHANPYRE"
+               },
+               {
+                  "shard":"SHARD_PHANFLARE"
+               }
+            ]
+         },
+         "input_2":{
+            "rarity":"RARE",
+            "or_higher":true
+         }
+      }
+   },
+   "SHARD_JOYDIVE":{
+      "rarity":"RARE",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Deep Diving",
+      "effect":"Grants +5 \u2794 50  Respiration",
+      "obtain":"Place Traps in Murkwater Depths. (Underwater). Catch with a Fishing Net.",
+      "id_res":{
+         "family":"EEL"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_STALAGMIGHT":{
+      "rarity":"RARE",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "CAVE_DWELLER"
+      ],
+      "attr_name":"Atomized Glacite",
+      "effect":"Gain +1% \u2794 10% extra Glacite Powder",
+      "obtain":"Fusing Quartzfang Shard with Cave Dweller Family or Silentdepth Shard.",
+      "id_res":{
+         "shard":"SHARD_DRACONIC"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_QUARTZFANG"
+         },
+         "input_2":{
+            "type":"or",
+            "data":[
+               {
+                  "shard":"SHARD_SILENTDEPTH"
+               },
+               {
+                  "family":"CAVE_DWELLER"
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_FUNGLOOM":{
+      "rarity":"RARE",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "CAVE_DWELLER"
+      ],
+      "attr_name":"Fungy Luck",
+      "effect":"Gain a +10% \u2794 100% chance to gain an additional Chisel charge upon starting the Fossil Excavator",
+      "obtain":"Fusing Cave Dweller Family with Forest Category and Epic or higher.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+            "family":"CAVE_DWELLER"
+         },
+         "input_2":{
+            "type":"and",
+            "data":[
+               {
+                  "category":"FOREST"
+               },
+               {
+                  "rarity":"EPIC",
+                  "or_higher":true
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_EEL":{
+      "rarity":"RARE",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "EEL",
+         "AMPHIBIAN"
+      ],
+      "attr_name":"Eelastic",
+      "effect":"Increase Pull by +1 \u2794 10 when using your Fishing Nets",
+      "obtain":"Purchased from Kiara's Shop. Caught by Fishing in Moonglade Marsh.",
+      "id_res":{
+         "shard":"SHARD_LAVA_FLAME"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_KING_COBRA":{
+      "rarity":"RARE",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "REPTILE",
+         "SERPENT"
+      ],
+      "attr_name":"Hunters Grasp",
+      "effect":"Your Black Holes gain +1% \u2794 10%  Hunter Fortune",
+      "obtain":"Fusing Python Shard with Combat Category and Uncommon or higher.",
+      "id_res":{
+         "shard":"SHARD_DRACONIC"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_PYTHON"
+         },
+         "input_2":{
+            "type":"and",
+            "data":[
+               {
+                  "rarity":"UNCOMMON",
+                  "or_higher":true
+               },
+               {
+                  "category":"COMBAT"
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_LAVA_FLAME":{
+      "rarity":"RARE",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Blazing Fortune",
+      "effect":"Grants +1 \u2794 10  Magic Find on Lava Sea Creatures",
+      "obtain":"Catch with Pocket Black Hole. Kill Lava Flame while using Salts. Obtained from Kuudra. Place Traps in Crimson Isle. (Under lava).",
+      "id_res":{
+         "shard":"SHARD_INFERNO_KOI"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_DRACONIC":{
+      "rarity":"RARE",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "DRAGON"
+      ],
+      "attr_name":"Essence of Dragons",
+      "effect":"Gain +1% \u2794 10% more Essence",
+      "obtain":"Dropped by Dragons on The End.",
+      "id_res":{
+         "shard":"SHARD_WITHER"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_FALCON":{
+      "rarity":"RARE",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "BIRD"
+      ],
+      "attr_name":"Battle Experience",
+      "effect":"Pets gain +1% \u2794 10%  more EXP from Combat",
+      "obtain":"Fusing Bird Family with Rare or higher.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+            "family":"BIRD"
+         },
+         "input_2":{
+            "rarity":"RARE",
+            "or_higher":true
+         }
+      }
+   },
+   "SHARD_INFERNO_KOI":{
+      "rarity":"RARE",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "TREASURE_FISH"
+      ],
+      "attr_name":"Crimson Serendipity",
+      "effect":"Increase the odds of finding a Vanquisher by +2% \u2794 20%",
+      "obtain":"Place Traps in Crimson Isle. (Under lava). Caught by Fishing in Crimson Isle.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_WITHER":{
+      "rarity":"RARE",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Essence of Wither",
+      "effect":"Gain +1% \u2794 10% more Essence",
+      "obtain":"Obtained from Catacombs Floor VII and Master Catacombs Floor VII.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_GECKO":{
+      "rarity":"RARE",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "REPTILE",
+         "SCALED"
+      ],
+      "attr_name":"Echo Of Sharpening",
+      "effect":"Your Sharpening Attributes are +2% \u2794 20% stronger",
+      "obtain":"Purchased from Kiara's Shop.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_HUMMINGBIRD":{
+      "rarity":"RARE",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "BIRD"
+      ],
+      "attr_name":"Chop",
+      "effect":"Grants a +10% \u2794 100% chance to Chop an extra log, on top of the ones you swept",
+      "obtain":"Found in Fig and Mangrove Tree Gifts.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_TERRA":{
+      "rarity":"EPIC",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "ELEMENTAL"
+      ],
+      "attr_name":"Earth Elemental",
+      "effect":"Grants +2 \u2794 20  Health",
+      "obtain":"Fusing Forest Category and Epic with Legendary or higher.",
+      "id_res":{
+         "shard":"SHARD_XYZ"
+      },
+      "fusion":{
+         "input_1":{
+            "type":"and",
+            "data":[
+               {
+                  "category":"FOREST"
+               },
+               {
+                  "rarity":"EPIC",
+                  "or_higher":false
+               }
+            ]
+         },
+         "input_2":{
+            "rarity":"LEGENDARY",
+            "or_higher":true
+         }
+      }
+   },
+   "SHARD_CRYO":{
+      "rarity":"EPIC",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "ELEMENTAL"
+      ],
+      "attr_name":"Frost Elemental",
+      "effect":"Grants +1 \u2794 10  Intelligence",
+      "obtain":"Fusing Water Category and Epic with Legendary or higher.",
+      "id_res":{
+         "shard":"SHARD_FIRE_EEL"
+      },
+      "fusion":{
+         "input_1":{
+            "type":"and",
+            "data":[
+               {
+                  "category":"WATER"
+               },
+               {
+                  "rarity":"EPIC",
+                  "or_higher":false
+               }
+            ]
+         },
+         "input_2":{
+            "rarity":"LEGENDARY",
+            "or_higher":true
+         }
+      }
+   },
+   "SHARD_AERO":{
+      "rarity":"EPIC",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "ELEMENTAL"
+      ],
+      "attr_name":"Wind Elemental",
+      "effect":"Grants +1 \u2794 10  Strength",
+      "obtain":"Fusing Combat Category and Epic with Legendary or higher.",
+      "id_res":{
+         "shard":"SHARD_THORN"
+      },
+      "fusion":{
+         "input_1":{
+            "type":"and",
+            "data":[
+               {
+                  "category":"COMBAT"
+               },
+               {
+                  "rarity":"EPIC",
+                  "or_higher":false
+               }
+            ]
+         },
+         "input_2":{
+            "rarity":"LEGENDARY",
+            "or_higher":true
+         }
+      }
+   },
+   "SHARD_PANDARAI":{
+      "rarity":"EPIC",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "PANDA"
+      ],
+      "attr_name":"Foraging Wisdom",
+      "effect":"Grants +5  Foraging Wisdom",
+      "obtain":"Fusing Panda Family with Rare or higher.",
+      "id_res":{
+         "shard":"SHARD_XYZ"
+      },
+      "fusion":{
+         "input_1":{
+            "family":"PANDA"
+         },
+         "input_2":{
+            "rarity":"RARE",
+            "or_higher":true
+         }
+      }
+   },
+   "SHARD_LEVIATHAN":{
+      "rarity":"EPIC",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "REPTILE",
+         "LIZARD"
+      ],
+      "attr_name":"Excellent Karma",
+      "effect":"Grants +1 \u2794 10  Hunter Fortune towards EPIC Attributes",
+      "obtain":"Fusing Lizard Family with Water Category and Rare or higher.",
+      "id_res":{
+         "shard":"SHARD_FIRE_EEL"
+      },
+      "fusion":{
+         "input_1":{
+            "family":"LIZARD"
+         },
+         "input_2":{
+            "type":"and",
+            "data":[
+               {
+                  "category":"WATER"
+               },
+               {
+                  "rarity":"RARE",
+                  "or_higher":true
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_ALLIGATOR":{
+      "rarity":"EPIC",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "REPTILE",
+         "CROCO"
+      ],
+      "attr_name":"Echo Of Resistance",
+      "effect":"Your Resistance Attributes are +2% \u2794 20% stronger",
+      "obtain":"Fusing Crocodile Shard with Combat Category and Rare or higher.",
+      "id_res":{
+         "shard":"SHARD_THORN"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_CROCODILE"
+         },
+         "input_2":{
+            "type":"and",
+            "data":[
+               {
+                  "rarity":"RARE",
+                  "or_higher":true
+               },
+               {
+                  "category":"COMBAT"
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_FENLORD":{
+      "rarity":"EPIC",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "FROG",
+         "AMPHIBIAN"
+      ],
+      "attr_name":"Berry Mogul",
+      "effect":"Your Salts last +1% \u2794 10%  longer",
+      "obtain":"Fusing Bullfrog Shard with Forest Category and Rare or higher.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_BULLFROG"
+         },
+         "input_2":{
+            "type":"and",
+            "data":[
+               {
+                  "rarity":"RARE",
+                  "or_higher":true
+               },
+               {
+                  "category":"FOREST"
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_BASILISK":{
+      "rarity":"EPIC",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "REPTILE",
+         "SERPENT"
+      ],
+      "attr_name":"Hunters Suppress",
+      "effect":"Lassos deplete Stamina +2% \u2794 20% faster",
+      "obtain":"Fusing King Cobra Shard with Combat Category and Rare or higher.",
+      "id_res":{
+         "shard":"SHARD_THORN"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_KING_COBRA"
+         },
+         "input_2":{
+            "type":"and",
+            "data":[
+               {
+                  "rarity":"RARE",
+                  "or_higher":true
+               },
+               {
+                  "category":"COMBAT"
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_IGUANA":{
+      "rarity":"EPIC",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "REPTILE",
+         "SCALED"
+      ],
+      "attr_name":"Echo Of Atomized",
+      "effect":"Your Atomized Attributes are +2% \u2794 20% stronger",
+      "obtain":"Fusing Gecko Shard with Forest Category and Rare or higher.",
+      "id_res":{
+         "shard":"SHARD_XYZ"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_GECKO"
+         },
+         "input_2":{
+            "type":"and",
+            "data":[
+               {
+                  "category":"FOREST"
+               },
+               {
+                  "rarity":"RARE",
+                  "or_higher":true
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_MORAY_EEL":{
+      "rarity":"EPIC",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "EEL",
+         "AMPHIBIAN"
+      ],
+      "attr_name":"Lucky Rod",
+      "effect":"Fish Treasure Shards are +1% \u2794 10% easier to find",
+      "obtain":"Fusing Eel Shard with Water Category and Rare or higher.",
+      "id_res":{
+         "shard":"SHARD_FIRE_EEL"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_EEL"
+         },
+         "input_2":{
+            "type":"and",
+            "data":[
+               {
+                  "rarity":"RARE",
+                  "or_higher":true
+               },
+               {
+                  "category":"WATER"
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_THORN":{
+      "rarity":"EPIC",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Dominance",
+      "effect":"Gain +1.5% \u2794 15% more  Damage when at full health",
+      "obtain":"Obtained from Catacombs Floor IV.",
+      "id_res":{
+         "shard":"SHARD_BAL"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_LUNAR_MOTH":{
+      "rarity":"EPIC",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "BUG"
+      ],
+      "attr_name":"Lunar Power",
+      "effect":"Grants +5 \u2794 50  Farming Fortune during the Night",
+      "obtain":"Fusing Ladybug Shard with Bug Family and Rare or higher.",
+      "id_res":{
+         "shard":"SHARD_XYZ"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_LADYBUG"
+         },
+         "input_2":{
+            "type":"and",
+            "data":[
+               {
+                  "family":"BUG"
+               },
+               {
+                  "rarity":"RARE",
+                  "or_higher":true
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_FIRE_EEL":{
+      "rarity":"EPIC",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "EEL",
+         "AMPHIBIAN"
+      ],
+      "attr_name":"Trophy Hunter",
+      "effect":"Grants +2 \u2794 20  Trophy Fish Chance",
+      "obtain":"Fusing Moray Eel Shard with Firefly Shards. Fusing Eel Shard with Moray Eel Shard. Catch with Pocket Black Hole. Kill Fire Eel while using Salts. Obtained from Kuudra.",
+      "id_res":{
+         "shard":"SHARD_WATER_HYDRA"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_BAL":{
+      "rarity":"EPIC",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "CAVE_DWELLER"
+      ],
+      "attr_name":"Deep Technique",
+      "effect":"Each block you mine has a +1% \u2794 10%  chance to grant 1 extra  Pristine for that block",
+      "obtain":"Kill Bal while using Salts.",
+      "id_res":{
+         "shard":"SHARD_FLARE"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_HIDEONSACK":{
+      "rarity":"EPIC",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "SHULKER"
+      ],
+      "attr_name":"Sack Size",
+      "effect":"Your sacks can hold +1% \u2794 10% more items",
+      "obtain":"Fusing Shulker Family and Rare or higher with Epic or higher.",
+      "id_res":{
+         "shard":"SHARD_XYZ"
+      },
+      "fusion":{
+         "input_1":{
+            "type":"and",
+            "data":[
+               {
+                  "family":"SHULKER"
+               },
+               {
+                  "rarity":"RARE",
+                  "or_higher":true
+               }
+            ]
+         },
+         "input_2":{
+            "rarity":"EPIC",
+            "or_higher":true
+         }
+      }
+   },
+   "SHARD_WATER_HYDRA":{
+      "rarity":"EPIC",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Fishing Speed",
+      "effect":"Grants +3 \u2794 30  Fishing Speed",
+      "obtain":"Catch with Pocket Black Hole. Kill Water Hydra while using Salts.",
+      "id_res":{
+         "shard":"SHARD_LOCH_EMPEROR"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_FLARE":{
+      "rarity":"EPIC",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Blazing",
+      "effect":"Grants +3% \u2794 30% more  Damage against mobs while in the Crimson Isle",
+      "obtain":"Catch with Pocket Black Hole. Kill Flare while using Salts. Obtained from Kuudra.",
+      "id_res":{
+         "shard":"SHARD_PRINCE"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_LOCH_EMPEROR":{
+      "rarity":"EPIC",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Sea Wisdom",
+      "effect":"Grants +0.5 \u2794 5 \u262f Fishing Wisdom",
+      "obtain":"Catch with Pocket Black Hole. Kill The Loch Emperor while using Salts.",
+      "id_res":{
+         "shard":"SHARD_SHELLWISE"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_PRINCE":{
+      "rarity":"EPIC",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Reborn",
+      "effect":"Killing a Prince has a +10% \u2794 100%  chance to add 1 Bonus Score to your Dungeon Run",
+      "obtain":"Kill Prince Bernhard, Prince Christian, Prince Pieter, Prince Nicholas, Prince Alexander, Prince Marius, Prince Valentin, or Prince Friedrich while using Salts.",
+      "id_res":{
+         "shard":"SHARD_MIMIC"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_KOMODO_DRAGON":{
+      "rarity":"EPIC",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "REPTILE",
+         "SCALED"
+      ],
+      "attr_name":"Echo Of Essence",
+      "effect":"Your Essence Attributes are +2% \u2794 20% stronger",
+      "obtain":"Fusing Iguana Shard with Forest Category and Rare or higher.",
+      "id_res":{
+         "shard":"SHARD_XYZ"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_IGUANA"
+         },
+         "input_2":{
+            "type":"and",
+            "data":[
+               {
+                  "category":"FOREST"
+               },
+               {
+                  "rarity":"RARE",
+                  "or_higher":true
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_MIMIC":{
+      "rarity":"EPIC",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Faker",
+      "effect":"Dungeon Blessings are +1% \u2794 10% stronger on you",
+      "obtain":"Kill Mimic while using Salts.",
+      "id_res":{
+         "shard":"SHARD_BARBARIAN_DUKE_X"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_SHELLWISE":{
+      "rarity":"EPIC",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "REPTILE",
+         "TURTLE"
+      ],
+      "attr_name":"Shell",
+      "effect":"Gain a +10% \u2794 100%  chance to negate knockback",
+      "obtain":"Place Traps in Murkwater Depths. (Underwater). Catch with a Fishing Net.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_BARBARIAN_DUKE_X":{
+      "rarity":"EPIC",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Warrior",
+      "effect":"Increases melee damage dealt by +2.5% \u2794 25%",
+      "obtain":"Catch with Pocket Black Hole. Kill Barbarian Duke X while using Salts. Obtained from Kuudra.",
+      "id_res":{
+         "shard":"SHARD_GHOST"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_TOUCAN":{
+      "rarity":"EPIC",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "BIRD"
+      ],
+      "attr_name":"Why Not More",
+      "effect":"Your pet's EXP Share grants +1% \u2794 10%  more EXP",
+      "obtain":"Fusing Bird Family with Epic or higher.",
+      "id_res":{
+         "shard":"SHARD_XYZ"
+      },
+      "fusion":{
+         "input_1":{
+            "family":"BIRD"
+         },
+         "input_2":{
+            "rarity":"EPIC",
+            "or_higher":true
+         }
+      }
+   },
+   "SHARD_HELLWISP":{
+      "rarity":"EPIC",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Matriarch Cubs",
+      "effect":"Grants a +2% \u2794 20% chance to get a second Heavy Pearl",
+      "obtain":"Catch with Pocket Black Hole. Kill Hellwisp while using Salts. Obtained from Kuudra.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_CAIMAN":{
+      "rarity":"EPIC",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "REPTILE",
+         "CROCO"
+      ],
+      "attr_name":"Echo Of Ruler",
+      "effect":"Your Ruler Attributes are +2% \u2794 20% stronger",
+      "obtain":"Fusing Alligator Shard with Combat Category and Rare or higher.",
+      "id_res":{
+         "shard":"SHARD_GHOST"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_ALLIGATOR"
+         },
+         "input_2":{
+            "type":"and",
+            "data":[
+               {
+                  "rarity":"RARE",
+                  "or_higher":true
+               },
+               {
+                  "category":"COMBAT"
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_FIREFLY":{
+      "rarity":"EPIC",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "BUG"
+      ],
+      "attr_name":"Solar Power",
+      "effect":"Grants +5 \u2794 50  Farming Fortune during the day",
+      "obtain":"Fusing Lunar Moth Shard with Bezal, Cinderbat, Flare, Lava Flame, Fire Eel, Bal, and Flaming Spider Shards.",
+      "id_res":{
+         "shard":"SHARD_XYZ"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_LUNAR_MOTH"
+         },
+         "input_2":{
+            "type":"or",
+            "data":[
+               {
+                  "shard":"SHARD_BEZAL"
+               },
+               {
+                  "shard":"SHARD_LAVA_FLAME"
+               },
+               {
+                  "shard":"SHARD_FIRE_EEL"
+               },
+               {
+                  "shard":"SHARD_BAL"
+               },
+               {
+                  "shard":"SHARD_FLARE"
+               },
+               {
+                  "shard":"SHARD_CINDER_BAT"
+               },
+               {
+                  "shard":"SHARD_FLAMING_SPIDER"
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_SEA_SERPENT":{
+      "rarity":"EPIC",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "EEL",
+         "SERPENT",
+         "AMPHIBIAN"
+      ],
+      "attr_name":"Echo Of Hunter",
+      "effect":"Your Hunter Attributes are +2% \u2794 20% stronger",
+      "obtain":"Fusing Moray Eel Shard with Water Category and Rare or higher.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_MORAY_EEL"
+         },
+         "input_2":{
+            "type":"and",
+            "data":[
+               {
+                  "rarity":"RARE",
+                  "or_higher":true
+               },
+               {
+                  "category":"WATER"
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_GHOST":{
+      "rarity":"EPIC",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "CAVE_DWELLER"
+      ],
+      "attr_name":"Veil",
+      "effect":"Grants +1 \u2794 10  True Defense",
+      "obtain":"Catch with Pocket Black Hole. Kill Ghost while using Salts.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_XYZ":{
+      "rarity":"EPIC",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Mana Regeneration",
+      "effect":"Increases your Mana regeneration by +1% \u2794 10%",
+      "obtain":"Catch with Lasso. Kill Atom while using Salts. Obtained from Kuudra. Place Traps in Mystic Marsh. Captured using an Atominzer.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_LEATHERBACK":{
+      "rarity":"EPIC",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "REPTILE",
+         "TURTLE"
+      ],
+      "attr_name":"Hunt Wisdom",
+      "effect":"Grants +0.5 \u2794 5  Hunting Wisdom",
+      "obtain":"Fusing Shellwise Shard with Water Category and Rare or higher.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_SHELLWISE"
+         },
+         "input_2":{
+            "type":"and",
+            "data":[
+               {
+                  "rarity":"RARE",
+                  "or_higher":true
+               },
+               {
+                  "category":"WATER"
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_CAVERNSHADE":{
+      "rarity":"EPIC",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "CAVE_DWELLER"
+      ],
+      "attr_name":"Cavern Wisdom",
+      "effect":"Grants +0.5 \u2794 5  Mining Wisdom",
+      "obtain":"Fusing Cave Dweller Family and Rare or higher with Cave Dweller Family and Epic or higher.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+            "type":"and",
+            "data":[
+               {
+                  "family":"CAVE_DWELLER"
+               },
+               {
+                  "rarity":"RARE",
+                  "or_higher":true
+               }
+            ]
+         },
+         "input_2":{
+            "type":"and",
+            "data":[
+               {
+                  "family":"CAVE_DWELLER"
+               },
+               {
+                  "rarity":"EPIC",
+                  "or_higher":true
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_DRAGONFLY":{
+      "rarity":"EPIC",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "BUG"
+      ],
+      "attr_name":"Garden Wisdom",
+      "effect":"Grants +0.5 \u2794 5  Farming Wisdom",
+      "obtain":"Fusing Firefly Shard with Dragon Family.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_FIREFLY"
+         },
+         "input_2":{
+            "family":"DRAGON"
+         }
+      }
+   },
+   "SHARD_TENEBRIS":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "ELEMENTAL"
+      ],
+      "attr_name":"Shadow Elemental",
+      "effect":"Grants +2 \u2794 20  Health",
+      "obtain":"Fusing Forest Category and Legendary with Elemental Family and Epic or higher.",
+      "id_res":{
+         "shard":"SHARD_CINDERBAT"
+      },
+      "fusion":{
+         "input_1":{
+            "type":"and",
+            "data":[
+               {
+                  "category":"FOREST"
+               },
+               {
+                  "rarity":"LEGENDARY",
+                  "or_higher":false
+               }
+            ]
+         },
+         "input_2":{
+            "type":"and",
+            "data":[
+               {
+                  "rarity":"EPIC",
+                  "or_higher":true
+               },
+               {
+                  "family":"ELEMENTAL"
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_BLIZZARD":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "ELEMENTAL"
+      ],
+      "attr_name":"Snow Elemental",
+      "effect":"Grants +1 \u2794 10  Intelligence",
+      "obtain":"Fusing Water Category and Legendary with Elemental Family and Epic or higher.",
+      "id_res":{
+         "shard":"SHARD_SPIKE"
+      },
+      "fusion":{
+         "input_1":{
+            "type":"and",
+            "data":[
+               {
+                  "category":"WATER"
+               },
+               {
+                  "rarity":"LEGENDARY",
+                  "or_higher":false
+               }
+            ]
+         },
+         "input_2":{
+            "type":"and",
+            "data":[
+               {
+                  "rarity":"EPIC",
+                  "or_higher":true
+               },
+               {
+                  "family":"ELEMENTAL"
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_TEMPEST":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "ELEMENTAL"
+      ],
+      "attr_name":"Storm Elemental",
+      "effect":"Grants +1 \u2794 10  Strength",
+      "obtain":"Fusing Combat Category and Legendary with Elemental Family and Epic or higher.",
+      "id_res":{
+         "shard":"SHARD_END_STONE_PROTECTOR"
+      },
+      "fusion":{
+         "input_1":{
+            "type":"and",
+            "data":[
+               {
+                  "category":"COMBAT"
+               },
+               {
+                  "rarity":"LEGENDARY",
+                  "or_higher":false
+               }
+            ]
+         },
+         "input_2":{
+            "type":"and",
+            "data":[
+               {
+                  "rarity":"EPIC",
+                  "or_higher":true
+               },
+               {
+                  "family":"ELEMENTAL"
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_CHAMELEON":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "REPTILE"
+      ],
+      "attr_name":"Reptiloid",
+      "effect":"Fusions with Chameleons grant the next 3 IDs as results",
+      "obtain":"Found in Fig and Mangrove Tree Gifts.",
+      "id_res":{
+         "shard":"SHARD_CINDERBAT"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_TIAMAT":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "REPTILE",
+         "CROCO"
+      ],
+      "attr_name":"Echo Of Echoes",
+      "effect":"Your Echo Attributes are +5% \u2794 50% stronger",
+      "obtain":"Fusing Caiman Shard with Combat Category and Epic or higher.",
+      "id_res":{
+         "shard":"SHARD_END_STONE_PROTECTOR"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_CAIMAN"
+         },
+         "input_2":{
+            "type":"and",
+            "data":[
+               {
+                  "rarity":"EPIC",
+                  "or_higher":true
+               },
+               {
+                  "category":"COMBAT"
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_WYVERN":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "REPTILE",
+         "SCALED"
+      ],
+      "attr_name":"Echo Of Wisdom",
+      "effect":"Your Wisdom Attributes are +2% \u2794 20% stronger",
+      "obtain":"Fusing Komodo Dragon Shard with Forest Category and Epic or higher.",
+      "id_res":{
+         "shard":"SHARD_CINDERBAT"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_KOMODO_DRAGON"
+         },
+         "input_2":{
+            "type":"and",
+            "data":[
+               {
+                  "category":"FOREST"
+               },
+               {
+                  "rarity":"EPIC",
+                  "or_higher":true
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_TORTOISE":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "REPTILE",
+         "TURTLE"
+      ],
+      "attr_name":"Cloak Improvement",
+      "effect":"Your David's Cloak gains +1 \u2794 10  True Defense",
+      "obtain":"Fusing Leatherback Shard with Water Category and Epic or higher.",
+      "id_res":{
+         "shard":"SHARD_SPIKE"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_LEATHERBACK"
+         },
+         "input_2":{
+            "type":"and",
+            "data":[
+               {
+                  "rarity":"EPIC",
+                  "or_higher":true
+               },
+               {
+                  "category":"WATER"
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_END_STONE_PROTECTOR":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Paramount Fortitude",
+      "effect":"Your  Defense is increased by +0.2% \u2794 2%",
+      "obtain":"Dropped by End Stone Protectors on The End.",
+      "id_res":{
+         "shard":"SHARD_KRAKEN"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_NAGA":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "EEL",
+         "AMPHIBIAN"
+      ],
+      "attr_name":"Charmed",
+      "effect":"Grants a +0.05% \u2794 0.5% chance to charm the Shard of monsters you kill",
+      "obtain":"Fusing Sea Serpent Shard with Water Category and Epic or higher.",
+      "id_res":{
+         "shard":"SHARD_SPIKE"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_SEA_SERPENT"
+         },
+         "input_2":{
+            "type":"and",
+            "data":[
+               {
+                  "rarity":"EPIC",
+                  "or_higher":true
+               },
+               {
+                  "category":"WATER"
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_LAPIS_CREEPER":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Book Wisdom",
+      "effect":"Grants +1.5 \u2794 5  Enchanting Wisdom",
+      "obtain":"Fusing Lapis Skeleton Shard with Ghost Shard or Legendary or higher.",
+      "id_res":{
+         "shard":"SHARD_KRAKEN"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_LAPIS_SKELETON"
+         },
+         "input_2":{
+            "type":"or",
+            "data":[
+               {
+                  "shard":"SHARD_GHOST"
+               },
+               {
+                  "rarity":"LEGENDARY",
+                  "or_higher":true
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_WARTYBUG":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "BUG"
+      ],
+      "attr_name":"Wart Eater",
+      "effect":"Grants a +0.01% \u2794 0.05% chance to obtain a Warty when breaking Nether Warts",
+      "obtain":"Fusing Dragonfly Shards with Legendary or higher.",
+      "id_res":{
+         "shard":"SHARD_CINDERBAT"
+      },
+      "fusion":{
+         "input_1":{
+            "type":"or",
+            "data":[
+               {
+                  "shard":"SHARD_DRAGONFLY"
+               },
+               {
+
+               }
+            ]
+         },
+         "input_2":{
+            "rarity":"LEGENDARY",
+            "or_higher":true
+         }
+      }
+   },
+   "SHARD_SPIKE":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Payback",
+      "effect":"When hit, your next hit deals +2% \u2794 20% damage",
+      "obtain":"Catch with a Fishing Net. Place Traps in Murkwater Depths. (Underwater). Place Traps in Kelpwoven Tunnels. (Underwater).",
+      "id_res":{
+         "shard":"SHARD_TAURUS"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_KRAKEN":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "DEMON"
+      ],
+      "attr_name":"Vitality",
+      "effect":"Grants +2 \u2794 20  Vitality",
+      "obtain":"Obtained from Kuudra.",
+      "id_res":{
+         "shard":"SHARD_BURNINGSOUL"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_TAURUS":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Maximal Torment",
+      "effect":"Your  Intelligence is increased by +0.1% \u2794 1%",
+      "obtain":"Catch with Pocket Black Hole. Kill Taurus while using Salts. Obtained from Kuudra.",
+      "id_res":{
+         "shard":"SHARD_SHINYFISH"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_DAEMON":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "DEMON"
+      ],
+      "attr_name":"Pity",
+      "effect":"Your RNG Meter fills +1% \u2794 10% faster",
+      "obtain":"Fusing Kraken Shard with Kraken Shard. Obtained from Kuudra.",
+      "id_res":{
+         "shard":"SHARD_BURNINGSOUL"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_KRAKEN"
+         },
+         "input_2":{
+            "shard":"SHARD_KRAKEN"
+         }
+      }
+   },
+   "SHARD_MOLTENFISH":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "DEMON"
+      ],
+      "attr_name":"Star Bait",
+      "effect":"Grants a +0.1% \u2794 1% chance to fish a Shinyfish",
+      "obtain":"Fusing Kraken Shard with Water Category. Obtained from Kuudra.",
+      "id_res":{
+         "shard":"SHARD_SHINYFISH"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_KRAKEN"
+         },
+         "input_2":{
+            "category":"WATER"
+         }
+      }
+   },
+   "SHARD_SHINYFISH":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Help from Above",
+      "effect":"Grants +1.2 \u2794 12.5  Health Regen",
+      "obtain":"Caught using the Star Bait Attribute.",
+      "id_res":{
+         "shard":"SHARD_LORD_JAWBUS"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_ANANKE":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "DEMON",
+         "BIRD"
+      ],
+      "attr_name":"Wings Of Destiny",
+      "effect":"Increases the odds of finding Ananke Feathers by +2% \u2794 20%",
+      "obtain":"Fusing Kraken Shard with Bird Family. Obtained from Kuudra.",
+      "id_res":{
+         "shard":"SHARD_BURNINGSOUL"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_KRAKEN"
+         },
+         "input_2":{
+            "family":"BIRD"
+         }
+      }
+   },
+   "SHARD_HIDEONBOX":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "SHULKER"
+      ],
+      "attr_name":"Tuning Box",
+      "effect":"Grants +1 \u2794 10 Tuning Points",
+      "obtain":"Fusing Shulker Family and Epic or higher with Legendary or higher.",
+      "id_res":{
+         "shard":"SHARD_CINDERBAT"
+      },
+      "fusion":{
+         "input_1":{
+            "type":"and",
+            "data":[
+               {
+                  "family":"SHULKER"
+               },
+               {
+                  "rarity":"EPIC",
+                  "or_higher":true
+               }
+            ]
+         },
+         "input_2":{
+            "rarity":"LEGENDARY",
+            "or_higher":true
+         }
+      }
+   },
+   "SHARD_LORD_JAWBUS":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Crimson Hook",
+      "effect":"Grants +0.5 \u2794 5  Double Hook Chance while on the Crimson Isle",
+      "obtain":"Catch with Pocket Black Hole. Kill Lord Jawbus while using Salts. Obtained from Kuudra.",
+      "id_res":{
+         "shard":"SHARD_TITANOBOA"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_BURNINGSOUL":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "DEMON"
+      ],
+      "attr_name":"Attack Speed",
+      "effect":"Grants +1 \u2794 10  Bonus Attack Speed",
+      "obtain":"Catch with Pocket Black Hole. Kill Burningsoul Demon while using Salts. Place Traps in Smoldering Tomb.",
+      "id_res":{
+         "shard":"SHARD_POWER_DRAGON"
+      },
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_CINDERBAT":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Magic Find",
+      "effect":"Grants +0.5 \u2794 5  Magic Find",
+      "obtain":"Catch with Pocket Black Hole. Catch with Lasso. Kill Cinderbat while using Salts. Obtained from Kuudra.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_MEGALITH":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "REPTILE",
+         "TURTLE"
+      ],
+      "attr_name":"Hunter's Karma",
+      "effect":"Grants +1 \u2794 10  Hunter Fortune",
+      "obtain":"Fusing Tortoise Shard with Water Category and Epic or higher.",
+      "id_res":{
+         "shard":"SHARD_TITANOBOA"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_TORTOISE"
+         },
+         "input_2":{
+            "type":"and",
+            "data":[
+               {
+                  "rarity":"EPIC",
+                  "or_higher":true
+               },
+               {
+                  "category":"WATER"
+               }
+            ]
+         }
+      }
+   },
+   "SHARD_POWER_DRAGON":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "DRAGON"
+      ],
+      "attr_name":"Elite",
+      "effect":"Grants +3% \u2794 30% more  Damage against bosses and mini-bosses",
+      "obtain":"Obtained from Master Catacombs Floor VII.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_CONDOR":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "BIRD"
+      ],
+      "attr_name":"Pet Wisdom",
+      "effect":"Grants +0.5 \u2794 5  Taming Wisdom",
+      "obtain":"Fusing Bird Family with Legendary or higher.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+            "family":"BIRD"
+         },
+         "input_2":{
+            "rarity":"LEGENDARY",
+            "or_higher":true
+         }
+      }
+   },
+   "SHARD_SUN_FISH":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Starborn",
+      "effect":"The effect of Starborn Temples is +1% \u2794 10% stronger on you",
+      "obtain":"Fusing Shinyfish Shard with Shinyfish Shard.",
+      "id_res":{
+         "shard":"SHARD_TITANOBOA"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_SHINYFISH"
+         },
+         "input_2":{
+            "shard":"SHARD_SHINYFISH"
+         }
+      }
+   },
+   "SHARD_APEX_DRAGON":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "DRAGON"
+      ],
+      "attr_name":"Veteran",
+      "effect":"Grants +1 \u2794 10  Combat Wisdom",
+      "obtain":"Fusing Power Dragon Shard with any Shard. Obtained from Master Catacombs Floor VII.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_POWER_DRAGON"
+         },
+         "input_2":{
+
+         }
+      }
+   },
+   "SHARD_DODO":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "FOREST"
+      ],
+      "family":[
+         "BIRD"
+      ],
+      "attr_name":"Rare Bird",
+      "effect":"Grants +1 \u2794 10  Pet Luck",
+      "obtain":"Fusing Condor Shard with Legendary or higher.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_CONDOR"
+         },
+         "input_2":{
+            "rarity":"LEGENDARY",
+            "or_higher":true
+         }
+      }
+   },
+   "SHARD_JORMUNG":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "DEMON",
+         "DRAGON"
+      ],
+      "attr_name":"Unlimited Power",
+      "effect":"Your  Strength is increased by +0.1% \u2794 1%",
+      "obtain":"Fusing Power Dragon Shard with Kraken Shard.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_POWER_DRAGON"
+         },
+         "input_2":{
+            "shard":"SHARD_KRAKEN"
+         }
+      }
+   },
+   "SHARD_ETHERDRAKE":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "DEMON",
+         "DRAGON"
+      ],
+      "attr_name":"Unlimited Energy",
+      "effect":"Your  Crit Damage is increased by +0.1% \u2794 1%",
+      "obtain":"Fusing Apex Dragon Shard with Kraken Shard.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_APEX_DRAGON"
+         },
+         "input_2":{
+            "shard":"SHARD_KRAKEN"
+         }
+      }
+   },
+   "SHARD_GALAXY_FISH":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "NONE"
+      ],
+      "attr_name":"Ultimate DNA",
+      "effect":"Grants +1 \u2794 10  Mining Fortune,  Farming Fortune, and  Foraging Fortune",
+      "obtain":"Fusing Sun Fish Shard with Sun Fish Shard.",
+      "id_res":{
+         "shard":"SHARD_TITANOBOA"
+      },
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_SUN_FISH"
+         },
+         "input_2":{
+            "shard":"SHARD_SUN_FISH"
+         }
+      }
+   },
+   "SHARD_MOLTHORN":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "DEMON",
+         "DRAGON"
+      ],
+      "attr_name":"Almighty",
+      "effect":"Your \"Unlimited\" Attributes are +5% \u2794 50%  stronger",
+      "obtain":"Fusing Etherdrake Shard with Jormung Shard.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+            "shard":"SHARD_ETHERDRAKE"
+         },
+         "input_2":{
+            "shard":"SHARD_JORMUNG"
+         }
+      }
+   },
+   "SHARD_STARBORN":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "COMBAT"
+      ],
+      "family":[
+         "ELEMENTAL"
+      ],
+      "attr_name":"Echo Of Elemental",
+      "effect":"Buffs all other shards in the Elemental Family by +2% \u2794 20%",
+      "obtain":"Fusing Elemental Family and Legendary with Galaxy Fish Shard.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+            "type":"and",
+            "data":[
+               {
+                  "family":"ELEMENTAL"
+               },
+               {
+                  "rarity":"LEGENDARY",
+                  "or_higher":false
+               }
+            ]
+         },
+         "input_2":{
+            "shard":"SHARD_GALAXY_FISH"
+         }
+      }
+   },
+   "SHARD_TITANOBOA":{
+      "rarity":"LEGENDARY",
+      "category":[
+         "WATER"
+      ],
+      "family":[
+         "REPTILE"
+      ],
+      "attr_name":"Bayou Biter",
+      "effect":"Grants +0.2 \u2794 2.5  Double Hook Chance while on the Backwater Bayou",
+      "obtain":"Catch with Pocket Black Hole. Kill Titanoboa while using Salts.",
+      "id_res":null,
+      "fusion":{
+         "input_1":{
+
+         },
+         "input_2":{
+
+         }
+      }
+   }
+}

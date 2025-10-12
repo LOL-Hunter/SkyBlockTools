@@ -16,7 +16,8 @@ look at start shard price and stop calc if shards are more exp than start
 
 
 """
-
+class ANode:
+    def __init__(self, ):
 
 
 class AttrHelper:
@@ -25,6 +26,25 @@ class AttrHelper:
         if shard in ConfigFile.ATTR_SHARD_DATA.keys():
             return ConfigFile.ATTR_SHARD_DATA[shard]
         MsgText.error(f"Could not find shardID {shard}")
+    @staticmethod
+    def getCheapestShard(*shards:str, isOrder:bool):
+        cheapestPrice = None
+        cheapestID = None
+        for _id in shards:
+            product = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(_id)
+            if product is None:
+                #MsgText.error(f"getShardsPrices() -> cannot get price of shard {_id}!")
+                continue
+            if isOrder:
+                price = product.getInstaSellPrice()
+            else:
+                price = product.getInstaBuyPrice()
+            price =  applyBazaarTax(price)
+            if cheapestID is None or cheapestPrice > price:
+                cheapestID = _id
+                cheapestPrice = price
+        return cheapestID, cheapestPrice
+    @staticmethod
     @staticmethod
     def getShardsPrices(*IDs:str, isOrder:bool)->float:
         temp = 0
@@ -58,17 +78,13 @@ class AttrHelper:
         visited = [] if visited is None else visited
         if shardID in visited: return None
         price_calc = AttrHelper.getShardsPrices(*visited[1:], isOrder=isOrder)
-        if  price_calc > price + 1000:
-            print(price, price_calc, len(visited), "is too high")
+        if price_calc > price + 1000:
+            #print(f"Price of shard {shardID} is too high! ({price_calc} > {price})  {len(visited)}")
             return None
-
-
-
-
         visited.append(shardID)
         if not input_2 and not input_1:
             validFusions.append(visited)
-            return None
+            return validFusions
         validShardList = []
         for inpt in [input_1, input_2]:
             if not inpt: continue
@@ -87,6 +103,9 @@ class AttrHelper:
                 continue
             validShardList.append(validShards)
 
+        if "shard" in inpt.keys():
+            pass
+
         if len(validShardList) == 1:
             for shard_A in validShardList[0]:
                 if shard_A == shardID:
@@ -97,6 +116,9 @@ class AttrHelper:
         for shard_A, shard_B in product(*validShardList):
             if shard_A == shardID or shard_B == shardID:
                 continue
+            if AttrHelper.getShardsPrices(shard_A, shard_B, isOrder=isOrder) > price + 1000:
+                #print(f"Shards {shard_A}:{AttrHelper.getShardsPrices(shard_A, isOrder=isOrder)} and {shard_B}:{AttrHelper.getShardsPrices(shard_B, isOrder=isOrder)} are expenc then {price}")
+                continue
             AttrHelper.getFusionPossib(shard_A, isOrder, price, AttrHelper.getShard(shard_A)["fusion"], validFusions, depth=depth+1, visited=visited.copy())
             AttrHelper.getFusionPossib(shard_B, isOrder, price, AttrHelper.getShard(shard_B)["fusion"], validFusions, depth=depth+1, visited=visited.copy())
         return None
@@ -106,7 +128,7 @@ class AttrBuyHelperPage(CustomPage):
         super().__init__(master, pageTitle="Attr-Buy-Helper", buttonText="Attr Buy Helper")
 
         self.treeview = tk.TreeView(self.contentFrame, SG)
-        self.treeview.setTableHeaders("ID", "Price/Shard", "price-Max", "Instruction", "Buff-Info")
+        self.treeview.setTableHeaders("ID", "Amount-Max", "Price/Shard", "price-Max", "Instruction", "Buff-Info")
         self.treeview.placeRelative(changeHeight=-25)
 
         self.isOrderCheck = tk.Checkbutton(self.contentFrame, SG)
@@ -132,9 +154,12 @@ class AttrBuyHelperPage(CustomPage):
 
                 inst = "Buy from Bazaar"
 
+            if name != "SHARD_LAPIS_CREEPER": continue
             valid = []
             AttrHelper.getFusionPossib(name, isOrder, price, data["fusion"], valid)
             print(len(valid))
+            for i in valid:
+                print(i)
 
             #if price is None or (fusePrice is not None and fusePrice < price):
             #    MsgText.info(f"Fuse price is smaller: {price} -> {fusePrice}, {types}")
@@ -153,12 +178,13 @@ class AttrBuyHelperPage(CustomPage):
                     buff=data["effect"],
                 )
             )
-            break
+
         sorters.sort()
 
         for sorter in sorters:
             self.treeview.addEntry(
                 sorter["id"],
+                sorter["needed"],
                 parsePrizeToStr(sorter["price"]),
                 None if sorter["price"] is None else parsePrizeToStr(sorter["price"]*sorter["needed"]),
                 sorter["inst"],

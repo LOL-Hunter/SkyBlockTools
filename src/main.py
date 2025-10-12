@@ -205,7 +205,7 @@ class ItemInfoPage(CustomPage):
             mPref = self.currentHistoryData["price_prefix"]
 
         out = f"§c== Info ==\n"
-        out += f"§yMeasured-At:\n  §y{latestTimestamp.split('-')[-1].replace('(', '').replace(')', '')}\n\n"
+        out += f"§yMeasured-At:\n  §y{latestTimestamp.split('-')[-1].replace().replace(')', '')}\n\n"
         out += f"§c== Price x{amount}==\n"
         out += f"§rInsta-Buy-Price:\n§r  {parsePrizeToStr(bp * amount)}\n"
         out += f"§gInsta-Sell-Price:\n§g  {parsePrizeToStr(sp * amount)}\n\n"
