@@ -1,4 +1,7 @@
 import os
+
+from sympy.logic.inference import valid
+
 import tksimple as tk
 from functools import cache
 from itertools import product
@@ -16,8 +19,6 @@ look at start shard price and stop calc if shards are more exp than start
 
 
 """
-class ANode:
-    def __init__(self, ):
 
 
 class AttrHelper:
@@ -26,6 +27,7 @@ class AttrHelper:
         if shard in ConfigFile.ATTR_SHARD_DATA.keys():
             return ConfigFile.ATTR_SHARD_DATA[shard]
         MsgText.error(f"Could not find shardID {shard}")
+
     @staticmethod
     def getCheapestShard(*shards:str, isOrder:bool):
         cheapestPrice = None
@@ -44,7 +46,7 @@ class AttrHelper:
                 cheapestID = _id
                 cheapestPrice = price
         return cheapestID, cheapestPrice
-    @staticmethod
+
     @staticmethod
     def getShardsPrices(*IDs:str, isOrder:bool)->float:
         temp = 0
@@ -59,6 +61,7 @@ class AttrHelper:
                 price = product.getInstaBuyPrice()
             temp += applyBazaarTax(price)
         return temp
+
     @staticmethod
     @cache
     def getValidShards(rarity=None, or_higher=None, family=None, category=None, shard=None)->list:
@@ -71,21 +74,19 @@ class AttrHelper:
             if category is not None and category not in data["category"]: continue
             valid.append(shID)
         return valid
+
     @staticmethod
-    def getFusionPossib(shardID:str, isOrder:bool, price:float, data:dict, validFusions:list, depth=0, visited=None):
+    def getFusionPossib(shardID:str, isOrder:bool, price:float, data:dict, depth=0, visited=None):
         input_1 = data["input_1"]
         input_2 = data["input_2"]
         visited = [] if visited is None else visited
         if shardID in visited: return None
         price_calc = AttrHelper.getShardsPrices(*visited[1:], isOrder=isOrder)
         if price_calc > price + 1000:
-            #print(f"Price of shard {shardID} is too high! ({price_calc} > {price})  {len(visited)}")
+            # print(f"Price of shard {shardID} is too high! ({price_calc} > {price})  {len(visited)}")
             return None
         visited.append(shardID)
-        if not input_2 and not input_1:
-            validFusions.append(visited)
-            return validFusions
-        validShardList = []
+        fuseList = {}
         for inpt in [input_1, input_2]:
             if not inpt: continue
             if "data" in inpt.keys():
@@ -98,30 +99,15 @@ class AttrHelper:
                     validShards = list(set(v1))
             else:
                 validShards = AttrHelper.getValidShards(**inpt)
+                if "shard" in inpt.keys():
+                    validShards = AttrHelper.getFusionPossib(inpt["shard"], isOrder, price, AttrHelper.getShard(inpt["shard"])["fusion"],  depth=depth+1, visited=visited.copy())
+
             if not validShards:
                 MsgText.warning(f"ValidShards are empty! {inpt}")
                 continue
-            validShardList.append(validShards)
-
-        if "shard" in inpt.keys():
-            pass
-
-        if len(validShardList) == 1:
-            for shard_A in validShardList[0]:
-                if shard_A == shardID:
-                    continue
-                AttrHelper.getFusionPossib(shard_A, isOrder, price, AttrHelper.getShard(shard_A)["fusion"], validFusions, depth=depth+1, visited=visited.copy())
-            return None
-
-        for shard_A, shard_B in product(*validShardList):
-            if shard_A == shardID or shard_B == shardID:
-                continue
-            if AttrHelper.getShardsPrices(shard_A, shard_B, isOrder=isOrder) > price + 1000:
-                #print(f"Shards {shard_A}:{AttrHelper.getShardsPrices(shard_A, isOrder=isOrder)} and {shard_B}:{AttrHelper.getShardsPrices(shard_B, isOrder=isOrder)} are expenc then {price}")
-                continue
-            AttrHelper.getFusionPossib(shard_A, isOrder, price, AttrHelper.getShard(shard_A)["fusion"], validFusions, depth=depth+1, visited=visited.copy())
-            AttrHelper.getFusionPossib(shard_B, isOrder, price, AttrHelper.getShard(shard_B)["fusion"], validFusions, depth=depth+1, visited=visited.copy())
-        return None
+            cheapest = AttrHelper.getCheapestShard(*validShards, isOrder=isOrder)
+            fuseList[shardID] = cheapest
+        return validShardList
 
 class AttrBuyHelperPage(CustomPage):
     def __init__(self, master):
@@ -158,8 +144,7 @@ class AttrBuyHelperPage(CustomPage):
             valid = []
             AttrHelper.getFusionPossib(name, isOrder, price, data["fusion"], valid)
             print(len(valid))
-            for i in valid:
-                print(i)
+            print(valid)
 
             #if price is None or (fusePrice is not None and fusePrice < price):
             #    MsgText.info(f"Fuse price is smaller: {price} -> {fusePrice}, {types}")
