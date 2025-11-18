@@ -624,6 +624,8 @@ def getShardsNeeded(rarity:str)->int:
         return sum(ATTR_SHARDS_REQ[rarity])
     return 0
 def loadConfigs():
+    if not os.path.exists(os.path.join(System.CONFIG_PATH, "skyblock_save")):
+        os.mkdir(os.path.join(System.CONFIG_PATH, "skyblock_save"))
     ConfigFile.AVERAGE_PRICE = JsonConfig.loadConfig(os.path.join(System.CONFIG_PATH, "skyblock_save", "average_price_save.json"), create=True)
     ConfigFile.ATTR_SHARD_DATA = JsonConfig.loadConfig(os.path.join(Path.INTERNAL_CONFIG, "attribute_shards_data.json"))
 def isRarityGreater(baseRar:str, greaterThen:str):

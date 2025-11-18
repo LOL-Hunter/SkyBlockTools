@@ -12,6 +12,9 @@ class MagicFindCalculatorPage(CustomPage):
         self.LOOTING_CONST = .15
         self.LUCK_CONST = .05
 
+
+
+
         """{
             "base_chance":1,
             "pet_luck":0,

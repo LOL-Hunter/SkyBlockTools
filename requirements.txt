@@ -1,4 +1,5 @@
 numpy
+colorama
 matplotlib
 pyfiglet
 termcolor

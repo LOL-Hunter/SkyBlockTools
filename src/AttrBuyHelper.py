@@ -1,7 +1,5 @@
 import os
 
-from sympy.logic.inference import valid
-
 import tksimple as tk
 from functools import cache
 from itertools import product
