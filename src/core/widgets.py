@@ -173,11 +173,16 @@ class CustomPage(tk.MenuPage):
                                                   msg="Search in Bazaar: (At least tree characters)",
                                                   next_page=self.master.itemInfoPage)
 
-        except it will be :
-
         @return: if 1 continue to next page
         """
         return 1
+    def onUpdate(self): pass
+    def onShow(self, **kwargs):
+        self.placeRelative()
+        self.placeContentFrame()
+        self.master.updateCurrentPageHook = self.onUpdate
+        self.onUpdate()
+
 class CustomMenuPage(CustomPage):
     """
     Menu Page with build in Menu button control.
@@ -194,7 +199,6 @@ class CustomMenuPage(CustomPage):
         @return:
         """
         menuButton = e.getArgs(0)
-
         if menuButton.customShow(self) is None: return
         if isinstance(menuButton, tk.MenuPage):
             self.openNextMenuPage(menuButton)

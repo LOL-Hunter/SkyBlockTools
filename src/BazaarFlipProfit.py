@@ -15,13 +15,18 @@ from core.skyMisc import (
 )
 from core.analyzer import getPlotData
 from core.widgets import CustomPage
+from core.featureLoader import loadableFeature
 from core.hyPI.skyCoflnetAPI import SkyConflnetAPI
 from core.hyPI.APIError import APIConnectionError, NoAPIKeySetException, APITimeoutException
 
-
+@loadableFeature
 class BazaarFlipProfitPage(CustomPage):
     def __init__(self, master):
-        super().__init__(master, pageTitle="Bazaar-Flip-Profit", buttonText="Bazaar Flip Profit")
+        super().__init__(
+            master, 
+            pageTitle="Bazaar-Flip-Profit", 
+            buttonText="Bazaar Flip Profit"
+        )
 
         self.currentParser = None
         self.perMode = None # "per_hour" / "per_week"
@@ -88,7 +93,7 @@ class BazaarFlipProfitPage(CustomPage):
 
         self.searchE = tk.Entry(self.contentFrame, SG)
         self.searchE.bind(self._clearAndUpdate, tk.EventType.RIGHT_CLICK)
-        self.searchE.onUserInputEvent(self.updateTreeView)
+        self.searchE.onUserInputEvent(self.onUpdate)
         self.searchE.placeRelative(fixHeight=25, stickDown=True, fixWidth=100, fixX=100)
 
         self.openSettings = tk.Button(self.contentFrame, SG)
@@ -100,18 +105,18 @@ class BazaarFlipProfitPage(CustomPage):
         self.factorSelect = tk.DropdownMenu(self.contentFrame, SG)
         self.factorSelect.setText("1")
         self.factorSelect.setOptionList([1, 16, 32, 64, 160, 1024, 71680, "custom..."])
-        self.factorSelect.onSelectEvent(self.updateTreeView)
+        self.factorSelect.onSelectEvent(self.onUpdate)
         self.factorSelect.placeRelative(fixHeight=25, stickDown=True, fixWidth=50, fixX=400)
 
         self.flipRatingSelect = tk.DropdownMenu(self.contentFrame, SG)
         self.flipRatingSelect.setText("flipping")
         self.flipRatingSelect.setOptionList(["flipping"])
-        self.flipRatingSelect.onSelectEvent(self.updateTreeView)
+        self.flipRatingSelect.onSelectEvent(self.onUpdate)
         self.flipRatingSelect.placeRelative(fixHeight=25, stickDown=True, fixWidth=100, fixX=450)
 
         self.filterManip = tk.Checkbutton(self.contentFrame, SG)
         self.filterManip.setText("Filter Manipulated Data")
-        self.filterManip.onSelectEvent(self.updateTreeView)
+        self.filterManip.onSelectEvent(self.onUpdate)
         self.filterManip.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=550)
 
         self.treeView = tk.TreeView(self.contentFrame, SG)
@@ -158,7 +163,7 @@ class BazaarFlipProfitPage(CustomPage):
             Constants.WAITING_FOR_API_REQUEST = False
 
             ConfigFile.AVERAGE_PRICE[id_] = getMedianFromList(self.currentHistoryData["past_raw_buy_prices"])
-            self.master.runTask(self.updateTreeView).start()
+            self.master.runTask(self.onUpdate).start()
             self.master.runTask(self.saveAverage).start()
         def _test():
             for i in BazaarItemID:
@@ -199,7 +204,7 @@ class BazaarFlipProfitPage(CustomPage):
                 return None
 
             ConfigFile.AVERAGE_PRICE[id_] = getMedianFromList(self.currentHistoryData["past_raw_buy_prices"])
-            self.master.runTask(self.updateTreeView).start()
+            self.master.runTask(self.onUpdate).start()
             self.master.runTask(self.saveAverage).start()
 
         if not Constants.WAITING_FOR_API_REQUEST:
@@ -215,10 +220,10 @@ class BazaarFlipProfitPage(CustomPage):
         self.master.showItemInfo(self, sel["Item"])
     def onHeaderClick(self, e:tk.Event):
         self.headerIndex:str = e.getValue()
-        self.updateTreeView()
+        self.onUpdate()
     def closeAndUpdate(self):
         self.settingsWindow.hide()
-        self.updateTreeView()
+        self.onUpdate()
     def toggleSellsPer(self):
         match self.perMode:
             case None:
@@ -227,14 +232,14 @@ class BazaarFlipProfitPage(CustomPage):
                 self.perMode = "per_hour"
             case "per_hour":
                 self.perMode = None
-        self.updateTreeView()
+        self.onUpdate()
     def _clearAndUpdate(self):
         self.searchE.clear()
-        self.updateTreeView()
+        self.onUpdate()
         self.searchE.setFocus()
     def isBazaarItem(self, item:str)->bool:
         return item in BazaarItemID
-    def updateTreeView(self):
+    def onUpdate(self):
         self.treeView.clear()
         if API.SKYBLOCK_BAZAAR_API_PARSER is None:
             tk.SimpleDialog.askError(self.master, "Cannot calculate! No API data available!")
@@ -395,8 +400,3 @@ class BazaarFlipProfitPage(CustomPage):
         self.treeView.setBgColorByTag("good", tk.Color.GREEN)
         self.treeView.setBgColorByTag("bad", tk.Color.RED)
         self.treeView.setBgColorByTag("crash", "#27a39f")
-    def onShow(self, **kwargs):
-        self.master.updateCurrentPageHook = self.updateTreeView  # hook to update tv on new API-Data available
-        self.placeRelative()
-        self.updateTreeView()
-        self.placeContentFrame()

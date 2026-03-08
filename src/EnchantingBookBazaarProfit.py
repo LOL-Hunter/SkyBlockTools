@@ -8,11 +8,16 @@ from core.skyMisc import parsePrizeToStr, BookCraft
 from core.skyMath import applyBazaarTax
 from core.analyzer import getDictEnchantmentIDToLevels, getCheapestEnchantmentData
 from core.widgets import CustomPage
+from core.featureLoader import loadableFeature
 
-
+@loadableFeature
 class EnchantingBookBazaarProfitPage(CustomPage):
     def __init__(self, master):
-        super().__init__(master, pageTitle="Book Combine Profit Page", buttonText="Book Combine Profit")
+        super().__init__(
+            master, 
+            pageTitle="Book Combine Profit Page", 
+            buttonText="Book Combine Profit"
+        )
 
         self.treeView = tk.TreeView(self.contentFrame, SG)
         self.treeView.setTableHeaders("Name", "Buy-Price", "Sell-Price", "Profit", "Times-Combine", "Insta-Sell/Hour", "Insta-Buy/Hour")
@@ -35,24 +40,24 @@ class EnchantingBookBazaarProfitPage(CustomPage):
 
         self.useBuyOffers = tk.Checkbutton(self.contentFrame, SG).setSelected()
         self.useBuyOffers.setText("Use-Buy-Offers")
-        self.useBuyOffers.onSelectEvent(self.updateTreeView)
+        self.useBuyOffers.onSelectEvent(self.onUpdate)
         self.useBuyOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150)
 
         self.useSellOffers = tk.Checkbutton(self.contentFrame, SG).setSelected()
         self.useSellOffers.setText("Use-Sell-Offers")
-        self.useSellOffers.onSelectEvent(self.updateTreeView)
+        self.useSellOffers.onSelectEvent(self.onUpdate)
         self.useSellOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=150)
 
         self.includeUltimate = tk.Checkbutton(self.contentFrame, SG)
         self.includeUltimate.setText("Include-Ultimate")
-        self.includeUltimate.onSelectEvent(self.updateTreeView)
+        self.includeUltimate.onSelectEvent(self.onUpdate)
         self.includeUltimate.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=300)
 
         self.useWhiteList = tk.Checkbutton(self.contentFrame, SG).setSelected()
         self.useWhiteList.setText("Use-Whitelist")
-        self.useWhiteList.onSelectEvent(self.updateTreeView)
+        self.useWhiteList.onSelectEvent(self.onUpdate)
         self.useWhiteList.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=450)
-    def updateTreeView(self):
+    def onUpdate(self):
         self.treeView.clear()
         if API.SKYBLOCK_BAZAAR_API_PARSER is None:
             tk.SimpleDialog.askError(self.master, "Cannot calculate! No API data available!")
@@ -110,8 +115,3 @@ class EnchantingBookBazaarProfitPage(CustomPage):
                     parsePrizeToStr(bookCraft.getFromSellVolume(), hideCoins=True),
                     image=self.eBookImage
                 )
-    def onShow(self, **kwargs):
-        self.master.updateCurrentPageHook = self.updateTreeView  # hook to update tv on new API-Data available
-        self.placeRelative()
-        self.updateTreeView()
-        self.placeContentFrame()

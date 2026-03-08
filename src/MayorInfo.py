@@ -23,11 +23,16 @@ from core.skyMisc import (
     Sorter
 )
 from core.widgets import CustomPage, APIRequest
+from core.featureLoader import loadableFeature
 
-
+@loadableFeature
 class MayorInfoPage(CustomPage):
     def __init__(self, master):
-        super().__init__(master, pageTitle="Mayor Info Page", buttonText="Mayor Info")
+        super().__init__(
+            master,
+            pageTitle="Mayor Info Page",
+            buttonText="Mayor Info"
+        )
         self.master = master
         self.currentMayorEnd = None
         Thread(target=self.updateTimer).start()

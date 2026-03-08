@@ -37,6 +37,7 @@ from core.skyMisc import (
 from core.analyzer import calculateUpgradesPrice, calculateEstimatedItemValue
 from core.widgets import CustomPage, TipText, fillToolTipText
 from core.hyPI.parser import BINAuctionProduct
+from core.featureLoader import loadableFeature
 
 class SortKey(Enum):
     ESTIMATED_PRICE = "estim"
@@ -291,9 +292,14 @@ class BinSniperAnalyzer:
         for pets in rarityToPetMap.values():
             temp.extend(pets)
         return temp
+@loadableFeature
 class BinSniperPage(CustomPage):
     def __init__(self, master):
-        super().__init__(master, pageTitle="Bin-Sniper", buttonText="Bin Sniper")
+        super().__init__(
+            master,
+            pageTitle="Bin-Sniper",
+            buttonText="Bin Sniper"
+        )
         self.buyCap = None
         self.displayedIds = []
         self.isSideBarOpen = False
@@ -786,12 +792,12 @@ class BinSniperPage(CustomPage):
         if newSortKey != self.sortKey:
             self.sortKey = newSortKey
             self.updateTreeview()
-    def onAPIUpdate(self):
+    def onUpdate(self):
         if self.updateTVonAPIUpd.getState():
             self.updateTreeview(onlyPage=self.master.requestedOnlyPage)
     def onShow(self, **kwargs):
         self.placeRelative()
         self.placeContentFrame()
-        self.master.updateCurrentPageHook = self.onAPIUpdate
+        self.master.updateCurrentPageHook = self.onUpdate
         if not BinSniperAnalyzer.SORTER:
             self.updateTreeview()

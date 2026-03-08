@@ -8,6 +8,7 @@ from core.logger import MsgText
 from core.settings import Config
 from core.skyMisc import parsePrizeToStr, Sorter, requestProfilesHypixelAPI, requestProfileHypixelAPI, parsePriceFromStr
 from core.widgets import CustomPage
+from core.featureLoader import loadableFeature
 
 
 class AccessoryBuyHelperAccount(tk.Dialog):
@@ -203,9 +204,14 @@ class AccessoryBuyHelperAccount(tk.Dialog):
         slots += list(self.page.slotsConfig["community_centre"].values())[self.communityDrop.getSelectedIndex()]
         slots += self.jacobusDrop.getSelectedIndex() * 2
         return slots
+@loadableFeature
 class AccessoryBuyHelperPage(CustomPage):
     def __init__(self, master):
-        super().__init__(master, pageTitle="Accessory Buy Helper Page", buttonText="Accessory Buy Helper")
+        super().__init__(
+            master, 
+            pageTitle="Accessory Buy Helper Page", 
+            buttonText="Accessory Buy Helper"
+        )
         self.master = master
 
         self.conflictsConfig = JsonConfig.loadConfig(os.path.join(Path.INTERNAL_CONFIG, "accessories_conflicts.json"))
@@ -291,7 +297,7 @@ class AccessoryBuyHelperPage(CustomPage):
 
         self.investEntry = tk.TextEntry(self.investFrame, group=SG)
         self.investEntry.setText("Invest (coins):")
-        self.investEntry.getEntry().onUserInputEvent(self.updateHelper)
+        self.investEntry.getEntry().onUserInputEvent(self.onUpdate)
         self.investEntry.placeRelative(fixWidth=192, fixHeight=25)
 
         self.statsFrame = tk.LabelFrame(self.toolFrame, group=SG)
@@ -307,7 +313,7 @@ class AccessoryBuyHelperPage(CustomPage):
 
         self.filterNotBuyableCheck = tk.Checkbutton(self.filterFrame, SG)
         self.filterNotBuyableCheck.setSelected()
-        self.filterNotBuyableCheck.onSelectEvent(self.updateHelper)
+        self.filterNotBuyableCheck.onSelectEvent(self.onUpdate)
         self.filterNotBuyableCheck.setText("Hide 'Not Buyable' Items")
         self.filterNotBuyableCheck.place(0, 0, 192, 25)
 
@@ -377,7 +383,7 @@ class AccessoryBuyHelperPage(CustomPage):
             Config.SETTINGS_CONFIG.save()
             self.accDrop.clear()
             self.updateAccounts(None)
-            self.updateHelper()
+            self.onUpdate()
     def addNewAccount(self):
         account = AccessoryBuyHelperAccount(self, self.master, self.updateAccounts)
     def editAccount(self):
@@ -385,7 +391,7 @@ class AccessoryBuyHelperPage(CustomPage):
         if name == "": return
         account = AccessoryBuyHelperAccount(self, self.master, self.updateAccounts, data=Config.SETTINGS_CONFIG["accessories"][name])
     def changeAccount(self):
-        self.updateHelper()
+        self.onUpdate()
     def getPowder(self, data):
         powder = 0
         for i in data:
@@ -402,14 +408,14 @@ class AccessoryBuyHelperPage(CustomPage):
         self.compPlay2.setOptionList(accs)
         if name is not None:
             self.accDrop.setValue(name)
-            self.updateHelper()
+            self.onUpdate()
     def getMagicPoderDiffToNext(self, old):
         rarities = list(MAGIC_POWDER.keys())
         new = rarities[rarities.index(old) + 1]
         return MAGIC_POWDER[new] - MAGIC_POWDER[old]
     def getMagicPoderDiff(self, old, new):
         return MAGIC_POWDER[new] - MAGIC_POWDER[old]
-    def updateHelper(self):
+    def onUpdate(self):
         self.accessories = [{"id":i.getID(), "rarity":(i.getRarity() if i.getRarity() is not None else "COMMON")} for i in API.SKYBLOCK_ITEM_API_PARSER.getItems() if i.getCategory() == "ACCESSORY"]
         self.treeView.clear()
         self.statsText.clear()
@@ -640,8 +646,3 @@ class AccessoryBuyHelperPage(CustomPage):
         self.slotsLabel.setText(f"Slots: +{slotCount} ({parsePrizeToStr(slotPrice)})")
         self.totalLabel.setText(f"Total: {parsePrizeToStr(costAll)}")
         self.newTotalPowderLabel.setText(f"New Total Powder: {powderAll+powderAllOld}")
-    def onShow(self, **kwargs):
-        self.master.updateCurrentPageHook = self.updateHelper  # hook to update tv on new API-Data available
-        self.placeRelative()
-        self.placeContentFrame()
-        self.updateHelper()

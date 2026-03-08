@@ -16,11 +16,16 @@ from core.skyMisc import (
     Sorter
 )
 from core.widgets import CustomPage
+from core.featureLoader import loadableFeature
 
-
+@loadableFeature
 class MedalTransferProfitPage(CustomPage):
     def __init__(self, master):
-        super().__init__(master, pageTitle="Medal Transfer Profit Page", buttonText="Medal Transfer Profit")
+        super().__init__(
+            master,
+            pageTitle="Medal Transfer Profit Page", 
+            buttonText="Medal Transfer Profit"
+        )
         self.master = master
 
         self.treeView = tk.TreeView(self.contentFrame, SG)
@@ -100,10 +105,10 @@ class MedalTransferProfitPage(CustomPage):
             self.ticketAvgLabel.setText(parsePrizeToStr(ConfigFile.AVERAGE_PRICE["JACOBS_TICKET"]))
         else:
             self.ticketAvgLabel.setText("None")
-        self.updateTreeView()
+        self.onUpdate()
     def openGraphGUI(self):
         self.master.showItemInfo(self, "JACOBS_TICKET")
-    def updateTreeView(self):
+    def onUpdate(self):
         self.treeView.clear()
 
         ticket = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID("JACOBS_TICKET")
@@ -175,8 +180,3 @@ class MedalTransferProfitPage(CustomPage):
         sorters.sort()
         for sorter in sorters:
             self.treeView.addEntry(sorter["id"], sorter["strPrice"], parsePrizeToStr(sorter["profit"]), parsePrizeToStr(sorter["profitPerMedal"]), parsePrizeToStr(sorter["lbPrice"]))
-    def onShow(self, **kwargs):
-        self.placeRelative()
-        self.placeContentFrame()
-        self.updatePrice() # and Treeview
-        self.master.updateCurrentPageHook = self.updateTreeView

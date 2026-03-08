@@ -1,8 +1,8 @@
 import os
 
-from core.jsonConfig import JsonConfig
-
 import tksimple as tk
+
+from core.jsonConfig import JsonConfig
 from core.constants import STYLE_GROUP as SG, Path, API
 from core.settings import Config
 from core.settings import SettingsGUI
@@ -14,23 +14,28 @@ from core.skyMisc import (
     Sorter
 )
 from core.widgets import CustomPage
+from core.featureLoader import loadableFeature
 
-
+@loadableFeature
 class ComposterProfitPage(CustomPage):
     def __init__(self, master):
-        super().__init__(master, pageTitle="Composter-Profit", buttonText="Composter Profit")
+        super().__init__(
+            master,
+            pageTitle="Composter-Profit",
+            buttonText="Composter Profit"
+        )
         self.currentParser = None
 
         self.useBuyOffers = tk.Checkbutton(self.contentFrame, SG)
         self.useBuyOffers.setText("Use-Buy-Offers")
         self.useBuyOffers.setSelected()
-        self.useBuyOffers.onSelectEvent(self.updateTreeView)
+        self.useBuyOffers.onSelectEvent(self.onUpdate)
         self.useBuyOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150)
 
         self.useSellOffers = tk.Checkbutton(self.contentFrame, SG)
         self.useSellOffers.setText("Use-Sell-Offers")
         self.useSellOffers.setSelected()
-        self.useSellOffers.onSelectEvent(self.updateTreeView)
+        self.useSellOffers.onSelectEvent(self.onUpdate)
         self.useSellOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=150)
 
         self.openSettings = tk.Button(self.contentFrame, SG)
@@ -76,17 +81,17 @@ class ComposterProfitPage(CustomPage):
 
         #self.showStackProfit = tk.Checkbutton(self.contentFrame, SG)
         #self.showStackProfit.setText("Show-Profit-as-Stack[x64]")
-        #self.showStackProfit.onSelectEvent(self.updateTreeView)
+        #self.showStackProfit.onSelectEvent(self.onUpdate)
         #self.showStackProfit.placeRelative(fixHeight=25, stickDown=True, fixWidth=200, fixX=300)
     def openComposterSettings(self):
-        SettingsGUI.openComposterSettings(self.master, onScrollHook=self.updateTreeView)
+        SettingsGUI.openComposterSettings(self.master, onScrollHook=self.onUpdate)
     def onListboxSelect(self, e):
         type_ = e.getArgs(0)
         if type_ == "matter":
             self.selectedMatter = self.matterLb.getSelectedIndex()
         else:
             self.selectedFuel = self.fuelLb.getSelectedIndex()
-        self.updateTreeView()
+        self.onUpdate()
     def parseData(self):
 
         if API.SKYBLOCK_BAZAAR_API_PARSER is None: return
@@ -165,7 +170,7 @@ class ComposterProfitPage(CustomPage):
     def addMultipleChance(self, chance, amount):
         amount += amount*(chance/100)
         return amount
-    def updateTreeView(self):
+    def onUpdate(self):
         if self.sortedFuel is None or self.sortedMatter is None: return
         if API.SKYBLOCK_BAZAAR_API_PARSER is None: return
 
@@ -234,8 +239,3 @@ class ComposterProfitPage(CustomPage):
         text += f"Duration-With-Full-Tanks: {parseTimeFromSec(data['duration_seconds'] * compostFull)}\n"
         text += f"Full-Composter-Profit: ~{parsePrizeToStr(singleProfit * self.addMultipleChance(data['multiple_drop_percentage'], compostFull))}\n"
         self.textT.setStrf(text)
-    def onShow(self, **kwargs):
-        self.master.updateCurrentPageHook = self.updateTreeView  # hook to update tv on new API-Data available
-        self.placeRelative()
-        self.updateTreeView()
-        self.placeContentFrame()

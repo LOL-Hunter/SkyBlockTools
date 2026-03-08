@@ -9,11 +9,16 @@ from core.skyMath import applyBazaarTax
 from core.skyMisc import iterDict, Sorter, parsePrizeToStr
 from core.widgets import CustomPage
 from core.logger import MsgText
+from core.featureLoader import loadableFeature
 
-
+@loadableFeature
 class BoosterCookieBitsProfit(CustomPage):
     def __init__(self, master):
-        super().__init__(master, pageTitle="Booster Cookie Bits Profit", buttonText="Bits Profit")
+        super().__init__(
+            master,
+            pageTitle="Booster Cookie Bits Profit",
+            buttonText="Bits Profit"
+        )
         self.bitsConfig = JsonConfig.loadConfig(os.path.join(Path.INTERNAL_CONFIG, "bit_shop.json"))
         self.multipliers = [1, 1.1, 1.2, 1.3, 1.4, 1.6, 1.8, 1.9, 2.0, 2.04, 2.08, 2.12, 2.16, 2.2, 2.22, 2.24, 2.26, 2.28, 2.3, 2.32, 2.34, 2.36, 2.38, 2.4]
 
@@ -23,15 +28,15 @@ class BoosterCookieBitsProfit(CustomPage):
 
         self.useSellOffers = tk.Checkbutton(self.contentFrame, SG).setSelected()
         self.useSellOffers.setText("Use-Sell-Offers")
-        self.useSellOffers.onSelectEvent(self.updateTreeview)
+        self.useSellOffers.onSelectEvent(self.onUpdate)
         self.useSellOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=0)
 
         self.rankSelect = tk.DropdownMenu(self.contentFrame, SG)
         self.rankSelect.setOptionList(["New_Player", "Settler", "Citizen", "Contributor", "Philanthropist", "Patron", "Famous_Player", "Attache", "Ambassador", "Statesperson", "Senator", "Dignitary", "Councilor", "Minister", "Premier", "Chancellor", "Supreme", "Overseer", "Regent", "Viceroy", "Sovereign", "Archon", "Imperator", "Paragon"])
         self.rankSelect.setValue(Config.SETTINGS_CONFIG["player_rank"])
-        self.rankSelect.onSelectEvent(self.updateTreeview)
+        self.rankSelect.onSelectEvent(self.onUpdate)
         self.rankSelect.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=150)
-    def updateTreeview(self):
+    def onUpdate(self):
         BITS_BASE = 4800
         self.treeView.clear()
         if API.SKYBLOCK_BAZAAR_API_PARSER is None:
@@ -105,8 +110,3 @@ class BoosterCookieBitsProfit(CustomPage):
             )
         self.treeView.setBgColorByTag("AUCTION", tk.Color.rgb(138, 90, 12))
         self.treeView.setBgColorByTag("BAZAAR", tk.Color.rgb(22, 51, 45))
-    def onShow(self, **kwargs):
-        self.placeRelative()
-        self.placeContentFrame()
-        self.master.updateCurrentPageHook = self.updateTreeview
-        self.updateTreeview()

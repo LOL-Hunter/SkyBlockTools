@@ -9,11 +9,16 @@ from core.skyMisc import (
     Sorter
 )
 from core.widgets import CustomPage
+from core.featureLoader import loadableFeature
 
-
+@loadableFeature
 class ForgeProfitTrackerPage(CustomPage):
     def __init__(self, master):
-        super().__init__(master, pageTitle="Forge Profit Tracker Page", buttonText="Forge Profit Tracker")
+        super().__init__(
+            master,
+            pageTitle="Forge Profit Tracker Page",
+            buttonText="Forge Profit Tracker"
+        )
 
         self.forgeConfig = JsonConfig.loadConfig(os.path.join(Path.INTERNAL_CONFIG, "forge_data.json"))
 
@@ -26,7 +31,7 @@ class ForgeProfitTrackerPage(CustomPage):
         self.tooFrame.setText("Tools")
 
         self.tooFrame.placeRelative(fixWidth=200)
-    def updateTreeview(self):
+    def onUpdate(self):
         self.treeView.clear()
         if API.SKYBLOCK_BAZAAR_API_PARSER is None: return
 
@@ -80,8 +85,3 @@ class ForgeProfitTrackerPage(CustomPage):
                 parsePrizeToStr(sorter["sellPrice"]),
                 parseTimeFromSec(sorter["forgeTime"])
             )
-    def onShow(self, **kwargs):
-        self.placeRelative()
-        self.placeContentFrame()
-        self.master.updateCurrentPageHook = self.updateTreeview
-        self.updateTreeview()

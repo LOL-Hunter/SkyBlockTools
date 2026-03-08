@@ -20,7 +20,7 @@ from core.skyMisc import (
     throwAPIConnectionException
 )
 from core.widgets import CustomPage
-
+from core.featureLoader import loadableFeature
 
 class LongTimeFlip(tk.Frame):
     def __init__(self, page, window, master, data):
@@ -434,11 +434,14 @@ class NewFlipWindow(tk.Dialog):
             amount = dat["amount"]
             price = dat["price"]
             self.treeView.addEntry(parsePrizeToStr(amount, True), parsePrizeToStr(price), parsePrizeToStr(amount * price))
+@loadableFeature
 class LongTimeFlipHelperPage(CustomPage):
     def __init__(self, master):
-        super().__init__(master,
-                         pageTitle="Active-Flips",
-                         buttonText="Active Flips")
+        super().__init__(
+            master,
+            pageTitle="Active-Flips",
+            buttonText="Active Flips"
+        )
 
         self.flipGap = 5
         self.flipWidth = 300 - self.flipGap
@@ -450,14 +453,14 @@ class LongTimeFlipHelperPage(CustomPage):
 
         self.master = master
         self.master.onWindowResize(self.onResizeEvent)
-        self.master.updateCurrentPageHook = self.updateView
+        self.master.updateCurrentPageHook = self.onUpdate
         #self.useBuyOffers = tk.Checkbutton(self.contentFrame, SG).setSelected()
         #self.useBuyOffers.setText("Use-Buy-Offers")
         #self.useBuyOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150)
 
         self.useSellOffers = tk.Checkbutton(self.contentFrame, SG).setSelected()
         self.useSellOffers.setText("Use-Sell-Offers")
-        self.useSellOffers.onSelectEvent(self.updateView)
+        self.useSellOffers.onSelectEvent(self.onUpdate)
         self.useSellOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=0)
 
         self.newFlip = tk.Button(self.contentFrame, SG)
@@ -471,12 +474,12 @@ class LongTimeFlipHelperPage(CustomPage):
             "Show All in Stock",
         ])
         self.modeS.setText("Show All Active")
-        self.modeS.onSelectEvent(self.updateView)
+        self.modeS.onSelectEvent(self.onUpdate)
         self.modeS.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=320)
 
         self.showFinished = tk.Checkbutton(self.contentFrame, SG)
         self.showFinished.setText("Show Finished")
-        self.showFinished.onSelectEvent(self.updateView)
+        self.showFinished.onSelectEvent(self.onUpdate)
         self.showFinished.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=320+150)
 
         self.infoLf = tk.LabelFrame(self.contentFrame, SG)
@@ -559,17 +562,17 @@ class LongTimeFlipHelperPage(CustomPage):
     def deleteEntry(self, e:LongTimeFlip):
         self.flips.remove(e)
         e.destroy()
-        self.updateView()
+        self.onUpdate()
     def finishEdit(self):
         self.saveToFile()
-        self.updateView()
+        self.onUpdate()
     def saveToFile(self):
         if self.js is None:
             MsgText.warning("Could not save Data! 'active_flip_config.json' does not exist or not readable!")
             return
         self.js.setData([i.toData() for i in self.flips])
         self.js.saveConfig()
-    def updateView(self):
+    def onUpdate(self):
         placedFlips = self.placeWidgets()
         fullProfit = 0
         totalValue = 0
@@ -595,13 +598,10 @@ class LongTimeFlipHelperPage(CustomPage):
         else:
             self.fullProfitL.setFg("red")
     def onShow(self, **kwargs):
-        self.master.updateCurrentPageHook = self.updateView  # hook to update tv on new API-Data available
         if "itemName" in kwargs: # search complete
             self._history.pop(-2) # delete search Page and self
             self._history.pop(-2) # workaround
             selected = kwargs["itemName"]
             NewFlipWindow(None, self, self.master, selected, finish=self.finishEdit).show()
-        self.placeRelative()
-        self.placeContentFrame()
+        super().onShow()
         self.master.updateDynamicWidgets()
-        self.updateView()

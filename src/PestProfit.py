@@ -11,11 +11,16 @@ from core.skyMath import applyBazaarTax
 from core.skyMisc import iterDict, Sorter
 from core.skyMisc import parsePrizeToStr
 from core.widgets import CustomPage
+from core.featureLoader import loadableFeature
 
-
+@loadableFeature
 class PestProfitPage(CustomPage):
     def __init__(self, master):
-        super().__init__(master, pageTitle="Pest Profit Page", buttonText="Pest Profit")
+        super().__init__(
+            master,
+            pageTitle="Pest Profit Page",
+            buttonText="Pest Profit"
+        )
 
         self.selectedPest = None
         self.pestNameMetaSorter = {}
@@ -258,8 +263,3 @@ class PestProfitPage(CustomPage):
                 sorter["pestName"],
                 parsePrizeToStr(sorter["profit"])
             )
-    def onShow(self, **kwargs):
-        self.master.updateCurrentPageHook = self.onSelect  # hook to update tv on new API-Data available
-        self.placeRelative()
-        self.updateTreeView()
-        self.placeContentFrame()

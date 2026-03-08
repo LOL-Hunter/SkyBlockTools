@@ -3,27 +3,19 @@ from core.constants import STYLE_GROUP as SG, RARITY_COLOR_CODE
 from core.settings import Config
 from core.skyMisc import parsePrizeToStr
 from core.widgets import CustomPage
+from core.featureLoader import loadableFeature
 
-
+@loadableFeature
 class MagicFindCalculatorPage(CustomPage):
     def __init__(self, master):
-        super().__init__(master, pageTitle="Magic Find Calculator", buttonText="Magic Find Calculator")
+        super().__init__(
+            master, 
+            pageTitle="Magic Find Calculator", 
+            buttonText="Magic Find Calculator"
+        )
 
         self.LOOTING_CONST = .15
         self.LUCK_CONST = .05
-
-
-
-
-        """{
-            "base_chance":1,
-            "pet_luck":0,
-            "magic_find":0,
-            "magic_find_bestiary":0,
-            "looting_lvl":0,
-            "luck_lvl":0,
-            "item_type":0
-        }"""
 
         mc = RARITY_COLOR_CODE["DIVINE"] # magic find color-code
         pc = RARITY_COLOR_CODE["MYTHIC"] # pet luck color-code
@@ -121,20 +113,15 @@ class MagicFindCalculatorPage(CustomPage):
             tk.SimpleDialog.askError(self.master, f"Wrong looting_lvl value! Must be > 0.")
             return
 
-        if state == 0: add = (looting*self.LOOTING_CONST) # item
-        if state == 1: add = (luck*self.LUCK_CONST) # armor
-        if state == 2: add = (petLuck/100) # pet
+        if state == 0: addV = (looting*self.LOOTING_CONST) # item
+        if state == 1: addV = (luck*self.LUCK_CONST) # armor
+        if state == 2: addV = (petLuck/100) # pet
 
         magicFind += magicFindBe
         baseChance = 1/baseChance
 
-        newChance = baseChance * (1+(magicFind/100)+add)
+        newChance = baseChance * (1+(magicFind/100)+addV)
 
         self.toKillE.setText(f"Actions till drop: {parsePrizeToStr(round(1 / newChance, 2), True)}")
         self.chanceE.setText(f"Chance: {round(newChance*100, 5)}%")
-    def onShow(self, **kwargs):
-        self.master.updateCurrentPageHook = self.onUpdate  # hook to update tv on new API-Data available
-        self.placeRelative()
-        self.onUpdate()
-        self.placeContentFrame()
-        tk.SimpleDialog.askWarning(self.master, "This feature does not work properly at the moment, due a wrong and outdated magicfind formular.")
+    

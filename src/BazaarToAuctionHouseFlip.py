@@ -5,28 +5,28 @@ from core.hyPI.recipeAPI import RecipeAPI
 from core.skyMisc import (Sorter)
 from core.skyMisc import parsePrizeToStr, search
 from core.widgets import CustomPage
+from core.featureLoader import loadableFeature
 
-
+@loadableFeature
 class BazaarToAuctionHouseFlipProfitPage(CustomPage):
     def __init__(self, master):
-        super().__init__(master, pageTitle="Bazaar-To-Auction-Flip-Profit", buttonText="Bazaar to Auction Flip Profit")
+        super().__init__(
+            master, 
+            pageTitle="Bazaar-To-Auction-Flip-Profit", 
+            buttonText="Bazaar to Auction Flip Profit"
+        )
         self.currentParser = None
 
         self.useBuyOffers = tk.Checkbutton(self.contentFrame, SG)
         self.useBuyOffers.setText("Use-Buy-Offers").setSelected()
-        self.useBuyOffers.onSelectEvent(self.updateTreeView)
+        self.useBuyOffers.onSelectEvent(self.onUpdate)
         self.useBuyOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150)
-
-        #self.showStackProfit = tk.Checkbutton(self.contentFrame, SG)
-        #self.showStackProfit.setText("Show-Profit-as-Stack[x64]")
-        #self.showStackProfit.onSelectEvent(self.updateTreeView)
-        #self.showStackProfit.placeRelative(fixHeight=25, stickDown=True, fixWidth=200, fixX=300)
 
         tk.Label(self.contentFrame, SG).setText("Search:").placeRelative(fixHeight=25, stickDown=True, fixWidth=100, fixX=500)
 
         self.searchE = tk.Entry(self.contentFrame, SG)
         self.searchE.bind(self._clearAndUpdate, tk.EventType.RIGHT_CLICK)
-        self.searchE.onUserInputEvent(self.updateTreeView)
+        self.searchE.onUserInputEvent(self.onUpdate)
         self.searchE.placeRelative(fixHeight=25, stickDown=True, fixWidth=100, fixX=600)
 
         self.treeView = tk.TreeView(self.contentFrame, SG)
@@ -44,7 +44,7 @@ class BazaarToAuctionHouseFlipProfitPage(CustomPage):
         self.validBzItems = [i.getID() for i in self.validRecipes]
     def _clearAndUpdate(self):
         self.searchE.clear()
-        self.updateTreeView()
+        self.onUpdate()
         self.searchE.setFocus()
     def _getValidRecipes(self):
         validRecipes = []
@@ -71,7 +71,7 @@ class BazaarToAuctionHouseFlipProfitPage(CustomPage):
         return item in AuctionItemID
     def isBazaarItem(self, item:str)->bool:
         return item in BazaarItemID
-    def updateTreeView(self):
+    def onUpdate(self):
         self.treeView.clear()
         if API.SKYBLOCK_BAZAAR_API_PARSER is None:
             tk.SimpleDialog.askError(self.master, "Cannot calculate! No API data available!")
@@ -148,9 +148,6 @@ class BazaarToAuctionHouseFlipProfitPage(CustomPage):
                 rec["reqItemsStr"]
             )
     def onShow(self, **kwargs):
-        self.master.updateCurrentPageHook = self.updateTreeView # hook to update tv on new API-Data available
         self.validRecipes = self._getValidRecipes()
         self.validBzItems = [i.getID() for i in self.validRecipes]
-        self.placeRelative()
-        self.updateTreeView()
-        self.placeContentFrame()
+        super().onShow()

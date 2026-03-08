@@ -7,37 +7,43 @@ from core.skyMisc import parsePrizeToStr, search, RecipeResult
 from core.widgets import CustomPage
 from core.bazaarAnalyzer import BazaarAnalyzer
 from core.hyPI.recipeAPI import RecipeAPI
+from core.featureLoader import loadableFeature
 
+@loadableFeature
 class BazaarCraftProfitPage(CustomPage):
     def __init__(self, master):
-        super().__init__(master, pageTitle="Bazaar-Craft-Profit", buttonText="Bazaar Craft Profit")
+        super().__init__(
+            master,
+            pageTitle="Bazaar-Craft-Profit",
+            buttonText="Bazaar Craft Profit"
+        )
         self.currentParser = None
 
         self.useBuyOffers = tk.Checkbutton(self.contentFrame, SG).setSelected()
         self.useBuyOffers.setText("Use-Buy-Offers")
-        self.useBuyOffers.onSelectEvent(self.updateTreeView)
+        self.useBuyOffers.onSelectEvent(self.onUpdate)
         self.useBuyOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150)
 
         self.useSellOffers = tk.Checkbutton(self.contentFrame, SG).setSelected()
         self.useSellOffers.setText("Use-Sell-Offers")
-        self.useSellOffers.onSelectEvent(self.updateTreeView)
+        self.useSellOffers.onSelectEvent(self.onUpdate)
         self.useSellOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=150)
 
         self.showStackProfit = tk.Checkbutton(self.contentFrame, SG)
         self.showStackProfit.setText("Show-Profit-as-Stack[x64]")
-        self.showStackProfit.onSelectEvent(self.updateTreeView)
+        self.showStackProfit.onSelectEvent(self.onUpdate)
         self.showStackProfit.placeRelative(fixHeight=25, stickDown=True, fixWidth=200, fixX=300)
 
         tk.Label(self.contentFrame, SG).setText("Search:").placeRelative(fixHeight=25, stickDown=True, fixWidth=100, fixX=500)
 
         self.searchE = tk.Entry(self.contentFrame, SG)
         self.searchE.bind(self._clearAndUpdate, tk.EventType.RIGHT_CLICK)
-        self.searchE.onUserInputEvent(self.updateTreeView)
+        self.searchE.onUserInputEvent(self.onUpdate)
         self.searchE.placeRelative(fixHeight=25, stickDown=True, fixWidth=100, fixX=600)
 
         self.recursiveCraft = tk.Checkbutton(self.contentFrame, SG)
         self.recursiveCraft.setText("Add-Deep-Recipes")
-        self.recursiveCraft.onSelectEvent(self.updateTreeView)
+        self.recursiveCraft.onSelectEvent(self.onUpdate)
         self.recursiveCraft.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=700)
 
         self.treeView = tk.TreeView(self.contentFrame, SG)
@@ -70,7 +76,7 @@ class BazaarCraftProfitPage(CustomPage):
         self.master.showItemInfo(self, sel["Recipe"])
     def _clearAndUpdate(self):
         self.searchE.clear()
-        self.updateTreeView()
+        self.onUpdate()
         self.searchE.setFocus()
     def _getValidRecipes(self):
         validRecipes = []
@@ -97,7 +103,7 @@ class BazaarCraftProfitPage(CustomPage):
 
 
         return
-    def updateTreeView(self):
+    def onUpdate(self):
         self.treeView.clear()
         if API.SKYBLOCK_BAZAAR_API_PARSER is None:
             tk.SimpleDialog.askError(self.master, "Cannot calculate! No API data available!")
@@ -179,7 +185,4 @@ class BazaarCraftProfitPage(CustomPage):
     def onShow(self, **kwargs):
         self.validRecipes = self._getValidRecipes()
         self.validBzItems = [i.getID() for i in self.validRecipes]
-        self.master.updateCurrentPageHook = self.updateTreeView  # hook to update tv on new API-Data available
-        self.placeRelative()
-        self.updateTreeView()
-        self.placeContentFrame()
+        super().onShow()

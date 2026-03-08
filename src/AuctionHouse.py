@@ -16,10 +16,16 @@ from core.widgets import ItemToolTip
 from core.analyzer import calculateEstimatedItemValue
 from core.widgets import CustomPage
 from core.hyPI.parser import BaseAuctionProduct, NORAuctionProduct, BINAuctionProduct
+from core.featureLoader import loadableFeature
 
+@loadableFeature
 class AuctionHousePage(CustomPage):
     def __init__(self, master):
-        super().__init__(master, pageTitle="Auction House", buttonText="Auction House")
+        super().__init__(
+            master,
+            pageTitle="Auction House",
+            buttonText="Auction House"
+        )
         self.selectedItem = None
         self.window = master
         self.shownAuctions = []
@@ -51,7 +57,7 @@ class AuctionHousePage(CustomPage):
 
         self.searchE = tk.Entry(self.contentFrame, SG)
         self.searchE.bind(self._clearAndUpdate, tk.EventType.RIGHT_CLICK)
-        self.searchE.onUserInputEvent(self.updateTreeView)
+        self.searchE.onUserInputEvent(self.onUpdate)
 
         self.ownContextM = tk.ContextMenu(self.treeView, group=SG, eventType=None)
         tk.Button(self.ownContextM).setText("View this Item in AH").setCommand(self.viewSelectedItem)
@@ -63,7 +69,7 @@ class AuctionHousePage(CustomPage):
 
         self.auctionType = tk.DropdownMenu(self.contentFrame, SG, optionList=["BIN only", "Auctions only"])
         self.auctionType.setText("BIN only")
-        self.auctionType.onSelectEvent(self.updateTreeView)
+        self.auctionType.onSelectEvent(self.onUpdate)
         self.auctionType.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=450)
 
         self.menuOpenCloseBtn = tk.Button(self.contentFrame, SG)
@@ -76,7 +82,7 @@ class AuctionHousePage(CustomPage):
         tk.Label(self.settingsMenu, SG).setText("Rarity:").placeRelative(fixHeight=25, stickDown=True, xOffsetRight=50, changeHeight=-5, changeWidth=-5)
         self.raritySelectC = tk.DropdownMenu(self.settingsMenu, SG,optionList=["All", "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic"], readonly=True)
         self.raritySelectC.setText("All")
-        self.raritySelectC.onSelectEvent(self.updateTreeView)
+        self.raritySelectC.onSelectEvent(self.onUpdate)
         self.raritySelectC.placeRelative(fixHeight=25, stickDown=True, xOffsetLeft=50, changeHeight=-5, changeWidth=-5)
 
         self.colorL = tk.Label(self.settingsMenu, SG)
@@ -90,28 +96,28 @@ class AuctionHousePage(CustomPage):
             "Estimated Price"
         ])
         self.colorD.setValue("Show Rarity")
-        self.colorD.onSelectEvent(self.updateTreeView)
+        self.colorD.onSelectEvent(self.onUpdate)
         self.colorD.placeRelative(fixHeight=25, stickDown=True, changeY=-25, changeHeight=-5, changeWidth=-5,fixX=(250 - 5) // 2, fixWidth=(250 - 5) // 2)
 
         self.hideSkinsC = tk.Checkbutton(self.settingsMenu, SG)
         self.hideSkinsC.setText("Hide Skins").setSelected()
-        self.hideSkinsC.onSelectEvent(self.updateTreeView)
+        self.hideSkinsC.onSelectEvent(self.onUpdate)
         self.hideSkinsC.placeRelative(fixHeight=25, stickDown=True, changeY=-50, changeHeight=-5, changeWidth=-5, fixX=0, fixWidth=(250-5)//2)
 
         self.hideDyesC = tk.Checkbutton(self.settingsMenu, SG)
         self.hideDyesC.setText("Hide Dyes").setSelected()
-        self.hideDyesC.onSelectEvent(self.updateTreeView)
+        self.hideDyesC.onSelectEvent(self.onUpdate)
         self.hideDyesC.placeRelative(fixHeight=25, stickDown=True, changeY=-50, changeHeight=-5, changeWidth=-5, fixX=(250-5)//2, fixWidth=(250-5)//2)
 
         self.estmUseOfferC = tk.Checkbutton(self.settingsMenu, SG)
         self.estmUseOfferC.setText("Use instaBuy for Estimated").setSelected()
-        self.estmUseOfferC.onSelectEvent(self.updateTreeView)
+        self.estmUseOfferC.onSelectEvent(self.onUpdate)
         self.estmUseOfferC.placeRelative(fixHeight=25, stickDown=True, changeY=-75, changeHeight=-5, changeWidth=-5)
 
         self.petMenuF = tk.Frame(self.settingsMenu, SG)
         self.check_filterC = tk.Checkbutton(self.petMenuF, SG)
         self.check_filterC.setText("Filter Pet-Lvl")
-        self.check_filterC.onSelectEvent(self.updateTreeView)
+        self.check_filterC.onSelectEvent(self.onUpdate)
         self.check_filterC.placeRelative(fixHeight=25)
 
         self.ownAuctionF = tk.Frame(self.settingsMenu, SG)
@@ -213,7 +219,7 @@ class AuctionHousePage(CustomPage):
         self.selectedItem = auct.getID()
         print(self.selectedItem)
         self.showOwnAuctions = False
-        self.updateTreeView()
+        self.onUpdate()
     def copyURL(self):
         sel = self.treeView.getSelectedIndex()
         if sel is None: return
@@ -227,7 +233,7 @@ class AuctionHousePage(CustomPage):
         self.searchL.placeForget()
     def _clearAndUpdate(self):
         self.searchE.clear()
-        self.updateTreeView()
+        self.onUpdate()
         self.searchE.setFocus()
     def filterView(self, itemID:str)->bool:
         if self.hideDyesC.getState() and itemID.startswith("DYE_"): return True
@@ -501,7 +507,7 @@ class AuctionHousePage(CustomPage):
                 )
             self.treeView.see(-1)
         self.configureMenu(self.shownAuctions)
-    def updateTreeView(self):
+    def onUpdate(self):
         self.treeView.clear()
         self.colorMode = self.colorD.getValue()
         if API.SKYBLOCK_AUCTION_API_PARSER is None:
@@ -533,7 +539,7 @@ class AuctionHousePage(CustomPage):
             self.showOwnAuctions = False
         else:
             self.showOwnAuctions = True
-        self.updateTreeView()
+        self.onUpdate()
     def onLClick(self, e:tk.Event):
         if self.selectedItem is None and not self.showOwnAuctions:
             return
@@ -562,11 +568,6 @@ class AuctionHousePage(CustomPage):
         if sel is None: return
         if self.selectedItem is None and not self.showOwnAuctions:
             self.selectedItem = (sel["Name"] if "(" not in sel["Name"] else sel["Name"].split("(")[0]).strip()
-            self.updateTreeView()
-    def onShow(self, **kwargs):
-        self.master.updateCurrentPageHook = self.updateTreeView  # hook to update tv on new API-Data available
-        self.placeRelative()
-        self.updateTreeView()
-        self.placeContentFrame()
+            self.onUpdate()
     def onHide(self):
         self.closeToolTip()

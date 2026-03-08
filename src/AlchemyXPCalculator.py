@@ -5,13 +5,16 @@ from core.constants import STYLE_GROUP as SG, Path, API
 from core.settings import Config
 from core.skyMisc import Sorter, parsePrizeToStr
 from core.widgets import CustomPage
+from core.featureLoader import loadableFeature
 
-
+@loadableFeature
 class AlchemyXPCalculatorPage(CustomPage):
     def __init__(self, master):
-        super().__init__(master,
-                         pageTitle="Alchemy XP",
-                         buttonText="Alchemy XP Calc")
+        super().__init__(
+            master,
+            pageTitle="Alchemy XP",
+            buttonText="Alchemy XP Calc"
+        )
         self.master = master
         self.headerIndex = ""
 
@@ -27,18 +30,18 @@ class AlchemyXPCalculatorPage(CustomPage):
             "Default (shown ingredient)",
             "Default + 1 (shown ingredient + 1 glowstone)",
         ])
-        self.calcMode.onSelectEvent(self.updateTreeView)
+        self.calcMode.onSelectEvent(self.onUpdate)
         self.calcMode.placeRelative(fixHeight=25, stickDown=True, fixWidth=250)
 
         self.wisdom = tk.TextEntry(self.contentFrame, SG)
         self.wisdom.setText("Wisdom: ")
         self.wisdom.setValue(Config.SETTINGS_CONFIG["alchemy_wisdom"])
-        self.wisdom.getEntry().onUserInputEvent(self.updateTreeView)
+        self.wisdom.getEntry().onUserInputEvent(self.onUpdate)
         self.wisdom.placeRelative(fixHeight=25, stickDown=True, fixWidth=100, fixX=250)
 
         self.fromTo = tk.TextEntry(self.contentFrame, SG)
         self.fromTo.setText("Level Range: ")
-        self.fromTo.getEntry().onUserInputEvent(self.updateTreeView)
+        self.fromTo.getEntry().onUserInputEvent(self.onUpdate)
         self.fromTo.placeRelative(fixHeight=25, stickDown=True, fixWidth=200, fixX=350)
 
         self.info = tk.Label(self.contentFrame, SG)
@@ -56,8 +59,8 @@ class AlchemyXPCalculatorPage(CustomPage):
         self.master.showItemInfo(self, sel["Item"])
     def onHeaderClick(self, e:tk.Event):
         self.headerIndex:str = e.getValue()
-        self.updateTreeView()
-    def updateTreeView(self):
+        self.onUpdate()
+    def onUpdate(self):
         self.treeView.clear()
         self.treeView.setTableHeaders("Item", "Cost", "Brews(3-Pots)")
 
@@ -162,8 +165,3 @@ class AlchemyXPCalculatorPage(CustomPage):
                 parsePrizeToStr(s["cost"]),
                 s["brews"]
             )
-    def onShow(self, **kwargs):
-        self.master.updateCurrentPageHook = self.updateTreeView  # hook to update tv on new API-Data available
-        self.placeRelative()
-        self.updateTreeView()
-        self.placeContentFrame()

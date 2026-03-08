@@ -6,11 +6,16 @@ from core.constants import Color
 from core.settings import Config
 from core.skyMisc import parsePrizeToStr, parseTimeFromSec, playNotificationSound
 from core.widgets import CustomPage, TrackerWidget
+from core.featureLoader import loadableFeature
 
-
+@loadableFeature
 class ItemPriceTrackerPage(CustomPage):
     def __init__(self, master):
-        super().__init__(master, pageTitle="Price Tracker", buttonText="Price Tracker")
+        super().__init__(
+            master,
+            pageTitle="Price Tracker",
+            buttonText="Price Tracker"
+        )
         self._notificationsDisabled = False
 
         self.customTrackers = TrackerWidget(self.contentFrame, master, "Custom-Tracker")
@@ -52,10 +57,10 @@ class ItemPriceTrackerPage(CustomPage):
         @return:
         """
         updateBazaarAnalyzer()
-        self.updateTreeView()
+        self.onUpdate()
     def addNewCustomItem(self):
         pass
-    def updateTreeView(self):
+    def onUpdate(self):
         notify = False
         self.manipulationTrackers.treeView.clear()
         manipulated = BazaarAnalyzer.getManipulatedItems()
@@ -111,11 +116,15 @@ class ItemPriceTrackerPage(CustomPage):
         self._notificationsDisabled = True
         return self
     def onAPIUpdate(self):
-        self.updateTreeView()
+        self.onUpdate()
     def onShow(self, **kwargs):
         self.master.updateCurrentPageHook = None # hook to update tv on new API-Data available
-        self.placeRelative()
         self.disableNotifications()
-        self.updateTreeView()
+        self.placeRelative()
+        self.onUpdate()
         self.placeContentFrame()
-        if not Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"]: tk.SimpleDialog.askWarning(self.master, "This feature requires 'auto_api_requests' feature to be active!\nTurn on In Settings or in the opper left corner in MainMenu!")
+        if not Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"]:
+            tk.SimpleDialog.askWarning(
+                self.master,
+                "This feature requires 'auto_api_requests' feature to be active!\nTurn on In Settings or in the opper left corner in MainMenu!"
+            )
