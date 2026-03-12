@@ -23,8 +23,6 @@ from core.skyMath import parseTimeDelta, getMedianFromList, capPetXP, applyBazaa
 from core.skyMisc import (
     _map,
     remEnum,
-    getLBinList,
-    getLBin,
     parseTimeFromSec,
     parsePrizeToStr,
     parsePriceFromStr,
@@ -32,7 +30,8 @@ from core.skyMisc import (
     throwAPITimeoutException,
     throwNoAPIKeyException,
     throwAPIConnectionException,
-    Sorter
+    Sorter,
+    ItemPrice
 )
 from core.analyzer import calculateUpgradesPrice, calculateEstimatedItemValue
 from core.widgets import CustomPage, TipText, fillToolTipText
@@ -161,7 +160,7 @@ class BinSniperAnalyzer:
             a, b, _isOrder = BinSniperAnalyzer.LBIN_CACHE[itemID]
             if _isOrder == isOrder: return a, b
 
-        lBinList = getLBinList(itemID)
+        lBinList = ItemPrice.getAuctLBinList(itemID)
 
         if len(lBinList) < 5:
             # MsgText.warning(f"LBIN from {itemID} cannot be calculated! Too few Data! Skipping.")
@@ -189,9 +188,9 @@ class BinSniperAnalyzer:
                 return BinSniperAnalyzer.PET_ITEM_CACHE[itemID]
             if itemID in NPC_BUYABLE_PET_ITEMS:
                 return NPC_BUYABLE_PET_ITEMS[itemID]
-            lbin = getLBin(itemID)
-            if lbin is None:
-                # MsgText.warning(f"Could not get PetItem price {itemID}. Using Zero.")
+            lbin = ItemPrice.getAuctLBinPrice(itemID)
+            if lbin.failed():
+                MsgText.warning(lbin.getError())
                 return 0
             price = lbin.getPrice()
             BinSniperAnalyzer.PET_ITEM_CACHE[itemID] = price

@@ -1,8 +1,7 @@
 import os
+import tksimple as tk
 
 from core.jsonConfig import JsonConfig
-
-import tksimple as tk
 from core.constants import STYLE_GROUP as SG, Path, API
 from core.settings import Config
 from core.skyMath import applyBazaarTax
@@ -49,6 +48,8 @@ class BoosterCookieBitsProfit(CustomPage):
 
         Config.SETTINGS_CONFIG["player_rank"] = self.rankSelect.getValue()
         Config.SETTINGS_CONFIG.save()
+
+
 
         cookie = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID("BOOSTER_COOKIE")
         if cookie is None:

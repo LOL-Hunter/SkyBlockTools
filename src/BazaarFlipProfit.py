@@ -4,20 +4,22 @@ from threading import Thread
 
 from core.bazaarAnalyzer import BazaarAnalyzer
 from core.constants import STYLE_GROUP as SG, API, BazaarItemID, ConfigFile, Constants, Color
-from core.skyMath import applyBazaarTax, getMedianFromList
+from core.skyMath import getMedianFromList
 from core.skyMisc import (
     parsePrizeToStr,
     search,
     Sorter,
     throwAPIConnectionException,
     throwNoAPIKeyException,
-    throwAPITimeoutException
+    throwAPITimeoutException, ItemPrice
 )
 from core.analyzer import getPlotData
 from core.widgets import CustomPage
 from core.featureLoader import loadableFeature
 from core.hyPI.skyCoflnetAPI import SkyConflnetAPI
 from core.hyPI.APIError import APIConnectionError, NoAPIKeySetException, APITimeoutException
+from src.core.logger import MsgText
+
 
 @loadableFeature
 class BazaarFlipProfitPage(CustomPage):
@@ -283,40 +285,30 @@ class BazaarFlipProfitPage(CustomPage):
 
             if itemID.startswith("ENCHANTMENT") and not self.includeEnchantments.getState(): continue
 
-            item = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(itemID)
-            if item is None:
-                print("ERROR", itemID)
-                continue
-            if self.hideLowInstaSell.getState() and item.getInstaSellWeek() / 168 < 1: continue
-            ## Sell price ##
-            if self.useSellOffers.getState(): # use sell Offer
-                itemSellPrice = item.getInstaBuyPrice()
-            else: # insta sell
-                itemSellPrice = item.getInstaSellPrice()
-            itemSellPrice = applyBazaarTax(itemSellPrice) * factor
-            if not itemSellPrice: continue # sell is zero
-            ## Buy price ##
-            if self.useBuyOffers.getState():
-                itemBuyPrice = [item.getInstaSellPrice() + .1] * factor
-            else:  # insta buy ingredients
-                itemBuyPrice = item.getInstaBuyPriceList(factor)
-            if len(itemBuyPrice) != factor:
-                print(f"[BazaarFlipper]: Item {itemID}. not enough in buy!")
-                continue
+            itemBuyPrice = ItemPrice.getBazaarItemBuyPrice(itemID, useBuyOrder=self.useBuyOffers.getState())
+            itemSellPrice = ItemPrice.getBazaarItemSellPrice(itemID, useSellOffer=self.useSellOffers.getState())
+            
+            if itemSellPrice.failed():
+                MsgText.error(itemSellPrice.getError())
+            if itemBuyPrice.failed():
+                MsgText.error(itemBuyPrice.getError())
+            
+            if self.hideLowInstaSell.getState() and itemSellPrice.getBazaarItemClass().getInstaSellWeek() / 168 < 1: continue
+            
 
             averageBuyPrice = ""
             averagePriceToBuyDiff = ""
 
-            itemBuyPrice = sum(itemBuyPrice)
+            buyPrice = itemBuyPrice.getPrice()
             if itemID in ConfigFile.AVERAGE_PRICE.keys():
                 averageBuyPrice = ConfigFile.AVERAGE_PRICE[itemID] * factor
-                averagePriceToBuyDiff = averageBuyPrice - itemBuyPrice
+                averagePriceToBuyDiff = averageBuyPrice - buyPrice
 
 
             profitPerFlip = itemSellPrice - itemBuyPrice # profit calculation
 
-            sellsPerHour = item.getInstaSellWeek() / 168
-            buysPerHour = item.getInstaBuyWeek() / 168
+            sellsPerHour = itemSellPrice.getBazaarItemClass().getInstaSellWeek() / 168
+            buysPerHour = itemSellPrice.getBazaarItemClass().getInstaBuyWeek() / 168
 
             flipRating = -1
             if self.flipRatingSelect.getValue() == "flipping":
@@ -346,14 +338,14 @@ class BazaarFlipProfitPage(CustomPage):
                     profitPerFlip=profitPerFlip,
                     buy=itemBuyPrice,
                     sell=itemSellPrice,
-                    sellsPerWeek=item.getInstaSellWeek(),
-                    buysPerWeek=item.getInstaBuyWeek(),
+                    sellsPerWeek=itemSellPrice.getBazaarItemClass().getInstaSellWeek(),
+                    buysPerWeek=itemSellPrice.getBazaarItemClass().getInstaBuyWeek(),
                     sellsPerHour=sellsPerHour,
                     buysPerHour=buysPerHour,
-                    sellVolume=item.getSellVolume(),
-                    sellOrders=item.getSellOrdersTotal(),
-                    buyVolume=item.getBuyVolume(),
-                    buyOrders=item.getBuyOrdersTotal(),
+                    sellVolume=itemSellPrice.getBazaarItemClass().getSellVolume(),
+                    sellOrders=itemSellPrice.getBazaarItemClass().getSellOrdersTotal(),
+                    buyVolume=itemSellPrice.getBazaarItemClass().getBuyVolume(),
+                    buyOrders=itemSellPrice.getBazaarItemClass().getBuyOrdersTotal(),
                     flipRating=flipRating,
                     averagePriceToBuyDiff=averagePriceToBuyDiff,
                     averageBuyPrice=averageBuyPrice,

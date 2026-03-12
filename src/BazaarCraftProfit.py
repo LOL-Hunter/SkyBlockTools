@@ -1,13 +1,14 @@
 import tksimple as tk
 from typing import Tuple, List
 
-from core.constants import STYLE_GROUP as SG, API, BazaarItemID
-from core.skyMath import applyBazaarTax
-from core.skyMisc import parsePrizeToStr, search, RecipeResult
+from core.constants import STYLE_GROUP as SG, BazaarItemID
+from core.skyMisc import parsePrizeToStr, search, RecipeResult, ItemPrice
 from core.widgets import CustomPage
 from core.bazaarAnalyzer import BazaarAnalyzer
 from core.hyPI.recipeAPI import RecipeAPI
 from core.featureLoader import loadableFeature
+from src.core.logger import MsgText
+
 
 @loadableFeature
 class BazaarCraftProfitPage(CustomPage):
@@ -105,9 +106,6 @@ class BazaarCraftProfitPage(CustomPage):
         return
     def onUpdate(self):
         self.treeView.clear()
-        if API.SKYBLOCK_BAZAAR_API_PARSER is None:
-            tk.SimpleDialog.askError(self.master, "Cannot calculate! No API data available!")
-            return
         if not self.showStackProfit.getState():
             factor = 1
             headers = ["Recipe", "Profit-Per-Item", "Ingredients-Buy-Price-Per-Item", "Needed-Item-To-Craft"]
@@ -132,19 +130,16 @@ class BazaarCraftProfitPage(CustomPage):
             if self.searchE.getValue() != "":
                 if recipe.getID() not in validItems: continue
 
-            resultItem = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(result)
+            itemPrice = ItemPrice.getBazaarItemSellPrice(result, useSellOffer=self.useSellOffers.getState())
+
+            if itemPrice.failed():
+                MsgText.error(itemPrice.getError())
+                continue
+
+            resultPrice = itemPrice.getPrice()
             ingredients = recipe.getItemInputList()
             craftPrice = 0
             requiredItemString = "("
-
-            ## Result price ##
-            if self.useSellOffers.getState(): # use sell Offer
-                resultPrice = resultItem.getInstaBuyPrice()
-            else: # insta sell result
-                resultPrice = resultItem.getInstaSellPrice()
-
-            #apply bz tax
-            resultPrice = applyBazaarTax(resultPrice)
 
             ## ingredients calc ##
             for ingredient in ingredients:
@@ -154,19 +149,10 @@ class BazaarCraftProfitPage(CustomPage):
 
                 if name not in BazaarItemID: continue
 
-                ingredientItem = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(name)
-
-                ## ingredients price ##
-                if self.useBuyOffers.getState():  # use buy Offer ingredients
-                    ingredientPrice = [ingredientItem.getInstaSellPrice()+.1] * amount
-                else:  # insta buy ingredients
-                    ingredientPrice = ingredientItem.getInstaBuyPriceList(amount)
-                if len(ingredientPrice) != amount:
-                    result+="*"
-                    extentAm = amount - len(ingredientPrice)
-                    average = sum(ingredientPrice)/amount
-                    ingredientPrice.extend([average]*extentAm)
-                craftPrice += sum(ingredientPrice)
+                ingredientItem = ItemPrice.getBazaarItemBuyPrice(name, useBuyOrder=self.useBuyOffers.getState())
+                if ingredientItem.failed():
+                    MsgText.error(ingredientItem.getError())
+                craftPrice += ingredientItem.getPrice()
             profitPerCraft = resultPrice - craftPrice # profit calculation
             requiredItemString = requiredItemString[:-2]+")"
 

@@ -38,7 +38,7 @@
    "slug":{
        "ENCHANTED_HUGE_MUSHROOM_1":[0.25, 15],
        "ENCHANTED_HUGE_MUSHROOM_2":[0.25, 15],
-       "PET_SLUG_epic":[0.5, 1],
-       "PET_SLUG_legendary":[0.1, 1]
+       "PET_SLUG_EPIC":[0.5, 1],
+       "PET_SLUG_LEGENDARY":[0.1, 1]
    }
 }

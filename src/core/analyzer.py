@@ -6,7 +6,7 @@ from .hyPI.parser import BaseAuctionProduct, BINAuctionProduct
 from .hyPI.constants import MODIFIER
 from .hyPI import getEnchantmentIDLvl
 from .skyMath import getMedianExponent, parsePrizeList, applyBazaarTax
-from .skyMisc import getDictEnchantmentIDToLevels, parsePrizeToStr, getLBin, enchBookConvert
+from .skyMisc import getDictEnchantmentIDToLevels, parsePrizeToStr, ItemPrice, enchBookConvert
 from .constants import MAYOR_NORMAL, MAYOR_SPEC, MAYOR_PERK_AMOUNT, API, ConfigFile, MASTER_STARS, ENCHANTMENT_UPGRADES, BITS_ENCHANTS
 from .logger import MsgText
 
@@ -438,7 +438,7 @@ def calculateEstimatedItemValue(item: BaseAuctionProduct, isOrder: bool, lowestB
     # else take LBin
     if basePrice is None:
         if lowestBinPrice is None:
-            lowestBin = getLBin(itemID)
+            lowestBin = ItemPrice.getAuctLBinPrice(itemID).getPrice()
         else:
             lowestBin = lowestBinPrice
         if lowestBin is None: return None, "LowestBin is None", {}

@@ -209,6 +209,37 @@ class CustomMenuPage(CustomPage):
         @return:
         """
         self.placeRelative()
+
+class UsePricePicker(tk.DropdownMenu):
+    SELL_OFFER = "Sell-Offer"
+    BUY_OFFER = "Buy-Offer"
+    NPC_SELL = "NPC-Sell"
+
+    def __init__(self, _master, group=None, initial=BUY_OFFER):
+        super().__init__(_master, group=group)
+        self.setOptionList([
+            UsePricePicker.SELL_OFFER,
+            UsePricePicker.BUY_OFFER,
+            UsePricePicker.NPC_SELL
+        ])
+        self.setValue(initial)
+        self._selected = initial
+        self._hook = None
+        super().onSelectEvent(self._onSelect)
+
+    def onSelectEvent(self, func, args:list=None, priority:int=0, defaultArgs=False, disableArgs=False):
+        self._hook = func
+        return self
+    def _onSelect(self):
+        self._selected = self.getValue()
+        if self._hook is not None:
+            self._hook()
+    def isBuyOffer(self)->bool:
+        return self._selected == UsePricePicker.BUY_OFFER
+    def isSellOffer(self)->bool:
+        return self._selected == UsePricePicker.SELL_OFFER
+    def isNPCSell(self)->bool:
+        return self._selected == UsePricePicker.NPC_SELL
 class CompleterEntry(tk.Entry):
     def __init__(self, _master):
         if isinstance(_master, dict):
