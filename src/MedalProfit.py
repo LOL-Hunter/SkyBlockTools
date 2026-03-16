@@ -110,7 +110,6 @@ class MedalTransferProfitPage(CustomPage):
         self.master.showItemInfo(self, "JACOBS_TICKET")
     def onUpdate(self):
         self.treeView.clear()
-
         ticket = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID("JACOBS_TICKET")
         if ticket is None:
             self.ticketLabel.setText("None")
@@ -159,7 +158,6 @@ class MedalTransferProfitPage(CustomPage):
             itemPrice = API.SKYBLOCK_AUCTION_API_PARSER.getBINAuctionByID(itemID)
             itemPrice.sort()
             itemPrice = itemPrice[-1].getPrice() if len(itemPrice) > 0 else None
-
 
             if itemPrice is None: # try Bazaar
                 item = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(itemID)

@@ -1,23 +1,20 @@
-from threading import Thread
+import tksimple as tk
 import os
+from threading import Thread
 from typing import Tuple, List
 
 from core.jsonConfig import JsonConfig
-
-import tksimple as tk
 from core.analyzer import getPlotData
-from core.constants import API, BazaarItemID
-from core.constants import STYLE_GROUP as SG, Color, ConfigFile, Constants, System
+from core.constants import STYLE_GROUP as SG, Color, ConfigFile, Constants, System, API, BazaarItemID
 from core.hyPI.APIError import APIConnectionError, NoAPIKeySetException, APITimeoutException
 from core.hyPI.skyCoflnetAPI import SkyConflnetAPI
 from core.logger import MsgText
-from core.skyMath import applyBazaarTax
-from core.skyMath import getMedianFromList
-from core.skyMisc import parsePrizeToStr
+from core.skyMath import getMedianFromList, applyBazaarTax
 from core.skyMisc import (
     throwAPITimeoutException,
     throwNoAPIKeyException,
-    throwAPIConnectionException
+    throwAPIConnectionException,
+    parsePrizeToStr
 )
 from core.widgets import CustomPage
 from core.featureLoader import loadableFeature

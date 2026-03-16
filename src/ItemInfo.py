@@ -4,7 +4,6 @@ from matplotlib.figure import Figure
 
 from core.hyPI.APIError import APIConnectionError, NoAPIKeySetException, APITimeoutException
 from core.hyPI.parser import BazaarHistoryProduct
-
 from core.analyzer import getPlotData
 from core.constants import STYLE_GROUP as SG, BazaarItemID
 from core.widgets import APIRequest

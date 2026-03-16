@@ -6,7 +6,6 @@ from core.jsonConfig import JsonConfig
 from core.constants import STYLE_GROUP as SG, Path, API
 from core.settings import Config
 from core.settings import SettingsGUI
-from core.skyMath import applyBazaarTax
 from core.skyMisc import (
     parsePrizeToStr,
     parseTimeFromSec,
@@ -15,6 +14,9 @@ from core.skyMisc import (
 )
 from core.widgets import CustomPage
 from core.featureLoader import loadableFeature
+from core.logger import MsgText
+from core.skyMisc import ItemPrice
+
 
 @loadableFeature
 class ComposterProfitPage(CustomPage):
@@ -77,12 +79,6 @@ class ComposterProfitPage(CustomPage):
         self.sortedMatter = []
         self.selectedMatter = None
         self.selectedFuel = None
-
-
-        #self.showStackProfit = tk.Checkbutton(self.contentFrame, SG)
-        #self.showStackProfit.setText("Show-Profit-as-Stack[x64]")
-        #self.showStackProfit.onSelectEvent(self.onUpdate)
-        #self.showStackProfit.placeRelative(fixHeight=25, stickDown=True, fixWidth=200, fixX=300)
     def openComposterSettings(self):
         SettingsGUI.openComposterSettings(self.master, onScrollHook=self.onUpdate)
     def onListboxSelect(self, e):
@@ -93,7 +89,6 @@ class ComposterProfitPage(CustomPage):
             self.selectedFuel = self.fuelLb.getSelectedIndex()
         self.onUpdate()
     def parseData(self):
-
         if API.SKYBLOCK_BAZAAR_API_PARSER is None: return
         if self.fuel_data is None or self.organic_matter_data is None:
             self.sortedFuel = False
@@ -101,39 +96,32 @@ class ComposterProfitPage(CustomPage):
             return
         sortedFuel = []
         sortedMatter = []
-        for name, value in iterDict(self.fuel_data.getData()):
+        for itemID, value in iterDict(self.fuel_data.getData()):
 
-            ingredientItem = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(name)
+            itemPrice = ItemPrice.getBazaarItemBuyPrice(itemID, useBuyOrder=self.useBuyOffers.getState())
+            if itemPrice.failed():
+                MsgText.error(itemPrice.getError())
+                continue
 
-            ## ingredients price ##
-            if self.useBuyOffers.getState():  # use buy Offer ingredients
-                # print(f"Offer one {name}:", ingredientItem.getInstaSellPrice()+.1)
-                ingredientPrice = [ingredientItem.getInstaSellPrice() + .1]
-            else:  # insta buy ingredients
-                ingredientPrice = ingredientItem.getInstaBuyPriceList(1)
+            pricePerFuel = itemPrice.getPrice() / value
 
-            pricePerFuel = ingredientPrice[0] / value
-
-            sortedFuel.append(Sorter(pricePerFuel, name=name))
+            sortedFuel.append(Sorter(pricePerFuel, name=itemID))
         sortedFuel.sort()
         self.sortedFuel = sortedFuel[::-1]
         if self.selectedFuel is None:
             self.selectedFuel = 0
 
-        for name, value in iterDict(self.organic_matter_data.getData()):
+        for itemID, value in iterDict(self.organic_matter_data.getData()):
 
-            ingredientItem = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(name)
+            itemPrice2 = ItemPrice.getBazaarItemBuyPrice(itemID, useBuyOrder=self.useBuyOffers.getState())
 
-            ## ingredients price ##
-            if self.useBuyOffers.getState():  # use buy Offer ingredients
-                # print(f"Offer one {name}:", ingredientItem.getInstaSellPrice()+.1)
-                ingredientPrice = [ingredientItem.getInstaSellPrice() + .1]
-            else:  # insta buy ingredients
-                ingredientPrice = ingredientItem.getInstaBuyPriceList(1)
+            if itemPrice2.failed():
+                MsgText.error(itemPrice2.getError())
+                continue
 
-            pricePerMatter = ingredientPrice[0]/value
+            pricePerMatter = itemPrice2.getPrice()/value
 
-            sortedMatter.append(Sorter(pricePerMatter, name=name))
+            sortedMatter.append(Sorter(pricePerMatter, name=itemID))
         sortedMatter.sort()
         self.sortedMatter = sortedMatter[::-1]
         if self.selectedMatter is None:
@@ -186,20 +174,18 @@ class ComposterProfitPage(CustomPage):
         for i, matter in enumerate(self.sortedFuel):
             self.fuelLb.add(f"{matter['name']} [{round(matter.get(), 2)} coins]")
 
-        ## Result price ##
-        compost = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID("COMPOST")
-        if self.useSellOffers.getState():  # use sell Offer
-            compostSellPrice = compost.getInstaBuyPrice()
-        else:  # insta sell result
-            compostSellPrice = compost.getInstaSellPrice()
-        compostSellPrice = applyBazaarTax(compostSellPrice) # add tax
+        compostItemPrice = ItemPrice.getBazaarItemSellPrice("COMPOST", useSellOffer=self.useSellOffers.getState())
+        compostEnchItemPrice = ItemPrice.getBazaarItemSellPrice("ENCHANTED_COMPOST", useSellOffer=self.useSellOffers.getState())
 
-        compostE = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID("ENCHANTED_COMPOST")
-        if self.useSellOffers.getState():  # use sell Offer
-            compostESellPrice = compostE.getInstaBuyPrice()
-        else:  # insta sell result
-            compostESellPrice = compostE.getInstaSellPrice()
-        compostESellPrice = applyBazaarTax(compostESellPrice)  # add tax
+        if compostItemPrice.failed():
+            MsgText.error(compostItemPrice.getError())
+            return
+        if compostEnchItemPrice.failed():
+            MsgText.error(compostEnchItemPrice.getError())
+            return
+
+        compostSellPrice = compostItemPrice.getPrice()
+        compostESellPrice = compostEnchItemPrice.getPrice()
 
         matterType = self.sortedMatter[self.selectedMatter]
         fuelType = self.sortedFuel[self.selectedFuel]
