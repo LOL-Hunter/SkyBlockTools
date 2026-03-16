@@ -4,7 +4,7 @@ from core.jsonConfig import JsonConfig
 
 import tksimple as tk
 from core.constants import STYLE_GROUP as SG, Path, API
-from core.skyMisc import parsePrizeToStr, BookCraft
+from core.skyMisc import parsePrizeToStr, BookCraft, ItemPrice
 from core.skyMath import applyBazaarTax
 from core.analyzer import getDictEnchantmentIDToLevels, getCheapestEnchantmentData
 from core.widgets import CustomPage

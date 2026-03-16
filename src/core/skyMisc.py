@@ -3,6 +3,7 @@ import tksimple as tk
 from platform import system
 from datetime import datetime
 from typing import List, Dict
+
 from pyperclip import determine_clipboard
 import os
 
@@ -10,7 +11,7 @@ from .hyPI.APIError import APIConnectionError, NoAPIKeySetException, APITimeoutE
 from .hyPI.hypixelAPI import HypixelAPIURL, APILoader, fileLoader
 from .hyPI.hypixelAPI.loader import HypixelBazaarParser, HypixelAuctionParser, HypixelItemParser, HypixelProfileParser, HypixelProfilesParser, HypixelMayorParser
 from .hyPI.skyCoflnetAPI import SkyConflnetAPI
-from .hyPI.parser import BINAuctionProduct
+from .hyPI.parser import BINAuctionProduct, BazaarProductWithOrders
 from .hyPI import getEnchantmentIDLvl
 from .jsonConfig import JsonConfig
 from .logger import TextColor, MsgText
@@ -29,7 +30,7 @@ from .constants import (
     ATTR_SHARDS_REQ,
     RARITIES
 )
-from .skyMath import parseTimeDelta
+from .skyMath import parseTimeDelta, applyBazaarTax
 
 def requestMayorHypixelAPI(master, config)->HypixelMayorParser | None:
     """
@@ -577,37 +578,6 @@ def addPetsToAuctionHouse():
     ALL_ENCHANTMENT_IDS.clear()
     ALL_ENCHANTMENT_IDS.extend([i for i in BazaarItemID if i.startswith("enchantment".upper())])
     return i
-def getLBin(itemID:str)->BINAuctionProduct | None:
-    binAuctions = API.SKYBLOCK_AUCTION_API_PARSER.getBINAuctionByID(itemID)
-    if binAuctions is None: return None
-    if not len(binAuctions): return None
-    sorters = []
-    for auct in binAuctions:
-        sorters.append(
-            Sorter(
-                sortKey="bin_price",
-
-                bin_price=auct.getPrice(),
-                auctClass=auct,
-            )
-        )
-    sorters.sort()
-    return sorters[-1]["auctClass"]
-def getLBinList(itemID: str) -> list | None:
-    binAuctions = API.SKYBLOCK_AUCTION_API_PARSER.getBINAuctionByID(itemID)
-    if binAuctions is None: return None
-    sorters = []
-    for auct in binAuctions:
-        sorters.append(
-            Sorter(
-                sortKey="bin_price",
-
-                bin_price=auct.getPrice(),
-                auctClass=auct,
-            )
-        )
-    sorters.sort()
-    return sorters
 def enchBookConvert(from_:int, to:int)->int:
     if from_ == to: return 1
     if from_ > to: return 0
@@ -630,6 +600,224 @@ def loadConfigs():
     ConfigFile.ATTR_SHARD_DATA = JsonConfig.loadConfig(os.path.join(Path.INTERNAL_CONFIG, "attribute_shards_data.json"))
 def isRarityGreater(baseRar:str, greaterThen:str):
     return RARITIES.index(baseRar.upper()) <= RARITIES.index(greaterThen.upper())
+
+
+class _ItemPrice:
+    """
+    Container class from ItemPrice
+    """
+    def __init__(self, success:bool=False, price: float | None=0, amount: int=1, isBazaarItem: bool=False, error:str="", auctItemClass=None, bazaarItemClass=None):
+        self._success = success
+        self._price = price
+        self._isBazaarItem = isBazaarItem
+        self._amount = amount
+        self._error = error
+        self._auctItemClass = auctItemClass
+        self._bazaarItemClass = bazaarItemClass
+    def failed(self)->bool:
+        return not self._success
+    def getError(self)->str:
+        return self._error
+    def isBazaarItem(self):
+        return self._isBazaarItem
+    def getAmount(self):
+        return self._amount
+    def getPrice(self) -> float:
+        return self._price
+    def getAuctItemClass(self)->BINAuctionProduct:
+        return self._auctItemClass
+    def getBazaarItemClass(self)->BazaarProductWithOrders:
+        return self._bazaarItemClass
+    def __add__(self, other):
+        if isinstance(other, _ItemPrice):
+            return self.getPrice() + other.getPrice()
+        return self.getPrice() + other
+    def __sub__(self, other):
+        if isinstance(other, _ItemPrice):
+            return self.getPrice() - other.getPrice()
+        return self.getPrice() - other
+
+class ItemPrice:
+    @staticmethod
+    def getBazaarItemSellPrice(itemID: str, amount: int=1, useSellOffer: bool=False, applyTax: bool=True) -> _ItemPrice:
+        if API.SKYBLOCK_BAZAAR_API_PARSER is None:
+            return _ItemPrice(
+                success=False,
+                error="API not yet initialized!"
+            )
+        item = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(itemID)
+        success = True
+        error=""
+
+        if item is None:
+            return _ItemPrice(
+                success=False,
+                error=f"Could not find item {itemID} in API!"
+            )
+
+        if useSellOffer:
+            offers = item.getSellOrders()
+            price = 0
+            if len(offers) == 0:
+                error = f"No Sell Orders for Item {itemID} created yet."
+                success = False
+            else:
+                price = offers[0].getPricePerUnit()
+
+            # 0.1 Cheaper that the cheapest other SellOffer
+            price = (price - .1) * amount
+        else: # insta Sell (Sells to Cheapest Buy Orders)
+            orders = item.getBuyOrders()
+            price = 0
+            remaining = amount
+            for order in orders:
+
+                oAmount = order.getAmount()
+                oPrice = order.getPricePerUnit()
+
+                if remaining < amount:
+                    price += oPrice * remaining
+                    break
+                price += oPrice * oAmount
+                remaining -= oAmount
+            if remaining > 0:
+                success = False
+                error = f"Could not find enough BuyOrders for {itemID} to calculate Insta-Sell-Price!"
+
+        if applyTax:
+            price = applyBazaarTax(price)
+
+        return _ItemPrice(
+            success=success,
+            price=price,
+            amount=amount,
+            isBazaarItem=True,
+            error=error,
+            bazaarItemClass=item
+        )
+    @staticmethod
+    def getBazaarItemBuyPrice(itemID: str, amount: int=1, useBuyOrder: bool=False, applyTax: bool=True) -> _ItemPrice:
+        if API.SKYBLOCK_BAZAAR_API_PARSER is None:
+            return _ItemPrice(
+                success=False,
+                error="API not yet initialized!"
+            )
+        item = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(itemID)
+        success = True
+        error = ""
+
+        if item is None:
+            return _ItemPrice(
+                success=False,
+                error=f"Could not find item {itemID} in API!"
+            )
+
+        if useBuyOrder:
+            # 0.1 More that the cheapest other SellOffer
+            orders = item.getBuyOrders()
+            price = 0
+            if len(orders) > 1:
+                price = orders[0].getPricePerUnit()
+
+            price = (price + .1) * amount
+        else:  # insta Buy
+            orders = item.getSellOrders()
+            price = 0
+            remaining = amount
+            for order in orders:
+
+                oAmount = order.getAmount()
+                oPrice = order.getPricePerUnit()
+
+                if remaining < amount:
+                    price += oPrice * remaining
+                    break
+                price += oPrice * oAmount
+                remaining -= oAmount
+            if remaining > 0:
+                success = False
+                error = f"Could not find enough SellOffers for {itemID} to calculate Insta-Buy-Price!"
+
+        if applyTax:
+            price = applyBazaarTax(price)
+
+        return _ItemPrice(
+            success=success,
+            price=price,
+            amount=amount,
+            isBazaarItem=True,
+            error=error,
+            bazaarItemClass=item
+        )
+    @staticmethod
+    def getAuctLBinPrice(itemID: str) -> _ItemPrice:
+        if API.SKYBLOCK_AUCTION_API_PARSER is None:
+            return _ItemPrice(
+                success=False,
+                error="API not yet initialized!"
+            )
+        items = API.SKYBLOCK_AUCTION_API_PARSER.getBINAuctionByID(itemID)
+
+        if not len(items):
+            return _ItemPrice(
+                success=False,
+                error=f"Could not find item {itemID} in API!"
+            )
+        items.sort()
+
+        return _ItemPrice(
+            success=True,
+            price=items[-1].getPrice(),
+            auctItemClass=items[-1]
+        )
+    @staticmethod
+    def getAuctLBinList(itemID: str) -> List[BINAuctionProduct] | None:
+        binAuctions = API.SKYBLOCK_AUCTION_API_PARSER.getBINAuctionByID(itemID)
+        if binAuctions is None: return None
+        sorters = []
+        for auct in binAuctions:
+            sorters.append(
+                Sorter(
+                    sortKey="bin_price",
+
+                    bin_price=auct.getPrice(),
+                    auctClass=auct,
+                )
+            )
+        sorters.sort()
+        return sorters
+    @staticmethod
+    def getPetSellPrice(itemID:str, rarity):
+        pass
+    @staticmethod
+    def getNPCSellPrice(itemID: str, amount: int=1):
+        pass
+    @staticmethod
+    def getSellPrice(itemID: str, amount: int=1, useSellOffer: bool=True, applyTax: bool=True) -> _ItemPrice:
+        if itemID in BazaarItemID:
+            return ItemPrice.getBazaarItemSellPrice(itemID, amount, useSellOffer, applyTax)
+        if itemID in AuctionItemID:
+            item = ItemPrice.getAuctLBinPrice(itemID)
+            item._price *= amount
+            return item
+
+        return _ItemPrice(
+            success=False,
+            error=f"Item {itemID} cannot be sold!"
+        )
+    @staticmethod
+    def getBuyPrice(itemID: str, amount: int=1, useBuyOrder: bool=True, applyTax: bool=True) -> _ItemPrice:
+        if itemID in BazaarItemID:
+            return ItemPrice.getBazaarItemBuyPrice(itemID, amount, useBuyOrder, applyTax)
+        if itemID in AuctionItemID:
+            item = ItemPrice.getAuctLBinPrice(itemID)
+            item._price *= amount
+            return item
+
+        return _ItemPrice(
+            success=False,
+            error=f"Item {itemID} cannot be sold!"
+        )
 
 class Sorter:
     def __init__(self, sort=None, sortKey=None, **kwargs):

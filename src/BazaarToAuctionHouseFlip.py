@@ -6,6 +6,9 @@ from core.skyMisc import (Sorter)
 from core.skyMisc import parsePrizeToStr, search
 from core.widgets import CustomPage
 from core.featureLoader import loadableFeature
+from src.core.logger import MsgText
+from src.core.skyMisc import ItemPrice
+
 
 @loadableFeature
 class BazaarToAuctionHouseFlipProfitPage(CustomPage):
@@ -17,10 +20,10 @@ class BazaarToAuctionHouseFlipProfitPage(CustomPage):
         )
         self.currentParser = None
 
-        self.useBuyOffers = tk.Checkbutton(self.contentFrame, SG)
-        self.useBuyOffers.setText("Use-Buy-Offers").setSelected()
-        self.useBuyOffers.onSelectEvent(self.onUpdate)
-        self.useBuyOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150)
+        self.useBuyOrder = tk.Checkbutton(self.contentFrame, SG)
+        self.useBuyOrder.setText("Use-Buy-Offers").setSelected()
+        self.useBuyOrder.onSelectEvent(self.onUpdate)
+        self.useBuyOrder.placeRelative(fixHeight=25, stickDown=True, fixWidth=150)
 
         tk.Label(self.contentFrame, SG).setText("Search:").placeRelative(fixHeight=25, stickDown=True, fixWidth=100, fixX=500)
 
@@ -30,17 +33,13 @@ class BazaarToAuctionHouseFlipProfitPage(CustomPage):
         self.searchE.placeRelative(fixHeight=25, stickDown=True, fixWidth=100, fixX=600)
 
         self.treeView = tk.TreeView(self.contentFrame, SG)
-        #self.treeView.setNoSelectMode()
         self.treeView.setTableHeaders("Recipe", "Profit-Per-Item", "Ingredients-Buy-Price-Per-Item", "Needed-Item-To-Craft")
         self.treeView.placeRelative(changeHeight=-25)
-
-
 
         self.forceAdd = [
             "DAY_SAVER"
         ]
         self.validRecipes = self._getValidRecipes()
-        #print("valid", [i.getID() for i in self.validRecipes])
         self.validBzItems = [i.getID() for i in self.validRecipes]
     def _clearAndUpdate(self):
         self.searchE.clear()
@@ -49,10 +48,6 @@ class BazaarToAuctionHouseFlipProfitPage(CustomPage):
     def _getValidRecipes(self):
         validRecipes = []
         for recipe in RecipeAPI.getRecipes():
-
-            #if recipe.getID() not in AuctionItemID and recipe.getID() not in self._ownBzItems:
-            #    print(recipe.getID())
-
             if not self.isAuctionItem(recipe.getID()): continue # filter Items to only take Auction Items
             validIngredient = True
             ingredients = recipe.getItemInputList()
@@ -83,26 +78,17 @@ class BazaarToAuctionHouseFlipProfitPage(CustomPage):
         validItems = search([self.validBzItems], self.searchE.getValue(), printable=False)
 
         recipeList = []
-        #print("=======================================================================================")
         for recipe in self.validRecipes:
-            #if recipe.getID().lower() != "compactor": continue
             result = recipe.getID()
-
-            if self.searchE.getValue() != "":
-                if recipe.getID() not in validItems: continue
-
-            #if "ENCHANTED_SLIME_BLOCK" != result: continue
-            #print("result", result)
-
-            auct = API.SKYBLOCK_AUCTION_API_PARSER.getBINAuctionByID(result)
-            if not len(auct):
-                #print("No data found ", result)
+            if self.searchE.getValue() != "" and recipe.getID() not in validItems:
                 continue
-            auct.sort()
-            lowestBin = auct[-1].getPrice()
 
-            #print(result, auct[0].getPrice(), auct[-1].getPrice(), len(auct))
+            itemPrice = ItemPrice.getAuctLBinPrice(result)
 
+            if itemPrice.failed():
+                MsgText.error(itemPrice.getError())
+
+            lowestBin = itemPrice.getPrice()
 
             ingredients = recipe.getItemInputList()
             craftCost = 0
@@ -120,20 +106,12 @@ class BazaarToAuctionHouseFlipProfitPage(CustomPage):
 
                 if name not in BazaarItemID: continue
 
-                ingredientItem = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(name)
+                itemPrice = ItemPrice.getBazaarItemBuyPrice(name, useBuyOrder=self.useBuyOrder.getState())
 
-                ## ingredients price ##
-                if self.useBuyOffers.getState():  # use buy Offer ingredients
-                    ingredientPrice = [ingredientItem.getInstaSellPrice()+.1] * amount
-                else:  # insta buy ingredients
-                    ingredientPrice = ingredientItem.getInstaBuyPriceList(amount)
-                if len(ingredientPrice) != amount:
-                    result+="*"
-                    extentAm = amount - len(ingredientPrice)
-                    average = sum(ingredientPrice)/amount
-                    ingredientPrice.extend([average]*extentAm)
+                if itemPrice.failed():
+                    MsgText.error(itemPrice.getError())
 
-                craftCost += sum(ingredientPrice)
+                craftCost += itemPrice.getPrice()
             profitPerCraft = lowestBin - craftCost # profit calculation
             requiredItemString = requiredItemString[:-2]+")"
 

@@ -57,10 +57,10 @@ class ItemPriceTrackerPage(CustomPage):
         @return:
         """
         updateBazaarAnalyzer()
-        self.onUpdate()
+        self._onUpdate()
     def addNewCustomItem(self):
         pass
-    def onUpdate(self):
+    def _onUpdate(self):
         notify = False
         self.manipulationTrackers.treeView.clear()
         manipulated = BazaarAnalyzer.getManipulatedItems()
@@ -85,7 +85,6 @@ class ItemPriceTrackerPage(CustomPage):
         if self.manipulationTrackers.notify.getState():
             if containsNew: notify = True
         containsNew = False
-
 
         self.crashTrackers.treeView.clear()
         crashed = BazaarAnalyzer.getCrashedItems()
@@ -121,7 +120,7 @@ class ItemPriceTrackerPage(CustomPage):
         self.master.updateCurrentPageHook = None # hook to update tv on new API-Data available
         self.disableNotifications()
         self.placeRelative()
-        self.onUpdate()
+        self._onUpdate()
         self.placeContentFrame()
         if not Config.SETTINGS_CONFIG["auto_api_requests"]["bazaar_auto_request"]:
             tk.SimpleDialog.askWarning(

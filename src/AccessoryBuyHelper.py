@@ -9,6 +9,7 @@ from core.settings import Config
 from core.skyMisc import parsePrizeToStr, Sorter, requestProfilesHypixelAPI, requestProfileHypixelAPI, parsePriceFromStr
 from core.widgets import CustomPage
 from core.featureLoader import loadableFeature
+from src.core.skyMisc import ItemPrice
 
 
 class AccessoryBuyHelperAccount(tk.Dialog):
@@ -444,13 +445,11 @@ class AccessoryBuyHelperPage(CustomPage):
         budget = parsePriceFromStr(self.investEntry.getValue())
         filterNotBuyableCheck = self.filterNotBuyableCheck.getState()
 
-        recomb = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID("RECOMBOBULATOR_3000")
-        if recomb is None:
-            tk.SimpleDialog.askError(self.master, "Error getting 'RECOMBOBULATOR_3000' price from api!")
-            return
-        recombPrice = recomb.getInstaSellPrice() + .1
-        if recombPrice == 0:
-            tk.SimpleDialog.askError(self.master, "Error getting 'RECOMBOBULATOR_3000' price from api!")
+
+        recombItem = ItemPrice.getBazaarItemBuyPrice("RECOMBOBULATOR_3000", useBuyOrder=True)
+
+        if recombItem.failed():
+            tk.SimpleDialog.askError(self.master, recombItem.getError())
             return
 
         self.statsText.addLine(f"Name: {name}")
@@ -485,19 +484,17 @@ class AccessoryBuyHelperPage(CustomPage):
         ### NOT OWNED accessories ###
         for acc in notOwned:
             if isPiggyPreset and acc["id"] in piggies: continue
-            price = API.SKYBLOCK_AUCTION_API_PARSER.getBINAuctionByID(acc["id"])
-            price.sort()
-            price = price[-1].getPrice() if len(price) > 0 else None
+            price = ItemPrice.getAuctLBinPrice(acc["id"])
             rarity = acc["rarity"].upper()
             powder = MAGIC_POWDER[rarity]
 
-            pricePerMP = None if price is None else (price/powder)
+            pricePerMP = None if price.failed() else (price/powder)
 
             recomb = False
             action = "buy"
 
             #check recomb
-            if price is not None:
+            if price.failed():
                 price2 = price + recombPrice
                 rarities = list(MAGIC_POWDER.keys())
                 rarity2 = rarities[rarities.index(rarity) + 1]
@@ -544,9 +541,8 @@ class AccessoryBuyHelperPage(CustomPage):
         ### OWNED accessories ###
         for acc in data["accessories"]:
 
-            price = API.SKYBLOCK_AUCTION_API_PARSER.getBINAuctionByID(acc["id"])
-            price.sort()
-            price = price[-1].getPrice() if len(price) > 0 else None
+            itemPrice = ItemPrice.getAuctLBinPrice(acc["id"])
+            price = None if itemPrice.failed() else itemPrice.getPrice()
             rarity = acc["rarity"].upper()
             powder = MAGIC_POWDER[rarity]
 
@@ -557,7 +553,6 @@ class AccessoryBuyHelperPage(CustomPage):
             rarity2 = rarities[rarities.index(rarity) + 1]
             powder2diff = MAGIC_POWDER[rarity2] - powder
             pricePerMP = recombPrice / powder2diff
-            price2 = recombPrice
             action = "recomb"
 
             sorters.append(
@@ -565,7 +560,7 @@ class AccessoryBuyHelperPage(CustomPage):
                     sortKey="pricePerMP",
                     id=acc["id"],
                     pricePerMP=pricePerMP,
-                    price=price2,
+                    price=recombPrice,
                     powder=powder,
                     rarity=rarity2,
                     action=action,
@@ -590,9 +585,8 @@ class AccessoryBuyHelperPage(CustomPage):
                             continue
                         diff = self.getMagicPoderDiff(rarity, rarityNew)
 
-                        upgradedPrice = API.SKYBLOCK_AUCTION_API_PARSER.getBINAuctionByID(upgradedacc)
-                        upgradedPrice.sort()
-                        upgradedPrice = upgradedPrice[-1].getPrice() if len(upgradedPrice) > 0 else None
+                        upgradedItemPrice = ItemPrice.getAuctLBinPrice(upgradedacc)
+                        upgradedPrice = None if upgradedItemPrice.failed() else upgradedItemPrice.getPrice()
 
                         if upgradedPrice is None: continue
                         if price is None: continue

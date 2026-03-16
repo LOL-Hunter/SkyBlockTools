@@ -8,9 +8,8 @@ from core.constants import STYLE_GROUP as SG, Path, API, BazaarItemID
 from core.logger import MsgText
 from core.settings import Config
 from core.skyMath import applyBazaarTax
-from core.skyMisc import iterDict, Sorter
-from core.skyMisc import parsePrizeToStr
-from core.widgets import CustomPage
+from core.skyMisc import iterDict, Sorter, parsePrizeToStr
+from core.widgets import CustomPage, UsePricePicker
 from core.featureLoader import loadableFeature
 
 @loadableFeature
@@ -27,6 +26,7 @@ class PestProfitPage(CustomPage):
 
         self.rarePestChances = JsonConfig.loadConfig(os.path.join(Path.INTERNAL_CONFIG, "garden_pest_chances_rare.json"))
         self.commonPestChances = JsonConfig.loadConfig(os.path.join(Path.INTERNAL_CONFIG, "garden_pest_chances_common.json"))
+        self.georgePrices = JsonConfig.loadConfig(os.path.join(Path.INTERNAL_CONFIG, "george.json"))
 
         self.treeView = tk.TreeView(self.contentFrame, SG)
         self.treeView.onSingleSelectEvent(self.onSelect)
@@ -47,37 +47,36 @@ class PestProfitPage(CustomPage):
         self.innerFrame2.setText("Rare Loot")
         self.rareList = tk.Listbox(self.innerFrame2, SG)
         self.rareList.placeRelative(changeWidth=-5, changeHeight=-20)
-        self.innerFrame2.placeRelative(fixY=125, fixHeight=200)
+        self.innerFrame2.placeRelative(fixY=125, fixHeight=400)
 
         self.fullProfit = tk.Label(self.frame, SG)
         self.fullProfit.setFont(15)
-        self.fullProfit.placeRelative(fixY=325, fixHeight=25)
+        self.fullProfit.placeRelative(fixY=525, fixHeight=25)
 
         self.pestName = tk.Label(self.frame, SG)
         self.pestName.setFont(19)
         self.pestName.placeRelative(fixHeight=25, changeWidth=-5)
 
-        self.useSellOffers = tk.Checkbutton(self.contentFrame, SG).setSelected()
-        self.useSellOffers.setText("Use-Sell-Offers")
-        self.useSellOffers.onSelectEvent(self.updateTreeView)
-        self.useSellOffers.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=0)
+        self.usePricePicker = UsePricePicker(self.contentFrame, SG)
+        self.usePricePicker.onSelectEvent(self.onUpdate)
+        self.usePricePicker.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=0)
 
         self.farmingFortune = tk.TextEntry(self.contentFrame, SG)
         self.farmingFortune.setText("Farming-Fortune:")
         self.farmingFortune.setValue(Config.SETTINGS_CONFIG["pest_profit"]["farming_fortune"])
-        self.farmingFortune.getEntry().onUserInputEvent(self.updateTreeView)
+        self.farmingFortune.getEntry().onUserInputEvent(self.onUpdate)
         self.farmingFortune.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=150)
 
         self.cropFortune = tk.TextEntry(self.contentFrame, SG)
         self.cropFortune.setText("Crop-Fortune:")
         self.cropFortune.setValue(Config.SETTINGS_CONFIG["pest_profit"]["crop_fortune"])
-        self.cropFortune.getEntry().onUserInputEvent(self.updateTreeView)
+        self.cropFortune.getEntry().onUserInputEvent(self.onUpdate)
         self.cropFortune.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=300)
 
         self.petChance = tk.TextEntry(self.contentFrame, SG)
         self.petChance.setText("Pet-Luck:")
         self.petChance.setValue(Config.SETTINGS_CONFIG["pest_profit"]["pet_luck"])
-        self.petChance.getEntry().onUserInputEvent(self.updateTreeView)
+        self.petChance.getEntry().onUserInputEvent(self.onUpdate)
         self.petChance.placeRelative(fixHeight=25, stickDown=True, fixWidth=150, fixX=450)
 
         self.pestsActive = tk.Checkbutton(self.contentFrame, SG)
@@ -93,7 +92,7 @@ class PestProfitPage(CustomPage):
             self.selectedPest = sel["Pest-Name"]
         elif self.selectedPest is None:
             return
-        self.updateTreeView()
+        self.onUpdate()
         sorter = self.pestNameMetaSorter[self.selectedPest]
         self.pestName.setText(self.selectedPest)
 
@@ -101,9 +100,8 @@ class PestProfitPage(CustomPage):
         self.rareList.clear()
 
         self.commonList.add(f"{sorter['itemID']}")
-        self.commonList.add(f"Amount-Per-Pest: {sorter['amount']}")
-        self.commonList.add(f"Sell-Price: {parsePrizeToStr(sorter['profitCommonSingle'])}")
-        self.commonList.add(f"Sell-Price-x{sorter['amount']}: {parsePrizeToStr(sorter['profitCommon'])}")
+        self.commonList.add(f"Amount-Per-Pest: {round(sorter['amount'], 2)}")
+        self.commonList.add(f"Sell-Price-x{round(sorter['amount'], 2)}: {parsePrizeToStr(sorter['profitCommon'])}")
 
         self.fullProfit.setText(f"Profit per Pest: {parsePrizeToStr(sorter['profit'])}")
 
@@ -113,9 +111,8 @@ class PestProfitPage(CustomPage):
             self.rareList.add(f"Average-Pests: {round(sorter['rawAverageNeededPestsForARareDrop'], 2)} -> {round(sorter['averageNeededPestsForARareDrop'], 2)}")
             self.rareList.add(f"Sell-Price: {parsePrizeToStr(sorter['profit_full'])}")
             self.rareList.add(f"Sell-Price / Pest: {parsePrizeToStr(sorter['profit'])}")
-            self.rareList.add(f"")
-            self.rareList.add(f"")
-    def updateTreeView(self):
+            self.rareList.add("-"*20)
+    def onUpdate(self):
         self.treeView.clear()
         if API.SKYBLOCK_BAZAAR_API_PARSER is None:
             tk.SimpleDialog.askError(self.master, "Cannot calculate! No API data available!")
@@ -170,14 +167,19 @@ class PestProfitPage(CustomPage):
             for singleDropItemID, dropChance in iterDict(self.rarePestChances[pestName]):
                 dropChance, amount = dropChance
 
-                if singleDropItemID in BazaarItemID: # Bazaar Item!
+                if not self.usePricePicker.isNPCSell():
                     item = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(singleDropItemID)
 
-                    if self.useSellOffers.getState():  # use sell Offer
+                    if item is None:
+                        MsgText.error(f"Could not find item with id {singleDropItemID}")
+                        continue
+
+                    if self.usePricePicker.isSellOffer():  # use sell Offer
                         itemSellPrice = item.getInstaBuyPrice()
-                    else:  # insta sell
+                        itemSellPrice = applyBazaarTax(itemSellPrice)
+                    elif self.usePricePicker.isBuyOffer():  # insta sell
                         itemSellPrice = item.getInstaSellPrice()
-                    itemSellPrice = applyBazaarTax(itemSellPrice)
+                        itemSellPrice = applyBazaarTax(itemSellPrice)
                 else:
                     rarity = None
                     if singleDropItemID.endswith("epic"):

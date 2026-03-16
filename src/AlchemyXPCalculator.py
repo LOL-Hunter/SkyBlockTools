@@ -6,6 +6,8 @@ from core.settings import Config
 from core.skyMisc import Sorter, parsePrizeToStr
 from core.widgets import CustomPage
 from core.featureLoader import loadableFeature
+from src.core.skyMisc import ItemPrice
+
 
 @loadableFeature
 class AlchemyXPCalculatorPage(CustomPage):
@@ -138,16 +140,13 @@ class AlchemyXPCalculatorPage(CustomPage):
 
         sorters = []
         for itemID in self.alchemyXPConfig.keys():
-            item = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(itemID)
             singleXp = self.alchemyXPConfig[itemID]
-            npcSellPrice = alchemySellConfig[itemID]*3
+            npcSellPrice = alchemySellConfig[itemID]
+            brews = int(requiredXP / (singleXp * wisdomFactor * 3)) + 1
 
+            itemPrice = ItemPrice.getBazaarItemBuyPrice(itemID, useBuyOrder=True)
 
-            brews = int(requiredXP / (singleXp*wisdomFactor*3))+1
-
-            ## Buy price ##
-
-            itemBuyPrice = (item.getInstaSellPrice() + .1-npcSellPrice) * brews
+            itemBuyPrice = (itemPrice.getPrice() - npcSellPrice * 3) * brews
 
             sorters.append(
                 Sorter(
@@ -159,9 +158,9 @@ class AlchemyXPCalculatorPage(CustomPage):
             )
         sorters.sort()
         sorters.reverse()
-        for s in sorters:
+        for sorter in sorters:
             self.treeView.addEntry(
-                s["itemID"],
-                parsePrizeToStr(s["cost"]),
-                s["brews"]
+                sorter["itemID"],
+                parsePrizeToStr(sorter["cost"]),
+                sorter["brews"]
             )

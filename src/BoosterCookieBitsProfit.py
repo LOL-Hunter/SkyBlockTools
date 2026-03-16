@@ -1,12 +1,10 @@
 import os
+import tksimple as tk
 
 from core.jsonConfig import JsonConfig
-
-import tksimple as tk
 from core.constants import STYLE_GROUP as SG, Path, API
 from core.settings import Config
-from core.skyMath import applyBazaarTax
-from core.skyMisc import iterDict, Sorter, parsePrizeToStr
+from core.skyMisc import iterDict, Sorter, parsePrizeToStr, ItemPrice
 from core.widgets import CustomPage
 from core.logger import MsgText
 from core.featureLoader import loadableFeature
@@ -50,41 +48,24 @@ class BoosterCookieBitsProfit(CustomPage):
         Config.SETTINGS_CONFIG["player_rank"] = self.rankSelect.getValue()
         Config.SETTINGS_CONFIG.save()
 
-        cookie = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID("BOOSTER_COOKIE")
-        if cookie is None:
-            tk.SimpleDialog.askError(self.master, "Error getting 'BOOSTER_COOKIE' price from api!")
+
+        cookieItemPrice = ItemPrice.getBazaarItemBuyPrice("BOOSTER_COOKIE")
+        if cookieItemPrice.failed():
+            tk.SimpleDialog.askError(cookieItemPrice.getError())
             return
-        cookiePrice = cookie.getInstaSellPrice() + .1
-        if cookiePrice == 0:
-            tk.SimpleDialog.askError(self.master, "Error getting 'BOOSTER_COOKIE' price from api!")
-            return
+
+        cookiePrice = cookieItemPrice.getPrice()
 
         sorters = []
         for itemID, bitCost in iterDict(self.bitsConfig.getData()):
 
-            bzProduct = API.SKYBLOCK_BAZAAR_API_PARSER.getProductByID(itemID)
-            if bzProduct is not None:
-                if self.useSellOffers.getState():  # use sell Offer
-                    itemSellPrice = bzProduct.getInstaBuyPrice()
-                else:  # insta sell
-                    itemSellPrice = bzProduct.getInstaSellPrice()
-                itemSellPrice = applyBazaarTax(itemSellPrice)
-                shopType="BAZAAR"
-            else:
-                ahProduct = API.SKYBLOCK_AUCTION_API_PARSER.getBINAuctionByID(itemID)
-                if ahProduct is None:
-                    MsgText.error(f"Could not find Item in AH: {itemID}")
-                    continue
-                if not len(ahProduct):
-                    MsgText.error(f"Could not find Auction data for item: {itemID}")
-                    continue
-                ahProduct.sort()
-                itemSellPrice = ahProduct[-1].getPrice()
-                shopType = "AUCTION"
-
-            if itemSellPrice is None:
-                MsgText.error(f"Could not get SellPrice of item ID: {itemID}")
+            itemPrice = ItemPrice.getSellPrice(itemID, useSellOffer=self.useSellOffers.getState())
+            if itemPrice.failed():
+                MsgText.error(itemPrice.getError())
                 continue
+
+            shopType = "BAZAAR" if itemPrice.isBazaarItem() else "AUCTION"
+            itemSellPrice = itemPrice.getPrice()
 
             sorters.append(Sorter(
                 sortKey="COOKIE_PROFIT",

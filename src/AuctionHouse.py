@@ -9,8 +9,8 @@ from core.skyMisc import (
     search,
     parseTimeDelta,
     iterDict,
-    getLBin,
-    Sorter
+    Sorter,
+    ItemPrice
 )
 from core.widgets import ItemToolTip
 from core.analyzer import calculateEstimatedItemValue
@@ -426,7 +426,7 @@ class AuctionHousePage(CustomPage):
         self.searchBtn.setText("< Back")
         self.removeWidgets()
         if self.auctionType.getValue() == "BIN only":
-            lowestBin = getLBin(self.selectedItem)
+            lowestBin = ItemPrice.getAuctLBinPrice(self.selectedItem)
             self.treeView.setTableHeaders("Display-Name", "BIN-Price", "Ending-In", "Estimated-Price")
             binAuctions = API.SKYBLOCK_AUCTION_API_PARSER.getBINAuctionByID(self.selectedItem)
             self.setPageTitle(f"Auction House [{self.selectedItem}] ({len(binAuctions)} found)")
@@ -435,7 +435,7 @@ class AuctionHousePage(CustomPage):
                 pName = None
                 if auct.getCreatorUUID() in ownAuctionUUIDs.keys():  # own Auction
                     pName = ownAuctionUUIDs[auct.getCreatorUUID()]
-                estimatedPrice, desc, data = calculateEstimatedItemValue(auct, not self.estmUseOfferC.getState(), lowestBin)
+                estimatedPrice, desc, data = calculateEstimatedItemValue(auct, not self.estmUseOfferC.getState(), lowestBin.getAuctItemClass())
                 estimatedPriceDiff = "Could not be calculated!"
                 if estimatedPrice is not None:
                     estimatedPriceDiff = estimatedPrice - auct.getPrice()
