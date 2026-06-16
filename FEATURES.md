@@ -5,7 +5,7 @@
 View the active Mayor, his active perks and the remaining time.
 
 
-![image](src/images/reference/mayor.png) 
+![image](images/reference/mayor.png) 
 ### 2. Active Flips
 
 ---
@@ -14,12 +14,12 @@ Either if you maybe bought cheap item and want to track when to sell them (brown
 Or the items were farmed, which means that no money was spent, meaning the profit is higher (dark green).
 Click on a colored field to edit or view the individual prices (image below).
 
-![image](src/images/reference/active_flips.png) 
+![image](images/reference/active_flips.png) 
 
 Purchases for different prices can be entered in the software. \
 This is useful when purchasing by order, for example.
 
-![image](src/images/reference/edit_active_flips.png) 
+![image](images/reference/edit_active_flips.png) 
 
 ### 3. Advanced Bazaar flipping
 
@@ -42,22 +42,22 @@ This is the only way to update the average prices.)
 * Display buys / sells per day / hour / week
 * Double click item to open price Graph
 
-![image](src/images/reference/bazaar_flip.png) 
+![image](images/reference/bazaar_flip.png) 
 
-![image](src/images/reference/price_graph.png) 
+![image](images/reference/price_graph.png) 
 
 ### 4. Bazaar Craft Profit
 
 ---
 Calculates craft profit. Buying ingredients from the Bazaar and sell the result.
 
-![image](src/images/reference/craft_profit.png) 
+![image](images/reference/craft_profit.png) 
 
 ### 5. Bazaar to Auction House Flip Profit
 
 ---
 Calculate the profit from crafted items sold to the Auction House. 
-![image](src/images/reference/bazaar_to_auc.png) 
+![image](images/reference/bazaar_to_auc.png) 
 
 ### 6. Auction House
 
@@ -70,9 +70,9 @@ View all active auctions.
 * filter pet prices (second image) (and yeah Squid [Lvl.29] is the cheapest :) )
 * view your own auctions and from your mates (add all uuids in settings GUI)
 
-![image](src/images/reference/auction_house.png) 
-![image](src/images/reference/auctions_active.png) 
-![image](src/images/reference/pet_filter.png) 
+![image](images/reference/auction_house.png) 
+![image](images/reference/auctions_active.png) 
+![image](images/reference/pet_filter.png) 
 
 ### 7. Magic-Find Calculator
 
@@ -80,14 +80,14 @@ View all active auctions.
 Note: This feature does not work correct currently due a wrong formular from the WIKI. \
 Used to calculate how many kills / actions have to be done to drop an item / pet.
 
-![image](src/images/reference/magic_find.png) 
+![image](images/reference/magic_find.png) 
 
 ### 8. Pest Profit
 
 ---
 Tool to calculate pest profit based on Farming-Fortune, Crop-Fortune and Pet-Luck.
 
-![image](src/images/reference/pest_profit.png) 
+![image](images/reference/pest_profit.png) 
 
 ### 9. Alchemy XP Calculator
 
@@ -98,7 +98,7 @@ Or a single number can be inserted to calculate only this level. \
 The coin reward from reaching alchemy levels is also included in price! \
 You can change the 'Default' to use sulfur to save even more coins.
 
-![image](src/images/reference/alchemy.png)
+![image](images/reference/alchemy.png)
 
 ### 10. Composter Profit
 
@@ -106,7 +106,7 @@ You can change the 'Default' to use sulfur to save even more coins.
 Calculate composter profit based on Plant-Matter type, Fuel type and Composter-Upgrades. \
 View offline profit (full composter).
 
-![image](src/images/reference/composter.png)
+![image](images/reference/composter.png)
 
 ### 11. Cheapest book craft
 
@@ -114,7 +114,7 @@ View offline profit (full composter).
 Note: This can be wrong is a book is NOT combinable. \
 View the best books to buy to get the required book.
 
-![image](src/images/reference/cheapest_book.png)
+![image](images/reference/cheapest_book.png)
 
 ### 12. Book Combine Profit
 
@@ -123,4 +123,4 @@ Buy books, combine them and sell the result. \
 This tool calculates witch books to buy. \
 There is a toggleable whitelist with the important books.
 
-![image](src/images/reference/book_profit.png)
+![image](images/reference/book_profit.png)
