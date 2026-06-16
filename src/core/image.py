@@ -2,7 +2,7 @@ import os
 import tksimple as tk
 from .logger import MsgText
 
-PATH = os.path.split(os.path.split(os.path.realpath(__file__))[0])[0]
+PATH = os.path.split(os.path.split(os.path.split(os.path.realpath(__file__))[0])[0])[0]
 ICON_PATH = os.path.join(PATH, "images", "icons")
 
 
