@@ -18,7 +18,7 @@ from core.widgets import CustomPage
 from core.featureLoader import loadableFeature
 from core.hyPI.skyCoflnetAPI import SkyConflnetAPI
 from core.hyPI.APIError import APIConnectionError, NoAPIKeySetException, APITimeoutException
-from src.core.logger import MsgText
+from core.logger import MsgText
 
 
 @loadableFeature

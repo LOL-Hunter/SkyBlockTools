@@ -6,8 +6,8 @@ from core.skyMisc import (Sorter)
 from core.skyMisc import parsePrizeToStr, search
 from core.widgets import CustomPage
 from core.featureLoader import loadableFeature
-from src.core.logger import MsgText
-from src.core.skyMisc import ItemPrice
+from core.logger import MsgText
+from core.skyMisc import ItemPrice
 
 
 @loadableFeature
