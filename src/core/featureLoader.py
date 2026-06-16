@@ -22,7 +22,7 @@ class FeatureLoader:
     def registerClass(self, cls):
         self.classes.append(cls)
     def loadFeatures(self, window):
-        path = os.path.split(Path.INTERNAL_CONFIG)[0]
+        path = os.path.join(os.path.split(Path.INTERNAL_CONFIG)[0], "src")
         for file in os.listdir(path):
             if file == "main.py" or not file.endswith(".py"): continue
             import_module(

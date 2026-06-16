@@ -7,7 +7,7 @@ from core.widgets import CustomPage
 from core.bazaarAnalyzer import BazaarAnalyzer
 from core.hyPI.recipeAPI import RecipeAPI
 from core.featureLoader import loadableFeature
-from src.core.logger import MsgText
+from core.logger import MsgText
 
 
 @loadableFeature

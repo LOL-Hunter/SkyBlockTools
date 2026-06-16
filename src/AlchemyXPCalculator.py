@@ -6,7 +6,7 @@ from core.settings import Config
 from core.skyMisc import Sorter, parsePrizeToStr
 from core.widgets import CustomPage
 from core.featureLoader import loadableFeature
-from src.core.skyMisc import ItemPrice
+from core.skyMisc import ItemPrice
 
 
 @loadableFeature

@@ -918,7 +918,7 @@ def determineSystem():
             System.CONFIG_PATH = os.path.join(os.path.expanduser("~"), ".local", "share", ".SkyBlockTools")
             System.SYSTEM_TYPE = "LINUX"
 def registerPath(_file):
-    Path.IMAGES = os.path.join(os.path.split(_file)[0], "images")
-    Path.INTERNAL_CONFIG = os.path.join(os.path.split(_file)[0], "config")
+    Path.IMAGES = os.path.join(os.path.split(os.path.split(_file)[0])[0], "images")
+    Path.INTERNAL_CONFIG = os.path.join(os.path.split(os.path.split(_file)[0])[0], "config")
 def remEnum(val):
     return val.value if hasattr(val, "value") else val
